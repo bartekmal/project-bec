@@ -1,0 +1,4 @@
+ALL stream -> MinimumBias stripping -> MicroBias trigger
+- FULL vs microBias: PVMult1 OK (for magDown pPb&Pbp); p OK (for pPb magDown)
+- statictics: microBias is 36% (31%) for Pbp (pPb) sample
+-> expected #EV is 75M (60M) for Pbp (pPb) sample
