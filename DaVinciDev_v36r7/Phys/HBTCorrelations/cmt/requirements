@@ -1,0 +1,32 @@
+# =============================================================================
+# Created    : 2013-04-08
+# Maintainer : Marcin Kucharczyk
+# =============================================================================
+package           HBTCorrelations
+version           v1r0
+
+# =============== structure ===================================================
+branches          cmt doc options src
+
+# =============== dependencies ================================================
+use               DaVinci 	           v* Phys 
+use GaudiConf          v*                   -no_auto_imports
+use GaudiKernel        v*
+
+private 
+macro_append   ROOT_linkopts   " -lMLP -lTMVA -lGraf -lHist -lMatrix -lTreePlayer -lGpad -lGraf3d" \
+                       WIN32   " libMLP.lib libTMVA.lib libGraf.lib libHist.lib libMatrix.lib libTreePlayer.lib libGpad.lib libGraf3d.lib"
+end_private
+
+# =============== exported include directories ================================
+include_path      none
+
+# =============== constituents ================================================
+library           HBTCorrelations    ../src/*.cpp 
+
+# =============== standard patterns ===========================================
+apply_pattern     component_library library=HBTCorrelations
+
+# =============================================================================
+# The END 
+# =============================================================================

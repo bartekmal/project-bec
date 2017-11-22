@@ -1,0 +1,12 @@
+source ${MYSITEROOT}/LbLogin.sh -c x86_64-slc6-gcc48-opt #(login48/setupBEC)
+
+###########DaVinci
+lb-dev DaVinci/v36r7
+cd DaVinciDev_v36r7
+git lb-use DaVinci
+git lb-checkout DaVinci/v36r7 Phys/DaVinci
+#skopiuj Phys/HBTCorrelations
+#zmien build.conf: tool na cmt
+make
+make install
+

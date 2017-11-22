@@ -1,0 +1,2349 @@
+!-----------------------------------------------------------------------------
+! Package     : Phys/DaVinci
+! Responsible : Chris Jones
+! Purpose     : Analysis program for LHCb
+!-----------------------------------------------------------------------------
+!
+! Do not forget to update requirements and job/DaVinci_Ganga.py before tagging
+!
+!-----------------------------------------------------------------------------
+
+!======================== DaVinci v36r7 2015-06-03 ===========================
+
+! 2015-06-03 - Eduardo Rodrigues
+ - New stack release.
+
+!========================= DaVinci v36r6 2015-04-27 ===========================
+
+! 2015-04-27 - Eduardo Rodrigues
+ - New stack release.
+
+!======================== DaVinci v36r5 2015-03-03 ===========================
+
+! 2015-02-05 - Eduardo Rodrigues
+ - Fixed PFN specified in DaVinci-Simplest.py so that file actually runs.
+ - Removed trivial and obsolete option file DaVinci-MC09.py,
+   and also DC06_v4_BB_lumi2_rdst.py.
+
+!======================= DaVinci v36r4p1 2015-01-20 ==========================
+
+! 2015-01-20 - Eduardo Rodrigues
+ - Patch release to pick up a trivial fix in DaVinciTests.
+
+!========================= DaVinci v36r4 2015-01-16 ==========================
+
+! 2015-01-15 - Eduardo Rodrigues
+ - Added python/DaVinci/__init__.py to please CMake.
+
+!========================= DaVinci v36r3p1 2014-12-17 =========================
+
+! 2014-12-17 - Eduardo Rodrigues
+ - Identical to DaVinci v36r3, rebuilt against the (ROOT6) LHCb v38r3p1 stack.
+
+!========================= DaVinci v36r3 2014-12-17 ===========================
+
+! 2014-11-10 - Chris Jones
+ - Add 2015 to known DataTypes.
+
+!========================= DaVinci v36r2 2014-11-05 ===========================
+
+! 2014-11-05 - Chris Jones
+ - Development release. Identical to v36r1, but built against the ROOT 6.02.01
+   LHCb v38r2p1 stack.
+
+!========================= DaVinci v36r1 2014-11-05 ===========================
+
+! 2014-11-05 - Chris Jones
+ - Production release for Stripping 21.
+
+!========================= DaVinci v36r0p1 2014-10-22 =========================
+
+! 2014-10-22 - Chris Jones
+ - Make DaVinci aware of the new LDST file types. Treated like DST.
+
+! 2014-09-06 - Chris Jones
+ - Add a new prependToMainSequence method to DaVinci() Configurable.
+ - Allow uDST tuning for MC.
+
+! 2014-08-18 - Chris Jones
+ - Remove limitation that setting RootInTES did nothing with MC uDSTs...
+
+!========================= DaVinci v36r0 2014-07-28 ===========================
+
+! 2014-07-28 - Chris Jones
+ - New stack release.
+
+!========================= DaVinci v35r1 2014-06-18 ===========================
+
+! 2014-05-26 - Chris Jones
+ - Set the compression level for ROOT ntuples. Default is LZMA:6.
+   Configurable via the DaVinci() configurable using the 'RootCompressionLevel'
+   option. For instance, to switch to ZLIB level 1 compression use :-
+
+      from Configurables import DaVinci
+      DaVinci().RootCompressionLevel = "ZLIB:1"
+
+! 2014-05-21 - Ben Couturier
+ - Fixed CMake configuration file to remove data packages specified as 
+   sub-dirs.
+
+!========================= DaVinci v35r0 2014-05-19 ===========================
+
+! 2014-05-19 - Chris Jones
+ - New stack release.
+
+!========================= DaVinci v34r1p1 2014-04-03 =========================
+
+! 2014-04-03 - Chris Jones
+ - New stack release. Rebuild of v34r1 against ROOT6 test stack.
+
+!========================= DaVinci v34r1 2014-04-02 ===========================
+
+! 2014-04-02 - Chris Jones
+ - New stack release.
+
+!========================= DaVinci v34r0 2014-03-03 ===========================
+
+! 2014-02-14 - Rob Lambert
+ - Use the decoderDB for overriding the HLTDec/Sel/Track/Vertex reports
+   locations.
+
+! 2014-01-20 - Rob Lambert
+ - Remove persistency option from DaVinci
+ - remove ETC options form DaVinci
+ 
+!========================= DaVinci v33r9 2013-12-18 ===========================
+
+! 2013-11-18 - Rob Lambert
+ - Suppressed configuration fo the HLT decoders, now picked up through
+   DecodeRawEvent configurable via PhysConf, see task #19106
+
+! 2013-10-29 - Chris Jones
+ - Add a new property "Detectors" to the DaVinci() configurable. Primarily
+   for Upgrade studies.
+
+!========================= DaVinci v33r8 2013-10-29 ===========================
+
+! 2013-10-29 - Chris Jones
+ - New stack release.
+
+!========================= DaVinci v33r7p1 2013-10-07 =========================
+
+! 2013-10-07 - Chris Jones
+ - Development release, to test changes to CombineParticles.
+
+!========================= DaVinci v33r7 2013-10-03 ===========================
+
+! 2013-10-02 - Chris Jones
+ - Add a DaVinci specific valgrind memcheck supressions file.
+
+!========================= DaVinci v33r6p1 2013-08-21 =========================
+
+! 2013-08-21 - Chris Jones
+ - New patch release, based on DaVinci v33r6.
+
+!========================= DaVinci v33r6 2013-08-05 ===========================
+
+! 2013-08-05 - Chris Jones
+ - New release, based on LHCb v36r1 stack.
+
+!========================= DaVinci v33r5 2013-06-17 ===========================
+
+! 2013-05-30 - Chris Jones
+ - Add dependency on PRConfig and QMTestFiles, for QM tests.
+
+!========================= DaVinci v33r4 2013-05-07 ===========================
+
+! 2013-05-07 - Chris Jones
+ - New release, based on LHCb v35r6 stack
+
+!========================= DaVinci v33r3p3 2013-05-02 =========================
+
+! 2013-05-02 - Chris Jones
+ - Just a retag for a new release ...
+
+!========================= DaVinci v33r3p2 2013-04-26 =========================
+
+! 2013-04-21 - Chris Jones
+ - Just a retag for a new release ...
+
+!========================= DaVinci v33r3p1 2013-04-23 =========================
+
+! 2013-04-21 - Chris Jones
+ - Increase the space for the component name in the sequencer timer printout 
+   to 50, to allow for longer component names.
+
+!========================= DaVinci v33r3 2013-04-08 ===========================
+
+! 2013-04-08 - Chris Jones
+ - Add 'Upgrade' to the list of supported DataTypes.
+ - Add 'XDST' to the list of supported input data types.
+
+! 2013-03-24 - Vanya Belyaev
+ - Add new property RooInTES  (default is '' )
+    In case this property is set and input-type is defined to be 'MDST' 
+    the following action is triggered: 
+      - make use of  PhysConf.MicroDST.uDstConf 
+      - RootInTES property is propagated to DaVinciUserSequnces and 
+        all its members unless the corresponding 'RootInTES' 
+        property is set explicitly
+   This action should minimize number of problems for running analyses on uDst
+
+!========================= DaVinci v33r2 2013-02-21 ===========================
+
+! 2013-02-21 - Chris Jones
+ - New version, based on LHCB v35r4 stack.
+
+!========================= DaVinci v33r1p1 2013-01-20 =========================
+
+! 2013-01-20 - Chris Jones
+ - New patch release to fix missing DecFiles dependency issue.
+
+!========================= DaVinci v33r1 2012-11-30   =========================
+
+! 2012-11-29 - Marco Clemencic
+ - Added CMake configuration file.
+
+!========================= DaVinci v33r0p1 2012-10-23   =======================
+
+! 2012-10-23 - Rob Lambert
+ - Added DaVinci-Simplest.py, 
+ - the simplest options file which reads some data and creates an ntuple.
+
+!========================= DaVinci v33r0 2012-10-08     =======================
+
+! 2012-10-08 - Chris Jones
+ - New development release based on LHCb v35r2 stack.
+
+!========================= DaVinci v32r2p1 2012-09-14   =======================
+
+! 2012-09-14 - Chris Jones
+ - Another patch release, for stripping20, to pick up some last minute
+   stripping fixes in Stripping v6r2p1.
+
+!========================= DaVinci v32r2 2012-08-30     =======================
+
+! 2012-08-30 - Chris Jones
+ - Patch release, for stripping20.
+
+!========================= DaVinci v32r1p2 2012-08-08   =======================
+
+! 2012-08-08 - Chris Jones
+ - Another release to fix a small bug in v32r1p1
+
+!========================= DaVinci v32r1p1 2012-08-01   =======================
+
+! 2012-08-01 - Chris Jones
+ - New patch release, with fixes to Kernel/LHCbAlg and Rec/LumiAlgs
+
+!========================= DaVinci v32r1 2012-07-27     =======================
+
+! 2012-07-27 - Chris Jones
+ - New production release.
+
+!========================= DaVinci v32r0 2012-07-09     =======================
+
+! 2012-07-09 - Chris Jones
+ - New development version, to test new major changes for future strippings.
+
+!========================= DaVinci v31r0 2012-06-28     =======================
+
+! 2012-06-28 - Chris Jones
+ - New major release. For stripping 19b.
+
+!========================= DaVinci v30r4p1 2012-05-08   =======================
+
+! 2012-05-08 - Chris Jones
+ - New patch release
+
+!========================= DaVinci v30r4 2012-05-03     =======================
+
+! 2012-04-27 - Chris Jones
+ - New release based on LHCb v34r3 stack
+
+!========================= DaVinci v30r3 2012-04-27     =======================
+
+! 2012-04-27 - Chris Jones
+ - Patch release for Stripping 19.
+
+!========================= DaVinci v30r2p3 2012-04-19   =======================
+
+! 2012-04-19 - Chris Jones
+ - Patch release, with Phys/DaVinciMonitors fix for a Muon DQ problem.
+
+!========================= DaVinci v30r2p2 2012-04-12   =======================
+
+! 2012-04-12 - Chris Jones
+ - Patch release, with Phys/KaliCalo fix
+
+!========================= DaVinci v30r2p1 2012-04-02   =======================
+
+! 2012-04-02 - Chris Jones
+ - Trivial patch adding support for DataType=2012
+
+!========================= DaVinci v30r2 2012-04-02   =========================
+
+! 2012-04-02 - Chris Jones
+ - New release for start of 2012 data taking.
+
+!========================= DaVinci v30r1p2 2012-03-14 =========================
+
+! 2012-03-14 - Patrick Koppenburg
+ - Fix for another stripping 18 pre-test problem ...
+
+!========================= DaVinci v30r1p1 2012-03-07 =========================
+
+! 2012-03-07 - Patrick Koppenburg
+ - Fix configuration problem reported in Task #27008.
+
+!========================= DaVinci v30r1 2012-03-05 =========================
+
+! 2012-03-01 - Chris Jones
+ - If Simulation=True or DataType="MC09", force IgnoreDQFlags=True, to work 
+   around an issue in LHCbApp. To be removed in a future release, when fixed 
+   in LHCb.
+
+! 2012-02-24 - Chris Jones
+ - Add the option "IgnoreDQFlags", which controls whether how DaVinci should 
+   handle data DQ flags. Default is False, which means only data with good
+   DQ will be processed.
+ - Add the option "DQFLAGStag" for the DQ flags tag.
+ - Add a "ProductionType" setting, that enables whatever options are needed
+   in a given production (e.g. Stripping). Default is "None", no special 
+   options.
+
+! 2012-02-15 - Chris Jones
+ - Update the EnableUnpack property of the DaVinci configurable to accept a
+   list of options, instead of just True or False. valid options are
+   "Reconstruction" and/or "Stripping", to enable the unpacking of the 
+   related data objects.
+
+!========================= DaVinci v30r0 2012-02-15 =========================
+
+! 2012-02-07 - Chris Jones
+ - Remove import of GaudiConf
+
+!========================= DaVinci v29r3p1 2012-01-12 =======================
+
+! 2012-01-12 - Chris Jones
+ - Temporarily use Phys/FlavourTagging v12r7 for patch release
+
+! 2011-12-17 - Chris Jones
+ - Remove use of GaudiPoolDB
+
+!========================= DaVinci v29r3 2011-12-15 =========================
+
+! 2011-12-15 - Chris Jones
+ - Update DaVinci Configurable for the new release
+  + Remove now obsolete UseTrigRawEvent option
+  + Add a new option VerboseMessages to control some of the more verbose 
+    messages printed by DaVinci. By default is off.
+  + Remove DC06 from known data types
+  + Remove various bits of commented out code
+
+! 2011-11-23 - Tomasz Skwarnicki
+ - add standard trigger decoding setup for mdsts (previously only for dsts) 
+
+!========================= DaVinci v29r2 2011-09-27 =========================
+
+! 2011-11-10 - Chris Jones
+ - New version with added support for Swimming, plus various other bug fixes.
+   Compatible (stripping wise) with v29r1.
+
+!========================= DaVinci v29r1 2011-09-27 =========================
+! 2011-09-27 - Marco Cattaneo
+ - New tag for Stripping17, with fixes to GaudiConf, DaVinciTests, stripping
+   lines
+
+!========================= DaVinci v29r0 2011-09-07 =========================
+! 2011-08-25 - Rob Lambert
+ - Added the UseTrigRawEvent options to DaVinci, see task #21716
+
+!========================= DaVinci v28r5 2011-08-03 =========================
+! 2011-07-28 - Patrick Koppenburg
+ - Remove Hlt condb Hack. See https://savannah.cern.ch/task/index.php?21169
+
+!========================= DaVinci v28r4p2 2011-07-20 =========================
+!========================= DaVinci v28r4p1 2011-07-08 =========================
+! 2011-07-08 - Patrick Koppenburg
+ - Task 21169 : Remove all Hlt functionality
+
+!========================= DaVinci v28r4 2011-06-21 =========================
+! 2011-06-13 - Rob Lambert
+ - Modified configurable to use IOHelper where possible.
+ - raise an exception if ETCs are requested with the new ROOT services
+ - next I should probably depricate ETCs entirely.
+
+!========================= DaVinci v28r3p1 2011-05-20 =========================
+!========================== DaVinci v28r3 2011-04-29 =========================
+! 2011-04-26 - Patrick Koppenburg
+ - Configuration.py : Align DaVinciInit increment with printfreq (Task #20122).
+
+!========================== DaVinci v28r2 2011-03-28 =========================
+
+!========================== DaVinci v28r1p3 2011-03-25 =======================
+
+!========================== DaVinci v28r1p2 2011-03-21 =======================
+
+! 2011-03-21 - Juan Palacios
+ - cmt/requirements
+  . Use ParamFiles v8r*
+
+! 2011-03-15 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Add '2011' to list of accepted DataTypes.
+
+!========================== DaVinci v28r1p1 2011-03-14 =======================
+
+! 2011-03-10 - Juan Palacios
+ - Use HltTCK v* instead of v1r*. Needed for reading 2011 data.
+ - Increase to v28r1p1.
+
+!========================== DaVinci v28r1 2011-03-10 =========================
+
+! 2011-03-10 - Juan Palacios
+ - For March 2011 HLT and stripping line development.
+
+!========================== DaVinci v27r1 2011-02-02 =========================
+
+! 2011-02-02 - Juan Palacios
+ - For February 2011 stripping line development.
+
+!========================== DaVinci v27r0 2011-01-21 =========================
+
+! 2011-01-21 - Juan Palacios
+ - Backwards incompatible PhysDesktop-less version.
+
+!========================== DaVinci v26r4 2010-12-20 =========================
+
+! 2010-12-20 - Juan Palacios
+ - Increase to v26r4.
+ - DaVinci(): Instantiate L0Conf when InputType='MDST' to avoid strange 
+   problems.
+
+!========================== DaVinci v26r3 2010-11-11 =========================
+
+! 2010-11-11 - Juan Palacios
+ - DaVinci(): L0Conf().EnableL0DecodingOnDemand = True
+
+! 2010-11-05 - Patrick Koppenburg
+ - Remove obsolete DaVinci.py
+
+! 2010-11-05 - Jaap Panman
+ - python/DaVinci/Configuration.py bugfix in logic to run Lumi
+
+! 2010-10-27 - Tomasz Skwarnicki
+ - python/DaVinci/Configuration.py
+   added L0Conf().FullL0MuonDecoding = True needed by L0 Tis/Tos 
+
+! 2010-10-22 - Jaap Panman
+ - python/DaVinci/Configuration.py
+  . remove MergeFSR option from DaVinci, should be switched on directly in 
+  LumiAlgsConf
+
+! 2010-10-19 - Jaap Panman
+ - python/DaVinci/Configuration.py
+  . redo logic between Lumi, MergeFSR and TupleFile options: all are False by 
+    default.  Merge switches off Lumi.  TupleFile needs Lumi.
+
+! 2010-10-18 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . User sequence now understands SelectionSequence, MergedSelectionSequence.
+  . Set IODataManager().AgeLimit to 1 for ETC, RDST, SDST and 0 otherwise.
+ - Increase to v26r3
+
+!========================== DaVinci v26r2p1 2010-10-11 =======================
+
+! 2010-10-11 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Bug fix in HLT initialisation. Only affected DaVinci().Hlt = True.
+ - Increase to v26r2p1
+
+!========================== DaVinci v26r2 2010-10-08 =========================
+
+! 2010-10-04 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Fix problems with latest changes. Try to tidy up the horrible mess that
+    DaVinci() is.
+
+! 2010-10-01 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Change structure of sequences set up by DaVinci() such that 
+    DaVinciInit and Lumi stuff run over all events.
+
+! 2010-09-19 - Juan Palacios
+ - Use StrippingSys packages.
+ - Increase to v26r2.
+
+!========================== DaVinci v26r1 2010-09-13 =======================
+
+! 2010-09-10 - Juan Palacios
+ - python/DaVinci/Configuration
+  . More useful information when CondDBtag == "". 
+
+!========================== DaVinci v26r0 2010-09-08 =======================
+
+! 2010-08-30 - Juan Palacios
+ - python/DaVinci/Configuration
+  . Pass EnableUnpack property to PhysConf().
+
+! 2010-08-30 - Vanya Belyaev
+
+ - do not force the setting of CaloDstUnpack proeprties 
+   rely on DstConf behaviour  
+
+! 2010-08-26 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Set Lumi to False if Simulation is True.
+ - cmt/requirements
+  . Increase to v25r9
+
+!========================== DaVinci v25r8 2010-08-15 =======================
+
+! 2010-08-12 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Switch off default lumi.root. Now if Lumi is set and TupleFile isn't, the LumiAlgs
+    are configured to not write out an ntuple. REQUIRES Rec/LumiAlgs v3r7p1!
+  . Use 'LHCb::RawDataCnvSvc' for InputType == 'ETC'.
+
+! 2010-08-11 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Add property EventPreFilters. Takes a list of algorithms. If any of these fails the event is skipped.
+    Example:
+
+    # Process only events containing a primary vertex. 
+    from Configurables import LoKi__VoidFilter as VoidFilter
+    checkPV = VoidFilter('checkPV', Code = "CONTAINS('Rec/Vertex/Primary')>0")
+    dv = DaVinci()
+    dv.EventPreFilters = [checkPV]
+
+! 2010-08-06 - Vanya Belyaev
+
+ - python/DaVinci/Configuration.py
+
+   small fix for N-tuple file assignement to reduce the ambiguity:
+      in case FILE1 is already specified it will be removed with 
+      the warning message 
+
+! 2010-07-30 - Roel Aaij
+ - python/DaVinci/Configuration.py
+   . Fix order of tuple file name assignment in case the user did not set it.
+   . Changed setting of NTupleSvc().Ouput to appending to it.
+
+! 2010-07-29 - Jaap Panman
+ - Configuration: Pass ntuple file name on to LumiAlgsConf
+
+!========================== DaVinci v25r7 2010-07-27 =======================
+
+! 2010-07-22 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Set DaVinci's TupleFile to lumi.root when using Lumi and no user-defined name is set.
+
+! 2010-07-16 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Allow Lumi to be True when InputType = 'MDST'.
+ - Increase to v25r6p1.
+
+!========================== DaVinci v25r6 2010-07-08 =======================
+
+! 2010-07-07 - Tomasz Skwarnicki
+ - python/DaVinci/Configuration.py
+   add L0DecReportsMaker,L0SelReportsMaker via DataOnDemandSvc
+
+!========================== DaVinci v25r5p1 2010-06-10 =====================
+
+! 2010-06-04 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Comment out lines in DaVinci.fsr method. These are already in an included
+    file and some of them break the FSR writing.
+
+! 2010-06-04 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . isNewCondDBTag function returns False for tag = "".
+ - cmt/requirements
+  . Increase to v25r5p1
+
+!========================== DaVinci v25r5 2010-05-24 =======================
+
+! 2010-05-21 - Juan Palacios
+ . Fix DB tag problem.
+
+! 2010-05-12 Jaap Panman
+ - python/DaVinci/Configuration.py
+  . Fix to instantiate FileRecordCnvSvc only once
+  . DaVinci().WriteFSR = True is now essental also for writing selDSTs
+
+!========================== DaVinci v25r4p1 2010-05-09 =====================
+
+!========================== DaVinci v25r4 2010-04-30 =======================
+
+! 2010-04-27
+ - python/DaVinci/Configuration.py
+  . Fix to understand InputType == 'SDST'
+
+!========================== DaVinci v25r3 2010-04-18 =======================
+
+! 2010-04-16 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Force Lumi = False when InputType == 'MDST'
+
+! 2010-04-07 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Set ANNDispatchSvc().RawEventLocation to "pRec/RawEvent" when InputType is RDST. Fixes Savannah bug #64886.
+
+! 2010-04-06 - Juan Palacios
+ - python/DaVinci/Configuration.py
+  . Set HltDecReportsDecoder().InputRawEventLocation = "pRec/RawEvent" when InputType is RDST. Should fix Savannah bug #64886.
+ - cmt/requirements
+  . Increase version to v25r2p2.
+
+! 2010-03-28 - V. Gligorov
+ - Fix propagation of overruled L0 TCK; see Savannah bug 65012.
+
+!========================== DaVinci v25r2p1 2010-03-17 =====================
+! 2010-03-18 - Patrick Koppenburg
+ - Change the default values of DDDBTag amd CondDBTag from "deafult" to ""
+ - This allows direct use of LHCbApp().DDDBTag, etc
+ - For DC06 and MC09, "default" is passed to LHCbApp() (backward compatible)
+   For any other data one MUST give the appropriate tags.
+
+!========================== DaVinci v25r2 2010-03-08 =======================
+
+! 2010-03-08 - Patrick Koppenburg
+ - Add a bankKiller to remove Hlt banks if they are already in the data
+
+! 2010-03-04 - Juan Palacios
+ - DaVinci configurable:
+  . Remove most of initSeq() and all of l0(), hlt() and decReports() when 
+    InputType = 'MDST'
+
+! 2010-03-01 - Patrick Koppenburg
+ - Enforce Simulation = True for DataType MC09 and DC06
+
+! 2010-02-25 - Patrick Koppenburg
+ - Changed default value of Simulation to false
+
+!========================== DaVinci v25r1 2010-02-23 =======================
+
+! 2010-02-24 - Patrick Koppenburg
+ - Bug #60623 is fixed. Revert default Histogram file name to "".
+
+! 2010-02-19 - Patrick Koppenburg
+ - IMPORTANT CHANGE : There is no default DataType anymore. User MUST
+   give the datatype.
+
+! 2010-02-12 - Patrick Koppenburg
+ - DaVinci.py : Property "Lumi" was not used. It was impossible to switch lumi off
+
+! 2010-02-11 - Patrick Koppenburg
+ - New property OverruleL0TCK allowing to foce the use of an L0TCK 
+   different from the one assumed in the HltSetting. This is not guaranteed
+   to always work.
+   Closes task #13842
+
+! 2010-02-09 - Patrick Koppenburg
+ - Removed Reco05 data and added Reco07 DSTs and stripped V0 DSTs
+
+!========================== DaVinci v25r0 2010-02-05 =======================
+
+! 2010-02-05 - Juan Palacios
+ - Use ParamFiles v8r2, with new real-life M1R2 mapping.
+
+! 2010-02-04 - Patrick Koppenburg
+ - Add decoding of DecReports from data _if_ Hlt is not run.
+	 Solves task 13391
+
+! 2010-02-02 - Patrick Koppenburg
+ - Get L0TCK from HltSettings. 
+   Warning : if you weant to run an Hlt setting taht uses a different TCK from 
+   what has been run on the data you must re-emulate L0. 
+
+! 2010-02-01 - Jaap Panman
+ - add testjobs for writing FSRs in options directory
+   (DaVinci-WriteETC-FSR.py, DaVinci-WriteSelDST-FSR.py)
+
+! 2009-12-29 - Jaap Panman
+ - Configuration: 
+   copy FSR to ETC by default (task 13170)
+   activate luminosity integration (task 13172)
+
+! 2009-12-17 - Patrick Koppenburg
+ - Replaced Reco05 data by Reco06
+
+!========================== DaVinci v24r7 2009-12-16 =======================
+
+! 2009-12-16 - Patrick Koppenburg
+ - Added sample of real data
+
+! 2009-12-15 - Patrick Koppenburg
+ - Always make a histogram file (patch to bug #60623)
+ - Protect against lumi events (fixes bug #58933)
+
+! 2009-12-10 - Patrick Koppenburg
+ - Fixed documentation problem (HltRequires = '') : bug #60425
+ - v24r6p1
+
+!========================== DaVinci v24r6 2009-12-04 =======================
+
+! 2009-12-04 - Patrick Koppenburg for Juan Palacios
+ - SelDstWriter moved to Phys/DSTWriters
+ - options/MicroDSTStream.py and options/DaVinci-WriteMicroDST.py moved as well
+
+!========================== DaVinci v24r5p1 2009-11-22 =======================
+
+! 2009-10-22 - Juan PALACIOS
+ . As v24r5, but built on LHCb v28r3.
+
+!========================== DaVinci v24r5 2009-11-20 =======================
+
+! 2009-11-16 - Patrick Koppenburg
+ - Change of name of Hlt1 pass-through line.
+
+! 2009-11-09 - Patrick Koppenburg
+ - New test files with stripped DSTs
+
+! 2009-11-05 - Patrick Koppenburg
+ - Hlt2Requires not dealt with internally and not passed to HltConf
+   . The option 'L0' now resets the prescale of the NonRandomODIN line 
+     to 1, menaing Hlt1 becomes 100% efficient.
+   . To check for Hlt1 "physics" efficiency, look at routing bit 46,
+     or the individual lines.
+ - v24r5
+
+!========================== DaVinci v24r4 2009-10-30 =======================
+
+! 2009-10-28 - Patrick Koppenburg
+ - DaVinci to depend on HltTCK
+
+! 2009-10-24 - Vanya Belyaev
+ - python/DaVinci/Configuration.py
+
+       add new slot EnableUnpack, which (if specified) 
+       has a precedence with repect to implicit 
+       logic of enabling/disabling of unpacking input data.
+ 
+
+! 2009-10-21 - Patrick Koppenburg
+ - Remove DaVinciWriteDST. Use Selection framework instead. 
+
+! 2009-10-14 - Patrick Koppenburg
+ - HltType does not exist anymore. Use DaVinci().Hlt = True instead
+   Hlt1 and 2 settings are completely defined by Threshold Settings.
+   Beware that they have all changed names. See HltConf release notes.
+
+! 2009-10-11 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Add 'MDST' option to InputType property. Disables data unpacking MC link
+    re-doing.
+
+! 2009-10-10 - Vanya Belyaev
+
+ - make use of CaloDstUnPackConf configurable 
+
+! 2009-10-07 - Patrick Koppenburg
+ - Update DC06 BB data
+ - v24r4
+
+!========================== DaVinci v24r3p1 2009-10-06 =====================
+!========================== DaVinci v24r3 2009-10-02 =====================
+
+! 2009-10-02 - Juan PALACIOS
+ - job/DaVinci_Ganga.py
+  . increase version to v24r3
+ - options/DaVinci-WriteSelDST.py
+  . Fix input location of DataOnDemand instance.
+
+!========================== DaVinci v24r2 2009-09-02 =====================
+
+! 2009-09-02 - Juan PALACIOS
+ - Pick up the whole of RecSys packages explicitly tu use some updated versions
+   of some Calo packages
+
+! 2009-08-25 - Patrick Koppenburg
+ - Set HltConf().WithMC to self.Simulation()
+
+! 2009-08-24 - Patrick Koppenburg
+ - Remove useless Lbappinit import
+ - v24r2
+
+!========================== DaVinci v24r1p1 2009-08-28 ===================
+
+! 2009-08-28 - Juan PALACIOS
+ - SelDSTWriter
+  . Give it more sensible default parameters. Add some documentation.
+
+!========================== DaVinci v24r1 2009-08-12 ===================
+
+! 2009-08-12 - Juan PALACIOS
+ - Added SelDSTWriter configurable. Inherits from MicroDSTWriter. Allows to
+   write out the full DST plus candidate decay tree for a selection.
+   See options/DaVinci-WriteSelDST.py for an example.
+
+!========================== DaVinci v23r4 2009-07-28 ===================
+
+! 2009-07-24 - Patrick Koppenburg
+ - Remove it from requirements as well
+
+! 2009-07-23 - Juan PALACIOS
+ - Remove python/DaVinci/PhysMicroDST.py
+  . Moved to MicroDSTConf
+
+! 2009-07-17 - Patrick Koppenburg
+ - Add DataType to example data samples
+
+! 2009-07-16 - Juan PALACIOS
+ - cmt/requirements, job/DaVinci_Ganga.py
+  . Set version to v24r0
+ - python/DaVinci/Configuration.py
+  . Set default DataType back to MC09
+
+!========================== DaVinci v23r3p1 2009-07-15 =================
+
+! 2009-07-15 - Juan PALACIOS
+ - cmt/requirements, job/DaVinci_Ganga.py
+  . Set version to v23r3p1
+ - python/DaVinci/Configuration.py
+  . Set default DataType back to DC06
+
+! 2009-07-14 - Juan PALACIOS
+ - python/DaVinci/PhysMicroDST.py
+  . Remove PhysDesktop.InputLocations
+
+! 2009-07-06 - Patrick Koppenburg
+ - DaVinci DataType now MC09 by default
+   -> DC06 users must set DataType to DC06.
+ - Increment to v24r0.
+
+!========================== DaVinci v23r3 2009-07-03 =================
+
+! 2009-07-01 - Patrick Koppenburg
+ - Renamed DaVinci-2008 into DaVinci-MC09
+
+!========================== DaVinci v23r2 2009-06-23 =================
+! 2009-06-23 - Patrick Koppenburg
+ - Do not unpack MDF files
+
+! 2009-06-23 - Patrick Koppenburg
+ - Adapt to new stripping framework
+ - Remove 2009 data. New MC09 Bs2JpsiPhi test data
+ - Increment to v23r2
+
+! 2009-06-18 - Patrick Koppenburg
+ - Correct Stripping test
+
+! 2009-06-15 - Patrick Koppenburg
+ - Added MC09 Inclusive J/psi example DST data.
+ - Remove 2008 data.
+ - Adapt DaVinciTestData
+
+! 2009-06-12 - Patrick Koppenburg
+ - Do net require Bu2LLK package from DaVinci.py
+ - Upgrade to v23r1p2
+
+!========================== DaVinci v23r1p1 2009-06-11 =================
+
+! 2009-06-11 - Juan PALACIOS
+ - cmt/requirements
+   job/DaVinci_Ganga.py
+  . Increase version to v23r1p1
+ - python/DaVinci/Configuration.py
+  . Add "MC09" to possible DataType values.
+  . Fix bug in address of P->PV table to be copied
+
+!========================== DaVinci v23r1 2009-06-04 ===================
+
+! 2009-06-03 - Patrick Koppenburg
+ - DaVinci-ReadDst.py : more debugging
+
+! 2009-06-02 - Patrick Koppenburg
+ - DaVinciWriteDst : avoid double initialisation
+
+! 2009-06-01 - Patrick Koppenburg
+ - Typo fix
+ - Review of DST handling
+
+! 2009-05-22 - Patrick Koppenburg
+ - Use appendToMainSequence in DaVinciWriteDst. No need to pass
+   sequncer anymore.
+
+! 2009-05-21 - Patrick Koppenburg
+ - New methods appendToMoniSequence and appendToMainSequence allowing
+   external configurations, e.g. StrippingConf to populate sequencers
+   without tampering UserAlgorithms and MoniSequence slots.
+
+! 2009-05-21 - Patrick Koppenburg
+ - Allow external configurables to append to main and moni sequences :
+   . Create members moniSeq and mainSeq
+   . Create appendToMainSequence and appendToMoniSequence
+
+! 2009-05-20 - Patrick Koppenburg
+ - Adapt to new stripping packages
+
+!========================== DaVinci v23r0 2009-05-13 ===================
+
+! 2009-05-13 - Patrick Koppenburg
+ - Overwrite HltConf settings only if set in DaVinci
+
+! 2009-05-05 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . DaVinci() takes care of setting RedoMCLinks correctly for DC06 and/or RDST.
+
+! 2009-05-01 - Gerhard Raven
+ - HltConf() now uses HltType instead of hltType
+
+! 2009-05-01 - Patrick Koppenburg
+ - New option HltThresholdSettings
+
+! 2009-04-29 - Patrick Koppenburg
+ - Allow datatype = 2009
+
+! 2009-04-28 - Juan PALACIOS
+ - python/DaVinci/PhysMicroDST.py
+  . Use new relations table copying stuff
+
+! 2009-04-24 - Juan PALACIOS
+ - python/DaVinci/PhysMicroDST.py
+  . Fixes to allow for selection algorithms passed by configurable or by name.
+  . Fix typo
+
+! 2009-04-22 - Patrick Koppenburg
+ - Replace LHCbInputCopyStream by InputCopyStream for gaudi v21r0.
+
+!========================== DaVinci v22r3 2009-04-09 ===================
+
+! 2009-04-08 - Patrick Koppenburg
+ - Transfer DataType to L0
+
+! 2009-04-07 - Juan PALACIOS
+ - python/DaVinci/PhysMicroDST.py
+  . Add L0DUReport and HltDecReports
+
+! 2009-04-06 - Patrick Koppenburg
+ - Use Paramfiles v8r1
+
+! 2009-03-30 - Juan PALACIOS
+ - Tag as jpalac_20090330
+ - Add python/DaVinci/PhysMicroDST.py
+  . Adapt to bug fix in LoKi CoreFactory
+ - cmt/requirements
+ - job/DaVinci_Ganga.py
+  . Increase version to v22r3
+
+! 2009-03-25 - Juan PALACIOS
+ - Add python/DaVinci/PhysMicroDST.py
+  . Configurable for "standard" physics selection MicroDST making
+ - cmt/requirements
+  . Add DaVinci.PhysMicroDST to DaVinciConfUserModules
+
+!========================== DaVinci v22r2 2009-03-23 ===================
+! 2009-03-24 - Patrick Koppenburg
+ - MesssgeSvc format must be put explicitly in options
+   See https://twiki.cern.ch/twiki/bin/view/LHCb/FAQ/LHCbFAQ#How_do_I_set_the_printout_format
+
+! 2009-03-11 - Patrick Koppenburg
+ - ReadETC.py : no need to include GaudiPoolDB.
+
+!========================== DaVinci v22r1p1 2000-03-10 =====================
+! 2009-03-10 - Patrick Koppenburg
+ - Tag as v22r1p1 for Panoramix.
+
+! 2009-03-09 - Marco Cattaneo
+ - Remove UseOracle option. Set directly CondDB().UseOracle option if needed
+
+! 2009-03-04 - Patrick Koppenburg
+ - Do not impose MessageSvc format
+ - Small changes for DB access
+
+! 2009-03-02 - Patrick Koppenburg
+ - Protect agaisnt 0 print frequency
+ - Add DaVinciInit algorithm (needs today's DaVinciTools)
+
+!========================== DaVinci v22r1 2000-03-02 =====================
+
+! 2009-03-02 - Juan Palacios
+ - job/DaVinci_Ganga.py
+  . Increase version to v22r1
+
+! 2009-02-27 - Patrick Koppenburg
+ - Patch Dst Writing options. Now works.
+
+! 2009-02-23 - Patrick Koppenburg
+ - Always do L0 for Dc06
+
+! 2009-02-20 - Patrick Koppenburg
+ - DaVinci() : Use L0
+
+! 2009-02-12 - Patrick Koppenburg
+ - Remove PreloadUnits.opts
+ - Use $STDOPTS/PreloadUnits.opts instead
+
+! 2009-02-11 - Patrick Koppenburg
+ - Writing and reading of ETC now works. It is assumed one uses EventTuple to
+   do so. Requires tag pkoppenb_20090211 of DecayTreeTuple
+
+! 2009-02-10 - Patrick Koppenburg
+ - First working version of writing and reading an ETC. Many changes ahead.
+ - Rename DaVinciOutput to WriteDst
+
+! 2009-02-09 - Patrick Koppenburg
+ - Remove MuonID stuff. In PhysConf now.
+
+! 2009-02-06 - Patrick Koppenburg
+ - A much shorter version of the same thing. Now DaVinciOutput() is outside of
+   DaVinci().
+
+! 2009-02-06 - Patrick Koppenburg
+ - Now it works. But requires a patch of GaudiSvc.
+
+! 2009-02-05 - Patrick Koppenburg
+ - A bit more work on  python/DaVinciOutput.py . Not yet done.
+ - options/DaVinci-{Write,Read}Dst.py : Now write according to some
+   J/psi masses. Allows to have overlappting DSTs.
+
+! 2009-02-04 - Patrick Koppenburg
+ - python/DaVinciOutput.py : First working version of Dst writing configurable
+   . Allows to write as many DSTs as needed. 
+   . ETC not yet in.
+   . Packing not yet supported.
+   . Need to sort out some inconsistencies with DstConf
+   . Could be made an independent configurable, to be called before DaVinci().
+ - python/DaVinci/Configuration.py : use the above
+   . may be not a good idea. DaVinci is getting a monster.
+ -  options/DaVinci-WriteDst.py, options/DaVinci-ReadDst.py : exmaple I/O files.
+ - Increment to v22r1.
+
+!========================== DaVinci v22r0p2 2000-01-27 ===================
+
+! 2009-01-27 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Re-do the MuonPID only when there are no tracks in Rec/Track/Muon. Bind
+    the relevant sequence to the DataOnDemandSvc.
+
+! 2009-01-26 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Add DstConf to __used__configurables__
+
+! 2009-01-23 - Juan PALACIOS
+ - cmt/requirements
+  . Increase version to v22r0p2
+ - python/DaVinci/Configuration.py
+  . Add patch lines to re-do MuonPID from ProtiParticles in DC06 data.
+    These should be removed from the next release, with equivalent lines
+    going to PhysConf.
+
+!========================== DaVinci v22r0 2000-01-19 =====================
+
+! 2009-01-16 - Patrick Koppenburg
+ - DaVinci.py : moved exampleSeq to monitoring
+ - DaVinci() : 
+   . standardParticles moved to AnalysisConf
+   .  configureInput moved from PhysConf
+
+! 2009-01-12 - Patrick Koppenburg
+ - Added a DaVinciMonitoringSequence
+
+! 2009-01-11 - Patrick Koppenburg
+ - Set DDDB and CondDB tag. TODO : Needs to be in data lists.
+
+! 2009-01-09 - Patrick Koppenburg
+ - Get initialisation sequences from Phys and AnalysisConf
+ - Add a special case for MDF files
+
+! 2009-01-07 - Patrick Koppenburg
+ - Removed last .opts files.
+
+! 2009-01-07 - Patrick Koppenburg
+ - Moved all tests to DaVinciSys
+ - Remove cpp file
+
+! 2009-01-07 - Patrick Koppenburg
+ - Translate Bd2DstarPi test to python
+ - Translate Bu2eeK test to python. Small inprovements taken into account in 
+   reference table
+ - Translate Bd2KstarMuMu and Bs2PhiGamma
+ - Translate the rest. All tests pass now.
+
+! 2009-01-06 - Patrick Koppenburg
+ - Remove HltOldStyle option.
+
+! 2008-12-23 - Patrick Koppenburg
+ - Adapt to changes in PhysConf and AnalysisConf. Do not call methods directly.
+ - Use new style Hlt
+ - Change CommonParticles to .py
+
+! 2008-12-22 - Patrick Koppenburg
+ - Add DoD Svc
+
+! 2008-12-22 - Patrick Koppenburg
+ - Allow no Hlt in DaVinci
+
+! 2008-12-19 - Patrick Koppenburg
+ - Integrate HltConf into DaVinci()
+
+! 2008-12-19 - Patrick Koppenburg
+ - python/DaVinci/Configuration.py
+   . Bug fix in Tuple, printfreq.
+
+! 2008-12-18 - Patrick Koppenburg
+ - options/DaVinci.py : fill working example
+ - python/DaVinci/Configuration.py
+   . Add functionality : histo, tuple file. Redo MC links.
+ - Removed or renamed most of the legacy .opts files. 
+   . options/DC06_stripped_bbincl_lumi2.opts   -> options/DC06_stripped_bbincl_lumi2.py
+   . options/DC06_v4_BB_lumi2_rdst.opts        -> options/DC06_v4_BB_lumi2_rdst.py
+   . options/DVExampleStrippingETC.opts        : will have to be rewritten
+   . options/DVL0Strip.opts                    : will have to be rewritten
+   . options/DaVinci.opts                      -> options/DaVinci.py
+   . options/DaVinciMainSeqFixes.opts          : functionality moved to AnalysisConf()
+   . options/DaVinciReco.opts                  : obsolete
+   . options/DaVinciTestData.opts              -> options/DaVinciTestData.py
+   . options/MicroDSTCommon.opts               -> options/MicroDstStream.py
+   . options/Phys_v4_BB_lumi2.opts (duplicate) -> options/DC06_stripped_bbincl_lumi2.py
+   . options/loadParticlesSeq.opts             : obsolete (using in DC06 stripping tests)
+ - options/DaVinci-Default.py : remove old opts file
+ - options/DVDC06TestStripping.opts : add #units
+
+! 2008-12-17 - Patrick Koppenburg
+ - Big Reshuffle of options. Requires PhysConf and AnalysiConf packages.
+ - python/DaVinci/Configuration.py : Big change
+   . now calls PhysConf and AnalysisConf
+   . Includes all of DaVinciCommon.opts
+ - options/DaVinciCommon.opts : Removed.
+   . This will break almost all main optionf files. 
+   . Cleanup not yet done. Nightlies will help...
+ - options/DVExampleStripping.opts : removed
+ - options/DaVinciCommon.py : removed
+ - options/DaVinciCommonDigi.opts : removed
+ - options/DaVinciDDDB.opts : removed
+ - options/DaVinciMainSeq.opts : removed
+ - options/DaVinciProtoPCalibrate.opts : removed
+ - options/DVDC06TestStripping.opts : remove DaVinciCommon.opts
+ - Added options/2008-InclJpsiDst.py : some 2008 MC
+ - Added options/DaVinci-DC06TestStripping.py : example stripping job
+
+!========================== DaVinci v21r0p1 2008-12-17 ===================
+! 2008-12-11 - Patrick Koppenburg
+ - Remove proto recalibration from 2008
+ - Comment it again : kills MuonPID
+
+! 2008-12-09 - Patrick Koppenburg
+ - python/DaVinci/Configuration.py
+   . import DaVinciCommon.py
+ - DaVinciCommon.py : will replce the .opts. Only calls it so far.  
+
+! 2008-12-05 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Change such that ApplicationMgr() can over-write EvtMax if it is left
+    at default value.
+
+! 2008-12-05 - Patrick Koppenburg
+ - Added DVGangaTest.py that runs a job for ganga tests.
+
+! 2008-12-05 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Remove default options file and print warning if user hasn't specified one.
+ - options/DaVinci-2008.py
+  . Do not set MainOptions. Leave default "", so script actually does nothing.
+ - options/DaVinci-Default.py
+  . add comment saying what MainOptions default is.
+
+! 2008-12-04 - Patrick Koppenburg
+ - DaVinci.py : remove non-python printouts as ganga does not like them.
+
+! 2008-12-03 - Patrick Koppenburg
+ - DaVinci.py : restore Flavour Tagging options. Now work with 
+   pkoppenb_20081203 tags of PhysSys and Phys/FlavourTagging
+ - DaVinciCommon.opts : Move StandardParticles to PhysSys.
+ - Increment to v21r1
+
+! 2008-12-01 - Juan PALACIOS
+ - job/DaVinci_Ganga.py
+  . Bug fixes:
+     Add second options file containing input data.
+     Remove version number from application path
+
+!========================== DaVinci v21r0 2008-11-28 ===================
+
+! 2008-11-28 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Remove obsolete slots and HepMCBack code. 
+  . LHCbApp() and DDDBConf() now take care of a lot of things.
+ - options/DaVinci-2008.py
+ - options/DaVinci-Default.py
+ - tests/options/DVTestB2DiMuon.py
+  . Remove DDDBTag, CondDBTag, UseOracle
+ - options/DaVinciCommon.opts
+  . Change include of obsolete $STDOPTS/DstDicts.opts to $GAUDIPOOLDBROOT/options/GaudiPoolDbRoot.opts
+
+! 2008-11-27 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Change name of configurable from DaVinciApp to DaVinci
+ - options/DaVinci-2008.py
+ - options/DaVinci-Default.py
+ - tests/options/DVTestB2DiMuon.py
+  . DaVinciApp() -> DaVinci()
+ - options/DaVinciMainSeq.opts
+  . Change name of LbAppInit instance from DaVinci to DaVinciAppInit
+ - Added options/DC06_stripped_bbincl_lumi2.py
+  . Example .py file defining data.
+ - python/DaVinci/MicroDSTAlgorithm.py
+  . Removed. Now in MicroDSTConf, module MicroDST.
+ - python/DaVinci/Configuration.py
+  . Follow changes in LHCbApp() and ConfigurableUser. Options are now
+        "EvtMax"          :  -1,
+        "SkipEvents"      :   0,
+        "DataType"        : 'DC06', # Data type, can be ['DC06','2008']
+        "DDDBtag"         : '',     # Tag for DDDB. Default as set in DDDBConf for DataType
+        "CondDBtag"       : '',     # Tag for CondDB. Default as set in DDDBConf for DataType
+        "UseOracle"       : False,
+        "Simulation"      : False,  # set to True to use SimCond
+        "MainOptions"     : '$DAVINCIROOT/options/DaVinci.py',
+        "Input"           : [],
+        "UserAlgorithms"  : []
+ - options/DaVinci-2008.py
+ - options/DaVinci-Default.py
+ - tests/options/DVTestB2DiMuon.py
+  . Adapt to new DaVinciApp() configurable
+ - qmtest/davinci.qms/preselections.qms/test_b2dimuon.qmt
+  . Revert previous changes. Decimal point difference was likely due to
+    some lack or configuration in python.
+
+! 2008-11-12 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Changes to adapt to new LHCbApp configurable
+ - tests/qmtest/davinci.qms/preselections.qms/test_b2dimuon.qmt
+  . Adapt correlation table: more sig. figures in output.
+ - tests/options/DVTestB2DiMuon.py
+
+! 2008-11-12 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Add userAlgorithms [] to slots.
+ - options/DVTestB2DiMuon.py
+  . Use DaVinciApp().userAlgorithms
+
+! 2008-11-10 - Juan PALACIOS
+ - Remove python/DaVinci/__init__.py
+  . Seems to cause some clash. And is probably generated autimatically in the InstallArea anyway.
+
+! 2008-11-07 - Juan PALACIOS
+ - tests/options/DVTestB2DiMuon.py
+  . Completely re-written in python. Only .opts used is preselection file itself.
+ - tests/qmtest/davinci.qms/preselections.qms/test_b2dimuon.qmt
+  . Use tests/options/DVTestB2DiMuon.py instead of .opts.
+ - options/DVTestB2DiMuon.opts
+  . Simplyfy MC filtering.
+
+! 2008-11-06 - Juan PALACIOS
+ - tests/options/DVTestB2DiMuon.opts
+  . Add B-> J/psi KS data sample, fix MC decay descriptors, add MC selections 
+    to correlations table
+ - tests/qmtest/davinci.qms/preselections.qms/test_b2dimuon.qmt
+  . Change correlation table: changes in tests/options/DVTestB2DiMuon.opts
+ - tests/options/DVTestBu2eeK.opts
+  . Add MC selections to correlations table
+ - tests/qmtest/davinci.qms/preselections.qms/test_bu2eek.qmt
+  . Change correlation table: changes in tests/options/DVTestBu2eeK.opts
+
+! 2008-11-05 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Add some more funcitonality.
+  . Configurable named DaVinciApp, since DaVinci was causing some problems.
+  . Add Input list to __slots__, allows to set input as configurable property.
+  . Fix various typos and bugs.
+ - Add: 
+  . options/DaVinci-Default.py: example python script to run a DaVinci job with configurables.
+  . tests/options/DVTestB2DiMuon.py: example python script with configurables for B->MuMu QM test.
+ - options/DaVinci-2008.py
+  . Change to use some DaVinci.Configuration functionality
+
+! 2008-11-04 - Juan PALACIOS
+ - python/DaVinci/Configuration.py
+  . Almost empty high level configuration for DaVinci
+
+! 2008-11-03 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+  . Slight change in CheckSelResult finalize summary output.
+ - tests/qmtest/davinci.qms/preselections.qms/test_bd2dstarpi.qmt
+ - tests/qmtest/davinci.qms/preselections.qms/test_bu2eek.qmt
+  . Revert to previous versions. Changes were due to problems in new algorithm
+    correlation calculation algorithm.
+
+! 2008-10-31 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bd2dstarpi.qmt
+ - tests/qmtest/davinci.qms/preselections.qms/test_bu2eek.qmt
+  . Update correlations table. Correlations for actual pre-selections now are high.
+    Not completely sure why!
+ - tests/options/DVTestB2DiMuon.opts
+  . Replace SelResultCorreclations with AlgorithmCorrelationsAlg
+
+! 2008-10-29 - Patrick Koppenburg
+ - Rename SelresultCorreclations to AlgorithmCorrelationsAlg
+
+! 2008-10-24 - Patrick Koppenburg
+ - Changes to please team Dirac :
+   . Added DaVinci-2008.py that does nothing but include DaVinci.py
+   . Created DAVINCIOPTS variable
+
+! 2008-10-23 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+  . Hand-made test that searches lines containing info about filtered events
+    for each selection.
+
+! 2008-10-21 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+  . Correlation table entry order seems to be out of our control, so useless in
+    tests. Test for number of filtered events for each pre-selection, regardless
+    of order.
+ - tests/qmtest/davinci.qms/preselections.qms/*.qmt
+  . Use Marco Clemencic's findReferenceBlock python function to
+    greatly reduce the number of duplicated lines of code. 
+
+! 2008-10-20 - Juan PALACIOS
+ - tests/options/DVTestAllPreselections.opts
+  . 10000 events -> 5000 events
+ - tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+  . Update correlation table after PV relator bug fix.
+
+! 2008-10-13 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bu2d0k_d02kspipi.qmt
+  . Change in correlation table due to small drop in StdDC06LooseKsDD 
+    efficiency.
+
+!========================== DaVinci v20r3 2008-10-08 ===================
+
+! 2008-10-08 - Juan PALACIOS
+ - job/DaVinci_Ganga.py
+  . Update version to v20r3
+
+! 2008-10-07 - Juan PALACIOS
+
+ - options/DaVinci.py
+  . Replace HLT options with HltConf() lines.
+
+ - options/DVTestBd2DstarPi.opts
+   options/DVTestBd2KstarMuMu.opts
+   options/DVTestBs2PhiGamma.opts
+   options/DVTestBu2D0K_D02KsPiPi.opts
+  . Change Std for StdDC06 in all common particles.
+
+ - qmtest/davinci.qms/preselections.qms/test_bd2dstarpi.qmt
+   qmtest/davinci.qms/preselections.qms/test_bd2kstarmumu.qmt
+   qmtest/davinci.qms/preselections.qms/test_bs2phigamma.qmt
+   qmtest/davinci.qms/preselections.qms/test_bu2d0k_d02kspipi.qmt
+  . Change Std for StdDC06 in all correlation tables
+
+! 2008-10-06 - Juan PALACIOS
+ - /tests/qmtest/davinci.qms/preselections.qms/*.qmt
+  . Replace DaVinci.exe by gaudirun.py
+
+! 2008-09-26 - Juan PALACIOS
+ - Add options/MicroDSTStream.py
+  . Python configuration for the MicroDST OutputStream
+
+! 2008-09-23 - Juan PALACIOS
+ - Add python/Configuration.py
+  . Temporary file to get back the typedefs for templated MicroDSTAlgorithms.
+ - cmt/requirements
+  . Install python modules
+
+!========================== DaVinci v20r2 2008-09-11 ===================
+
+! 2008-09-10 - Juan PALACIOS
+ - job/DaVinci_Ganga.py
+  . Increase version
+ - cmt/requirements
+  . Put HltSys back in.
+
+! 2008-09-10 - Juan PALACIOS
+ - options/DaVinciCommon.opts
+  . Put $ANALYSISSYSROOT/options/PhysMCSys.opts back in.
+
+! 2008-09-10 - Patrick Koppenburg
+ - Comment out removed L0 file.
+
+! 2008-09-04 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+  . Adapt correlation table to changes in DV v20r0
+
+! 2008-09-04 - Juan PALACIOS
+ - options/DaVinciCommon.opts
+  . Comment out $ANALYSISSYSROOT/options/PhysMCSys.opts
+
+!========================== DaVinci v20r1 2008-08-29 ===================
+! 2008-08-29 - Patrick Koppenburg
+ - Use temporary hack for L0
+
+! 2008-08-27 - Patrick Koppenburg
+ - New L0 options.
+
+! 2008-08-26 - Juan PALACIOS
+ - add options/MicroDSTCommon.opts
+  . Options file with minimum required to run a MicroDST DaVinci job.
+
+! 2008-08-21 - Patrick Koppenburg
+ - Remove DaVinci.exe from release. Ganga does not need it anymore.
+
+! 2008-08-06 - Chris Jones
+ - Fix typo in DaVinci_Ganga.py and add usage suggestion from Ulrik.
+ - For clarity remove DaVinci_Old_Ganga.py (ganga 4 is obsolete, users should 
+   move to 5)
+
+!========================== DaVinci v20r0 2008-08-06 ===================
+! 2008-08-06 - Patrick Koppenburg
+ - Put the meat into options/DaVinci.py and make DaVinci.opts dummy
+ - Include DC06 standard particles options 
+ - Increment to v20r0
+
+! 2008-07-19 - Christopher Rob Jones
+ - Update example ganga job file for ganga version 5. Old ganga 4 compatible
+   file kept as DaVinci_Old_Ganga.py.
+
+!========================== DaVinci v19r14 2008-07-03 ===================
+
+! 2008-07-03 - Juan PALACIOS
+ - job/DaVinci_Ganga.py 
+  . increase version to v19r14
+
+! 2008-06-24 - Patrick Koppenburg
+ - alias DaVinci as gaudirun.py, not DaVinci.exe anymore
+
+!========================== DaVinci v19r13 2008-06-11 ===================
+
+! 2008-06-11 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+   tests/qmtest/davinci.qms/preselections.qms/test_bd2dstarpi.qmt
+   tests/qmtest/davinci.qms/preselections.qms/test_bd2kstarmumu.qmt
+   tests/qmtest/davinci.qms/preselections.qms/test_bu2d0k_d02kspipi.qmt
+   tests/qmtest/davinci.qms/preselections.qms/test_bu2eek.qmt
+  . Change correlation tables to reflect changes in NoPIDsParticleMaker
+
+
+! 2008-06-09 - Juan PALACIOS
+ - job/DaVinci_Ganga.py
+  . set DaVinciVersion to 'v19r13'
+
+! 2008-06-09 - Juan PALACIOS
+ - cmt/requirements
+  . Add apply_pattern GaudiApp
+ - options/DaVinci.py
+  . Add absolute path to DaVinci.opts.
+  . Remove obsolete line.
+
+! 2008-06-02 - Patrick Koppenburg
+ - Use Fieldmap v5r0 which gives access to measured field
+
+! 2008-05-14 - Patrick Koppenburg
+ - Set version v19r12 in DaVinci_Ganga.py
+
+!========================== DaVinci v19r11p1 2008-03-17 =================
+
+! 2008-03-17 - Juan PALACIOS
+ - cmt/requirements
+  . Use ParamFiles v7r1 to be able to re-run the reconstruction.
+
+! 2008-03-14 - Patrick Koppenburg
+ - DVDC06TestStripping : opts : do not save MC when reading rdst.
+
+!========================== DaVinci v19r11 2008-03-11 ===================
+
+! 2008-03-11 - Juan PALACIOS
+ - qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+ - qmtest/davinci.qms/preselections.qms/test_bd2dstarpi.qmt
+ - qmtest/davinci.qms/preselections.qms/test_bu2d0k_d02kspipi.qmt
+  . Change correlation tables. Efficiencies changes slightly after bug fix to 
+    Phys/DaVinciTransporter
+! 2008-03-10 - Juan PALACIOS
+ - job/DaVinci_Ganga.py
+  . Set applicaiton version to 'v19r11'
+
+!========================== DaVinci v19r10 2008-02-07 ===================
+
+! 2008-02-07 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/test_bu2d0k_d02kspipi.qmt
+  . Change comparison correlation table to account for changes 
+    in efficiencies:
+        StdLooseD02ksPiPi 13% -> 16%
+        StdLooseKsDD      53% -> 52%
+ - tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+  . Change comparison correlation table to account for changes 
+    in Higs pre-selection:
+           PreselHWZ2bbl 0.12% -> 0.08%
+    Most likely due to changes in jet finder algorithm.
+
+ - options/DaVinciMainSeq.opts
+  . Comment out include of options/DaVinciMainSeqFixes.opts. 
+    Users should include it if MCParticle linking is needed.
+
+ - cmt/requirements
+  . -tag_add=QMTest no longer needed in DaVinciTests alias.
+
+
+! 2008-02-06 - Juan PALACIOS
+ - options/DaVinciMainSeqFixes.opts
+  . Add options
+       DaVinciEvtCheck.Stop = false;
+       DaVinciEvtCheck.OutputLevel = 5;
+    for the case where the linkers are not stored on the DST 
+    (as is the case in the standard rDST)
+
+! 2008-02-05 - Juan PALACIOS
+ - Add file options/DaVinciMainSeqFixes.opts.
+  . File is included by options/DaVinciMainSeq before any members have been
+    added to the sequence. Currently there to fix track link problems with
+    re-processed events, but can be place holder for other fixes.
+
+! 2008-01-24 - Patrick Koppenburg
+ - Assume input data is DST in stripping test
+
+! 2008-01-15 - Chris Jones
+ - Fix version number of DaVinci_Ganga.py
+
+!========================== DaVinci v19r9 2007-12-18 ===================
+
+! 2007-11-22 - Juan PALACIOS
+ - Add tests/qmtest/davinci.qms/preselections.qms/test_bbstripping.qmt
+  . QMT test for stripping options.
+
+! 2007-11-21 - Juan PALACIOS
+ - Add tests/options/DVTestAllPreselections.opts
+  . Test for the pre-selections to be run in the stripping, on BB inclusive
+    lumi 2 events.
+ - Add  tests/options/DVTest_Phys_v4_BB_lumi2.opts
+  . Data for the above.
+ - Add tests/qmtest/davinci.qms/preselections.qms/test_bs2phigamma.qmt
+  . New test for Bs -> Phi Gamma pre-selection
+ - tests/options/DVTestBs2PhiGamma.opts
+  . Add DC06-phys-lumi2 signal data.
+  . Use separate TrueMCFilterCriteria for Kaons and Gammas.
+  . Set gamma MC linking to Links
+
+! 2007-11-20 - Juan PALACIOS
+ - Added  tests/options/DVTestBs2PhiGamma.opts
+ - tests/options/*.opts
+  . Added CVS Id, tag and revision fields to all options.
+ - tests/qmtest/davinci.qms/preselections.qms/*.qmt
+  . Fix all correlaiton tables in tests, they got messed up with the
+    OnlyNonZero=false option.
+
+! 2007-11-19 - Juan PALACIOS
+ - Added
+  . tests/qmtest/davinci.qms/preselections.qms/test_bu2d0k_d02kspipi.qmt 
+  . tests/options/DVTestBu2D0K_D02KsPiPi.opts
+ - Add 
+     TestCorrelations.AlgorithmCorrelations.OnlyNonZero = false; 
+   to all opitons to allow printing of all algorithms.
+
+! 2007-11-19 - Juan PALACIOS
+ - cmt/requirements
+  . Add alias for running tests.
+ - Added: 
+  . tests/qmtest/davinci.qms/preselections.qms/test_bu2eek.qmt
+  . tests/options/DVTestBu2eeK.opts
+
+! 2007-11-16 - Juan PALACIOS
+ - tests/qmtest/davinci.qms/preselections.qms/*.qmt
+  . Fix problem with hard-lined number of lines in correlation table comparison.
+
+
+!========================== DaVinci v19r8 2007-11-15 ===================
+
+! 2007-11-15 - Juan PALACIOS
+
+ - job/DaVinci_Ganga.py, options/DaVinci.py
+  . Increase DaVinci version to v19r8.
+ - Add pattern for QMTest
+ - Add test directories.
+ - Add:
+        tests/qmtest/davinci.qms/preselections.qms/test_bd2dstarpi.qmt
+        tests/qmtest/davinci.qms/preselections.qms/test_bd2kstarmumu.qmt
+        tests/options/DVTestBd2DstarPi.opts
+        tests/options/DVTestBd2KstarMuMu.opts
+
+! 2007-11-12 - Chris Jones
+ - Remove '#pragma print on' from DaVinciCommon.opts
+
+!========================== DaVinci v19r7 2007-10-26 ===================
+! 2007-11-05 - Juan PALACIOS
+ - Increase version to v19r7 where appropriate.
+
+!========================== DaVinci v19r6 2007-10-26 ===================
+
+! 2007-10-25 - Juan PALACIOS
+ - Add options/DaVinci.py, a minimal python script to run DaVinci
+   from the python prompt.
+
+! 2007-10-10 - Patrick Koppenburg
+ - Add SimComponents to requirements to get successor fo DebugTool
+
+!========================== DaVinci v19r5 2007-09-24 ===================
+
+! 2007-09-11 - Chris Jones
+ - Update example ganga job to remove warnings about missing features (now 
+   available) and to add examples of job merging.
+
+! 2007-09-09 - Patrick Koppenburg
+ - New sample file with DC06 v4 reprocessed rdst
+ - Use it in stripping tests
+
+! 2007-08-15 - Juan PALACIOS
+ - cmt/requirements
+   . Add Event/LinkerInstances
+
+! 2007-08-02 - Juan PALACIOS for Patrick KOPPENBURG
+ - cmt/requirements
+   . Increase version to v19r5
+
+!========================== DaVinci v19r4 2007-07-31 ===================
+! 2007-07-31 - Juan Palacios
+ - cmt/requirements
+   . Increase version to v19r4
+ - job/DaVinci_Ganga.py
+   . Increase version to v19r4
+
+! 2007-07-18 - Patrick Koppenburg
+ - options/DVExampleStrippingETC.opts
+ - options/DVExampleStripping.opts
+   . Two new example files to run a preselection on stripped DST and ETC
+
+! 2007-07-18 - Patrick Koppenburg
+ - Removed obsolete data samples
+ - New BB inclusive stripped DC06 sample used as test data
+ - Cleanup obsolete files
+ - Include StandardOptions by default. Remove it frome everywhere else.
+ - New example on how to look at stripped BB.
+
+!========================== DaVinci v19r3 2007-06-18 ===================
+
+! 2007-05-18 - Patrick Koppenburg
+ - Call Standard particles from DaVinciReco.opts
+
+! 2007-05-10 - Patrick Koppenburg
+ - options/DaVinciDDDB.opts
+   . Include $DDDBROOT/options/DC06.opts instead of obsolete 
+     $STDOPTS/DC06Conditions.opts
+ - options/DaVinciCommon.opts
+   . Remove obsolete comment about making ptotoparticles and PVs
+ - options/DaVinciCommonDigi.opts
+   . New "common" file for running on DIGI. Used in HLT only.
+
+! 2007-05-03 - Patrick Koppenburg
+ - Remove DaVinci.job and Stripping.job. Don't use LSF directly. Use ganga 
+   instead.
+ - Fixed job/DaVinci_Ganga.py for install area. Remember to always
+   update the version in job/DaVinci_Ganga.py
+
+!========================== DaVinci v19r1 2007-04-27 ===================
+! 2007-04-26 - Patrick Koppenburg
+ - Use LHCb v22r4, Phys v6r2, Analysis v1r2, Hlt v1r5...
+
+! 2007-04-19 - Patrick Koppenburg
+ - Minor updates in Stripping options. Run on 1000 events.
+ - options/DVOfficialStrippingFile.opts
+   . new official stripping file with some tweaks to get Brunel running
+     on the ETC later on
+ - DVL0Strip.opts : L0 stripping options from Thomas.
+
+! 2007-03-14 - Patrick Koppenburg for Marco Cattaneo
+ - Added EventClockSvc.EventTimeDecoder = "OdinTimeDecoder"; to 
+   DaVinciCommon.opts
+
+!========================== DaVinci v19r0 2007-03-09 ===================
+! 2007-03-06 - Patrick Koppenburg
+ - DaVinciCommon.opts
+ - DaVinciProtoPCalibrate.opts
+   . Do Proto calibration in DaVinciMainSeq
+ - loadCommonParticles.opts
+   . Do in DaVinciMainSeq but after calibration
+ - DVDC06TestStripping.test
+   . load DaVinciCommon.opts
+   . load Presel.opts
+
+! 2007-03-06 - Patrick Koppenburg
+ - Increment to projects based on LHCb v22r2
+ - Use SQLDDDB instead of XmlDDDB
+ - Increement to v19r0
+
+! 2007-02-28 - Patrick Koppenburg
+ - Depend on AnalysisSys
+ - Remove PhysCoreSys and PhysMCSys dependencies
+
+! 2007-02-23 - Chris Jones
+ - Update ProtoParticle recalibration options to not use DoD for the moment
+   whilst a few issues are resolved
+ - Add use of 
+   $COMMONPARTICLESROOT/options/EnableStandardParticleMonitors.opts
+   to the options files to turn on the default PID performance monitoring.
+   Just comment out these lines to disable.
+
+! 2007-02-15 - Patrick Koppenburg
+ - Also load pions and muons
+
+! 2007-02-15 - Patrick Koppenburg
+ - Updated version without HLT
+
+!========================== DaVinci v18r0 2007-01-12 ===================
+
+! 2007-??-?? - Juan PALACIOS
+ - First version with install area
+
+!========================== DaVinci v17r8 2007-01-12 ===================
+
+! 2007-01-12 - Juan PALACIOS
+
+  First DC06 version with HLT
+
+  - cmt/requirements
+    . Use HltSys v1r1
+    . Increase version to v1r1
+
+!========================== DaVinci v17r7 2007-01-08 ===================
+
+! 2007-01-08 - Juan PALACIOS
+
+  - cmt/requirements
+    . Use PhysSys v4r6, RecSys v3r14p1
+    . Increase version number to v17r7
+
+!========================== DaVinci v17r6 2006-12-07 ===================
+
+! 2006-12-05 - Juan PALACIOS
+
+  - cmt/requirements
+    . Use PhysSys v4r5
+    . Increase version number to v17r6
+
+  - Add options/DC06_bbincl_v1_lumi2.opts, DC06_bbincl_v1_lumi5.opts
+
+!========================== DaVinci v17r5 2006-11-16 ===================
+
+! 2006-11-16 - Juan PALACIOS
+
+  . Remove obsolete options/TestDC06ProtoParticles.opts
+  . Add job/DaVinci_Ganga.py from Chris Jones
+
+! 2006-11-14 - Juan PALACIOS
+
+  . cmt/requirements
+    . Use LHCb v21r11, Lbcom v5r8, Rec v3r13, XmlDDDB v30r13, ParamFiles v5r0.
+
+! 2006-11-06 - Juan PALACIOS
+
+  - cmt/requirements
+    . Increase version to v17r5, using Phys v4r4
+
+!========================== DaVinci v17r4 2006-10-31 ===================
+
+! 2006-10-31 - Juan PALACIOS
+
+  - cmt/requirements
+    . Increase version to v17r4
+    . Use Gaudi v18r9, LHCb v21r10, Lbcom v5r7, Rec v3r12, Phys v4r3
+
+!========================== DaVinci v17r3 2006-10-24 ===================
+
+! 2006-10-06 - Juan PALACIOS
+
+  - options/rDstContent.opts, DstContent.opts
+    . Use $STDOPTS/rDstContent.opts and $STDOPTS/DstContent.opts respectively.
+
+  - cmt/requirements
+    . Increase version number to v17r3 and use PhysSys v4r2
+
+!========================== DaVinci v17r2 2006-10-05 ===================
+
+! 2006-09-19 - Juan PALACIOS
+  job/DaVinci.job
+  . Fix version number and use /bin/rm instead of rm.
+
+!========================== DaVinci v17r1 2006-08-04 ===================
+
+! 2006-08-04 - Juan PALACIOS
+  Fix some options files, otherwise identical to v17r0.
+
+!========================== DaVinci v17r0 2006-07-28 ===================
+
+! 2006-07-28 - Juan PALACIOS
+  Add options/rDstContent.opts
+
+
+! 2006-07-20 - Juan PALACIOS
+  Use Phys v4r0 and compatible projects. First version using new vertex classes.
+
+! 2006-07-18 - Juan PALACIOS
+  - options/DaVinci.opts
+    . Change Outputlevels of MessageSvc, ToolSvc, XmlParserSvc, ChargedProtoAlg to 3, 3, 4, 3 respectively. 
+
+!========================== DaVinci v16r2 2006-07-11 ===================
+
+! 2006-07-11 - Juan Palacios
+  Add options/DVDC06StripETCRandom.opts for stripping by selecting random events.
+
+! 2006-06-26 - Juan PALACIOS
+  Add options/TestDC06CommonParticles.opts for testing CommonParticles translated to DC06 syntax.
+
+! 2006-06-20 - Juan PALACIOS
+  Add options/TestDODMCPArticles.opts : Test Particle generation via 
+	MCPArticleMaker with DataOnDemansSvc
+  Add options/DVDC06TesTParticle2PV.opts, Particle2PVAsct.opts for retrieving
+	Particle -> PV relations with DataOnDemandSvc. Not working yet.
+
+!========================== DaVinci v16r1 2006-05-29 ===================
+
+! 2006-05-24 - Juan PALACIOS
+	- cmt/requirements remove all -no_auto_imports to ease use by LoKi
+
+! 2006-05-03 - P. Koppenburg
+  - options/DVDC06MCParticleMaker.opts
+    . Use MCPrimVertexMaker
+    . Use new Gauss data
+    . Run DC06Test
+
+! 2006-04-04 - Juan Palacios
+  Version using Gaudi v18r3 and SMatrix interface and bug fixes (ROOT 5.10.00c)
+
+!========================== DaVinci v16r0 2006-03-29 ===================
+! 2006-03-16 - P. Koppenburg
+  Version for DC06
+  Only a few things ``work'' and there is no data...
+  
+  - options/DVDC06MC.opts
+    . Would allow to use the MCParticlemaker (not yet funbctional)
+      to start from MCParticles.
+  - options/DVDC06Test.opts 
+    . Tests initialize and finalize
+
+!========================== DaVinci v15r0 2005-12-21 ===================
+Built on GAUDI_v17r2, XmlDDDB v27r1, LHCb v19r3, LbcomSys v3r2, 
+RecSys v2r2, PhysSys v2r0
+
+WARNING: Physics analysis does not work because of problems in 
+ProtoParticle Making. Trigger works fine.
+!========================== DaVinci v14r5 2005-11-09 ===================
+Increment to Phys v1r5, Rec v1r5, Lbcom v2r5, LHCb v18r9, XmlDDDB v26r2
+! 2005-11-10 - P. Koppenburg
+  - options/*.opts
+    . Remove HltGeneric inclusion
+                                                                                                                                                                         
+! 2005-11-09 - P. Koppenburg
+  - options/*.opts
+    . Use ROOT everywhere
+                                                                                                                                                                         
+! 2005-11-02 - P. Koppenburg
+  - options/L0Checking.opts
+    . Removed. Replaced by L0CHECKERROOT/options/L0Checker.opts
+      Because of a bug noticed by Krzysztof Syryczynski
+  - options/DaVinci.opts
+  - options/DVTriggerFilter.opts
+    . Corrected accordingly                                                                                                                                 
+!========================== DaVinci v14r4 2005-07-26 ===================
+Increment to Phys v1r4, Rec v1r4, Lbcom v2r4, LHCb v18r8, XmlDDDB v26r1
+!========================== DaVinci v14r3 2005-06-30 ===================
+Increment Phys, Rec, Lbcom, LHCb
+! 2005-06-30 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . Add Pool options that have been removed from LHCb
+  - options/DVTriggerFilter.opts
+    . TestHltScore moved from HltSelChecker to HltMonitor    
+!========================== DaVinci v14r2 2005-06-15 ===================
+! 2005-06-07 - P. Koppenburg
+  - Dummy L0.opts added
+! 2005-06-03 - P. Koppenburg
+  - L0.opts moved to L0DU
+  - RTTCData.opts moved to HltSys
+!========================== DaVinci v14r1 2005-05-24 ===================
+! 2005-05-24 - P. Koppenburg
+  Reshuffling of options
+  - options/DaVinciKshortLoose.opts
+  - options/DaVinciKshortTight.opts
+    . Moved to Ks2PiPiSel
+    
+! 2005-05-24 - P. Koppenburg
+  Reshuffling of options
+  - options/DVHLT.opts
+    . New options to run HLT on test data.
+  - options/DVTriggerFilter.opts
+    . Renamed TrgL?Filter instances to avoid conflicts with HLT sequence
+  - options/DaVinciCommon.opts 
+    . GAUDI/LHCb stuff goes into DaVinciInit.opts
+      This file should not be included by Panoramix. Panoramix
+      should provide it's own initialization.
+      How much of this could go into some LHCb package?  
+    . Associators. Do we need all DLLs for DETAssociators? 
+      Where to put them?
+    . ProtoParticles.
+      i) Moved $GLOBALRECOROOT/options/ChargedProtoPAlg.opts to DaVinciReco.opts
+         Panoramix should provide a similar file
+      ii) Removed NeutralProtoPAlg.opts. Obsolete. 
+      iii) Removed MuonIDReTuning.opts
+      iv) No need to include MCPIDProtoPAlg.opts
+      v) Moved all PID stuff into GlobalReco.opts
+    . Phys DLLs
+       i) Moved DLLS to PhysCoreSys and PhysMCSys
+  - options/DaVinciReco.opts 
+    . Options for ChargedProtoPAlg moved here
+  - options/DaVinciNeutrals.opts
+  - options/DaVinciElectrons.opts
+    . Moved algorithms to GlobalReco  
+  - options/DaVinciMainSeq.opts
+    . New options containing main sequence
+  - options/MuonIDReTuning.opts
+    . Put algo in DaVinciSeq
+                                                                                                                                                          
+    
+!========================== DaVinci v14r0 2005-05-18 ===================
+! 2005-05-18 - P. Koppenburg
+  - options/DaVinciCommon.opts 
+    . Add { "CreateRawEvent", "EventHeaderFromRaw" }; to get /Event/Header
+    . Add ToolSvc.PhotonMatch.Location = "Rec/Calo/PhotonMatch" ; temporarily
+    .  #include "$DAQSYSROOT/options/RawBuffer.opts" for raw buffer
+  - options/CaloOnDemand.opts
+    . Remove duplicated on-demand options wrt RawBuffer.opts
+  - options/DVTRiggerFilter.opts
+    . Add HLT
+  - options/DVRTTC.opts
+    . New options to run L1 and HLT on raw data
+  - options/RawWriter.opts
+    . New options to write out raw data
+  - options/RTTCTestData.opts
+    . New Raw RTTC test data !! WARNING this is raw data. There is no MC nor L0.
+
+!========================== DaVinci v13r1 2005-04-20 ===================
+! 2005-04-21 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . Load EventUtils
+! 2005-04-20 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . using now in $STDOPTS/units.opts
+ - options/DaVinciTestData.opts
+   . New data
+!========================== DaVinci v13r0 2005-03-08 ===================
+! 2005-03-08 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . No need for "OldRichPIDCnvAlg" anymore
+  - options/DaVinciDDDB.opts
+    . New detector database
+  - options/DaTestData.opts
+    . New test data
+  - options/DstContents.opts
+    . New contents
+
+!========================== DaVinci v12r17 2006-03-14 ===================
+! 2006-03-03 - P. Koppenburg for Thomas Ruf
+  Force the use of the correct FieldMap
+
+! 2006-02-27 - P. Koppenburg
+  Changes in tree structure for Stripping:
+  - Move Ks2PiPiSel and CommonParticles to PhysSelSys
+  - Move Stripping from PhysSelSys
+!========================== DaVinci v12r16 2006-02-03 ===================
+! 2006-02-03 - P. Koppenburg
+  - options/DaVinci.opts
+    . Remove DaVinciKshortTight.opts that should not be used
+! 2006-01-31 - P. Koppenburg
+  - options/DaVinciKshortLoose.opts
+  - options/DaVinciKshortTight.opts
+    . Duplicates of Ks2PiPiSel. Remove.
+  - options/DVStripping.opts
+  - options/DaVinci.opts
+  - options/DaVinciNeutrals.opts
+  - options/DaVinciReco.opts
+    . Put all algorithms in CommonParticles on-demand
+ ! 2006-01-23 - P. Koppenburg
+  - cmt/requirements
+    . Remove unmaintained DaVinciTest package
+! 2006-01-19 - P. Koppenburg
+  - options/Good-Stripped-DST-DC04v2.opts
+    . DC04v2 Good stripped BB dst
+! 2006-01-17 - P. Koppenburg
+  - options/DVWriteDst.opts
+    . Example options to write a DST of preselected events
+!========================== DaVinci v12r15 2005-12-15 ===================
+! 2005-12-12 - P. Koppenburg
+  - options/DaVinciReco.opts
+    . Add MuonIDRetuning by default. This will get the better tuning for the
+      MuonID, but will change all muon efficiencies. See Erica's talk at
+      http://agenda.cern.ch/fullAgenda.php?ida=a055058#2005-12-08
+    
+! 2005-11-09 - P. Koppenburg
+  - options/*.opts
+    . Use ROOT everywhere for histogram/Ntuples persistency
+    
+! 2005-11-04 - P. Koppenburg
+  - options/DstContents.opts
+    . Add Raw/Ecal
+    
+! 2005-11-02 - P. Koppenburg
+  - options/L0Checking.opts
+    . Removed. Replaced by L0CHECKERROOT/options/L0Checker.opts
+      Because of a bug noticed by Krzysztof Syryczynski
+  - options/DaVinci.opts
+  - options/DVTriggerFilter.opts
+    . Corrected accordingly
+    
+!========================== DaVinci v12r14 2005-10-19 ===================
+! 2005-09-01 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . Added decoding of event header:
+> Event and run number are wrong (Run = 1, Event = # events processed) when 
+> DaVinci is run on recent DC04v2 data. It was due to a slight change in the 
+> content of the dst (the EventHeader is not saved anymore but can be restored 
+> from the raw data) as has been pointed out by Marco.
+
+!========================== DaVinci v12r13 2005-08-23 ===================
+! 2005-08-23 - P. Koppenburg
+  - options/DVTriggerFilter.opts
+  - options/DaVinci.opts
+    . Optional high lumi tuning for L1
+    
+    For High Luminosity simply inclde two of:
+//#include "$L0DUROOT/options/L0-lumi3e32.opts"
+//#include "$L0DUROOT/options/L0-lumi5e32.opts"
+//#include "$L1DECISIONROOT/options/L1-lumi3e32.opts"
+//#include "$L1DECISIONROOT/options/L1-lumi5e32.opts"
+
+    WARNING: HltGeneric is now included in HLTSelections.opts.
+    There is no need to include it anymore.    
+    
+! 2005-08-12 - P. Koppenburg
+  - options/L0.opts
+    . Optional high lumi tuning.
+!========================== DaVinci v12r12 2005-07-06 ===================
+No major changes in Phys/DaVinci package. See DaVinciSys for details.
+!========================== DaVinci v12r11 2005-05-27 ===================
+! 2005-06-08 - P. Koppenburg
+  - cmt/requirements
+    . Explicit use of XmlDDDB v24r2 Det
+! 2005-05-27 - P. Koppenburg
+  - options/DVReadStripping.opt
+    . New example options that allow to read stripped DST data
+  - options/Good-Stripped-DST-DC04v1.opts
+    . Stripped DSTs that should be used
+  - options/MuonIDReTuning.opts
+    . Put algo in DaVinciSeq 
+!========================== DaVinci v12r10 2005-05-12 ===================
+! 2005-05-10 - P. Koppenburg
+  - options/DVTriggerFilter.opts
+    . Include HLT
+    . Switch off DstWriter by default
+!========================== DaVinci v12r9 2005-03-22 ===================
+! 2005-04-27 - P. Koppenburg
+  - cmt/requirements
+    . Splitting of options for DaVinci v14r0
+!========================== DaVinci v12r8 2005-03-03 ===================
+! 2005-02-23 - P. Koppenburg
+  - options/L0.opts
+    . Do not re-run L0Muon. It contains a 26KB/event memory leak.
+!========================== DaVinci v12r7 2005-02-15 ===================
+! 2005-02-15 - P. Koppenburg
+  . Many changes in requirements
+  . Some clean-up in options
+!========================== DaVinci v12r6 2005-01-18 ===================
+! 2005-01-18 - P. Koppenburg
+  DoxyGen now in DaVinciSys for compatibility with other projects
+  Detailed release.notes now in DaVinciSys
+  - DoxyFile.cfg
+  - Doxyfooter.html
+  - Doxyheader.html
+  - MainPage.doc
+  - extractdoxy.csh
+  - makedoc
+    . Moved to DaVinciSys
+  - release.notes-detailed
+    . Removed
+
+! 2004-12-02 - P. Koppenburg
+  - doc/extractdoxy.csh
+    . Add Gaudi packages to have GaudiAlgorithm, ContainedObject...
+    
+!========================== DaVinci v12r4 2004-12-01 ===================
+! 2004-11-23 - P. Koppenburg
+  - doc/extractdoxy.csh
+    . Make doxygen only for Phys Tools L0 Trg Hlt and relevant LHCb and Gaudi
+      packages. 
+! 2004-11-17 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . Make the DaVinci start a Sequence
+    . Add OldRICH algorithm
+  - options/PreLoadNoPIDParticles.opts
+    . Adapt options
+  - options/DaVinciElectrons.opts
+  - options/DaVinciNeutrals.opts
+  - options/DaVinciReco.opts
+    . Add all this to sequence
+
+! 2004-11-16 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . Remove PreDV algorithm from sequence
+  - options/PreLoadNoPIDParticles.opts
+    . Adapt options
+  
+!========================== DaVinci v12r4 2004-11-16 ===================
+! 2004-11-16 - P. Koppenburg
+  Increment DaVinciKernel v2r0p1 and DaVinciTools v11r2 in requirements
+  to be able to use PVLocator (for HLT)
+  
+! 2004-11-11 - P. Koppenburg
+  Adapt requirements to version that will be released.
+  
+! 2004-11-03 - P. Koppenburg
+  Remove all TDR-related options. There is no possibility to read TDR data
+  anymore with this version.
+  - options/DaVinciNeutralsTDR.opts
+  - options/DaVinciRecoTDR.opts
+  - options/DaVinciTDRData.opts
+    . Removed
+  - options/DaVinci.opts
+    . Modified accordingly
+
+! 2004-11-01 - P. Koppenburg with Olivier Callot
+  - options/L1Decision.opts
+    . Replaced by $TRGSYSROOT/options/L1.opts
+  - options/Hlt.opts
+    . Replaced by $TRGSYSROOT/options/Hlt.opts
+       *or* $HLTGENERICROOT/options/HltGeneric.opts
+  - options/HltChecking.opts
+  - options/L1Checking.opts
+    . Replaced by $TRGSYSROOT/options/TrgChecking.opts
+  - options/DVTriggerFilter.opts
+  - options/DaVinci.opts
+  - options/DVCheckTrigger.opts
+    . Adapt accordingly
+  - doc/release.notes-detailed
+    . renamed to 
+  - doc/release.notes-davinci
+    . new
+
+! 2004-10-29 - P. Koppenburg for Olivier Callot
+ - cmt/requirements
+   . All L1 trigger packages now come from TrgSys, that overrides some LHCb 
+     stuff (Event/TrgEvent)
+
+!========================== DaVinci v12r3 2004-10-27 ===================
+! 2004-10-26 - P. Koppenburg 
+  - options/DVTriggerFilter.opts
+  - options/DaVinciElectrons.opts
+  - options/DaVinciNeutrals.opts
+    . Replace all Sequencers by GaudiSequencers
+
+! 2004-10-26 - P. Koppenburg for Vanya Belyaev
+  - options/DaVinciElectrons.opts
+    . One need to substitute "CaloDeleteObjectsAlg" -> "TESFilter"   
+      (the algorithm from LHCbAlgs package therefore one need to load DLL "LHCbAlgs" )
+      and to ajust the property name for this algorithm:
+       "ElectronDelete.Addresses" -> "ElectronDelete.DroppedContainers"
+
+! 2004-10-19 - P. Koppenburg
+  - options/HltChecking.opts
+    . Move HltTrgTrackToContainer back to Hlt.opts as it is needed to 
+      find the PV.
+
+! 2004-10-15 - P. Koppenburg for O. Callot
+  - options/Hlt.opts
+  - options/HltChecking.opts
+    . Add TrgMuonID to HLT sequence
+    . Move HltTrgTrackToContainer to checking sequence as it is not needed
+      by the particle maker anymore.
+
+! 2004-10-14 - P. Koppenburg
+  - options/DaVinci.opts
+    . Do not clain that GaudiPython does not work with Pool data. 
+      This is wrong for quite some time now.
+    
+!========================== DaVinci v12r2 2004-10-13 ===================
+! 2004-10-08 - P. Koppenburg
+  - src/Main/DaVinciMain.cpp
+    . Abort cleanly when APPVERSION is not defined
+! 2004-10-04 - P. Koppenburg
+  - options/L0Calo.opts
+  - options/L0.opts
+  - options/L0Muon.opts
+    . Put Calo L0 in new L0Calo.opts and now call L0Muon.opts from L0.opts    
+  - options/DVCheckTrigger.opts
+  - options/DVTriggerFilter.opts
+  - options/DaVinci.opts
+    . Changed accordingly  
+! 2004-10-04 - P. Koppenburg
+  - options/L0Muon.opts
+    . Removed temporary patch to overwrite change in Pt kick from 
+      1.12 to 1.39 GeV, since now L0DU is fixed.
+!========================== DaVinci v12r1 2004-09-16 ===================
+! 2004-09-17 - P. Koppenburg
+  - options/Hlt.opts
+    . Restore TrgTrackToContainer/HltTrgTrackToContainer
+      Bug found by Luis Fernandez
+    
+! 2004-09-15 - P. Koppenburg for Luisanna Tocco
+  - options/L0Muon.opts
+    . Use same options as Boole except for some details.
+    . Still se old Pt kick of 1.21 GeV (should be 1.39) until
+      L0Du is adapted accordingly.
+    
+! 2004-09-15 - P. Koppenburg for Vanya Belyaev
+  - options/DVStripping.opts
+  - options/DVMerge.opts
+    . Do also ETC for merging.
+  
+! 2004-09-14 - P. Koppenburg for Vanya Belyaev
+Vanya writes:
+    I've put few modifications into Event/CaloEvent package 
+    to provide the appropriate "loading-on-demand"  for 
+    Calorimeter digits
+
+    From now there is no nesessity to execute "CaloDigitsFromRaw" 
+    algorithm at all.
+    Algorithm itself is modified to produce only 1 
+    containerner per instance (thus one need to have 4 
+    instances for 4 calorimeters). The overall speed of 4 
+    instances is improved by 20% by replacement of "sort" 
+    with "stable_sort" algorithm and  with the proper 
+    "reserve" manipulations.
+
+    The corresponding instance will be invoked 
+    automatically by nice Markus' service  "DataOnDemand".
+
+    for new configuration one need to add the following
+    lines into the "main"-options file (e.g. Brunel.opts):
+
+    // add the service ito the list of external servcies 
+    ApplicationMgr.ExtSvc += { "DataOnDemandSvc" } ;
+    // enable "DataFault" incidents from Event Data Svc 
+    EventDataSvc.EnableFaultHandler  = true ;
+
+    The specific configuration is described into the file 
+    $CALOEVENTOPTS/options/CaloEvent.opts 
+    which needs to be included from the "main"-options file:
+
+    #include "$CALOEVENTOPTS/options/CaloEvent.opts"
+
+
+! 2004-09-13 - P. Koppenburg for Olivier Callot
+Olivier writes:
+    The head revision of the Trg packages is ready to be tagged and used with 
+    LHCb v16r2 (now in DEV). 
+    This means the following packages to be tagged 
+
+    Trg/L1Decision	v3r0
+    Trg/L1Reco		v5r0
+    Trg/TrgChecker	v5r0
+    Trg/TrgForward	v3r0
+    Trg/TrgMonitor	v3r0
+    Trg/TrgMuonID	v2r0
+    Trg/TrgPrimVertex	v3r0
+    Trg/TrgTools	v5r0
+    Trg/TrgVelo		v5r0
+    Trg/TrgVeloTT	v5r0
+
+    Some changes are also needed in DaVinci options, namely
+
+    - In L1Decision.opts replace algorithm L1Dimuon by L1Muon 
+    - in Hlt.opts, add TrgMuonID in the DLLs, and in the after TrgForward 
+      in the algorithm, 
+    Remove TrgTrackToContainer. Add the options 
+    TrgVeloTTHlt.AcceptInHole = true;  
+    #include "$TRGMUONIDROOT/options/TrgMuonID.opts"
+    - In L1Checking : remove the TrgTrackToConatiner.prefix option
+    - in HltChecking, add the options
+     HltTrgTrack2MCParticle.prefix = "Hlt/";
+     HltTrgChecker.prefix = "Hlt/";
+    If not the monitoring of L1 and HLT can not be set together.
+
+! 2004-09-07 - P. Koppenburg
+  - doc/doxyFile.cfg
+    . Update package list
+! 2004-09-01 - P. Koppenburg for Federica Legger
+  - job/DaVinci.job, job/Stripping.job
+    . Use cmtuser directory
+    
+!========================== DaVinci v12r0 2004-08-24 ====================
+! 2004-08-25 - P. Koppenburg
+  - src/Main/DaVinci.cpp
+     . Use APPVERSION instead of DAVINCIVERS
+   - src/Main/DaVinciHeader.icpp
+     . Removed
+! 2004-08-24 - P. Koppenburg
+  - cmt/requirements
+    . Many technical modifications due to Gaudi v15
+    . Replace DAVINCIVERS environment variable by APPVERSION
+
+!========================== DaVinci v11r13 2004-08-17 ===================
+! 2004-08-17 - P. Koppenburg
+  - options/L1Checking.opts, options/HltChecking.opts
+    . Some minor changes to avoid a memory leak and allow to make particles
+      with Trg tracks.
+  
+!========================== DaVinci v11r12 2004-08-03 ===================
+! 2004-08-04 - P. Koppenburg
+  - Changed all trigger options
+  
+! 2004-08-02 - P. Koppenburg
+  - options/DVTriggerFilter.opts
+  - options/L0.opts
+  - options/L0base.opts (new)
+    . Changes that allow to run the triggerfilter without any MC truth check
+      (faster by a factor 2)
+
+! 2004-08-02 - P. Koppenburg
+  - options/DaVinciCommon.opts 
+  - options/DaVinciElectrons.opts
+  - options/DaVinciNeutrals.opts
+    . TEMPORARY PATCH:
+      Because of a bug in MinimalEventLoopMgr.cpp,
+      an algorithm contained in two sequencers
+      is executed twice. This is the case of 
+      CaloDigitsFromRaw when both the Electrons 
+      and Neutrals sequences are called.
+      To avoid the problem, execute the algorithm
+      in DaVinciCommon.opts, hence in *all* events.
+  
+      !! Don't forget to restore the initial way when
+      a patched version of MinimalEventLoopMgr.cpp
+      comes out !!
+  
+! 2004-07-29 - P. Koppenburg
+  - cmt/requirements
+    . Use LHCb v15r14
+  - options/DaVinciCommon.opts
+    . Restore HbookCnv
+
+! 2004-07-28 - P. Koppenburg
+  - options/DaVinciCommon.opts
+    . Remove $STDOPTS/RootDb.opts and HbookCnv
+
+! 2004-07-27 - P. Koppenburg
+  - options/DstContents.opts
+    . Explicitly add Event/Raw/XXX for DVTriggerFilter.opts
+    
+!========================== DaVinci v11r11 2004-07-23 ===================
+! 2004-07-22 - P. Koppenburg for Vanya Belyaev
+  - options/DaVinciNeutrals.opts
+  - options/DaVinciElectrons.opts
+    . Split DaVinciNeutrals in two. DaVinciElectrons *must* be
+      called before DaVinciReco to have any effect.
+  - options/Calo04Correction.opts
+    . Removed
+  - options/DVTriggerFilter.opts, DVWriteMiniDst.opts, DaVinci.opts
+    . Reflect this order 
+
+! 2004-07-19 - P. Koppenburg for Luisanna Tocco
+ - options/L0Muon.opts
+   . New options to re-run L0muon. 
+     WARNING: Incompatible with hbook! Pere is investigating.
+ - options/DVCheckTrigger.opts
+ - options/DVTRiggerFilter.opts
+   . Re-run L0muon by default
+ - options/DaVinci.opts
+   . DON'T re-run L0muon by default
+ - cmt/requirements
+   . Added L0MuonKernel, L0MuonTRigger and L0mConf packages from Boole
+   . Get Paramfiles to v3r8 fro L0Muon
+  
+! 2004-07-XX - P. Koppenburg
+ - DVStripping.opts
+   . New options for preselections-stripping
+ - DVTriggerFilter.opts
+   . New options for trigger-stripping
+  
+! 2004-07-19 - P. Koppenburg
+ - doc/release.notes-detailed
+   . The release notes in the same style as for the other packages.
+   

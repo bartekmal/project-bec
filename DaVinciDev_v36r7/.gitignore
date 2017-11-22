@@ -1,0 +1,5 @@
+/InstallArea/
+/build.*/
+*.pyc
+*~
+.*.swp
