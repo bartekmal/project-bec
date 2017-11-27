@@ -82,6 +82,20 @@
 	{
 	  StatusCode sc = DaVinciAlgorithm::initialize();
 	  if (!sc) return sc;
+	  info() << "HBT alghorithm properties" << endmsg;
+	  info() << "StrippingLine:\t" << m_StrippingLine << endmsg;
+	  info() << "Sim:\t" << m_Sim << endmsg;
+	  info() << "TrkChi2:\t" << m_trkChi2Cut << endmsg;
+	  info() << "IP:\t" << m_ipCut << endmsg;
+	  info() << "IPChi2:\t" << m_ipChi2Cut << endmsg;
+	  info() << "ghostNN:\t" << m_ghostNNCut << endmsg;
+	  info() << "pionNN:\t" << m_piNNCut << endmsg;
+	  info() << "kaonNN:\t" << m_kNNCut << endmsg;
+	  info() << "protonNN:\t" << m_pNNCut << endmsg;
+	  info() << "p:\t" << m_partPCut << endmsg;
+	  info() << "pT:\t" << m_partPtCut << endmsg;
+	   
+
 	  if(msgLevel(MSG::DEBUG)) debug() << "==> Initialize" << endmsg;
 	  // MCParticle to Particle associator
 	  m_linker = tool<IParticle2MCAssociator>("MCMatchObjP2MCRelator", this);
