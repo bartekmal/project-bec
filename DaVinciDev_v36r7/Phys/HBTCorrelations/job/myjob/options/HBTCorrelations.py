@@ -42,7 +42,3 @@ DaVinci().TupleFile = "hbtNTuple.root"
 DaVinci().UserAlgorithms = [DVSeq]
 ########################################################################
 
-print("Initialized properties:")
-print("Sim\t: {}/{}").format(HBTCorr.Sim,DaVinci().Simulation)
-print("Stripping line\t: {}").format(HBTCorr.StrippingLine)
-print("DataType\t: {}").format(DaVinci().DataType)

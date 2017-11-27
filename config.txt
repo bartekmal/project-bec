@@ -8,3 +8,8 @@ git lb-checkout DaVinci/v36r7 Phys/DaVinci
 make
 make install
 
+
+###########to run
+setupBEC
+lb-run LHCbDIRAC lhcb-proxy-init (ganga)
+lb-run ROOT ganga

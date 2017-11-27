@@ -26,26 +26,13 @@
 #DaVinci().HistogramFile = "hbtHisto_Pbp-MD.root"
 #DaVinci().TupleFile = "hbtNTuple_Pbp-MD.root"
 
-from Configurables import HBT
-HBTCorr = HBT("HBTCorr")
-HBTCorr.Sim = 0
-HBTCorr.StrippingLine = "StrippingIonProtonMagDownMinBiasLineDecision"
-
-from Configurables import DaVinci
-if HBTCorr.Sim == 0:
-  DaVinci().Simulation = False
-else:
-  DaVinci().Simulation = True
-
-DaVinci().DataType = "2011"
-
 
 from Gaudi.Configuration import * 
 from GaudiConf import IOHelper
 IOHelper().inputFiles([
 	'${BASE_BEC_EOS}/dst/test/Pbp/00033076_00000001_1.all.dst'
 	,'${BASE_BEC_EOS}/dst/test/Pbp/00033076_00000002_1.all.dst'
-	,'${BASE_BEC_EOS}/dst/test/Pbp/00033076_00000003_1.all.dst'
+        ,'${BASE_BEC_EOS}/dst/test/Pbp/00033076_00000003_1.all.dst'
 	,'${BASE_BEC_EOS}/dst/test/Pbp/00033076_00000004_1.all.dst'
-	#,'${BASE_BEC_EOS}/dst/test/Pbp/00033076_00000005_1.all.dst'
+	,'${BASE_BEC_EOS}/dst/test/Pbp/00033076_00000005_1.all.dst'
 ], clear=True)
