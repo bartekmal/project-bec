@@ -1,0 +1,20 @@
+#!/bin/csh
+setenv CMTCONFIG x86_64-slc6-gcc49-opt
+source ${MYSITEROOT}/LbLogin.csh
+#SetupProject DaVinci v36r7
+lb-run DaVinci/v36r7 tcsh
+set CODE = HBTAnalysis
+rm $CODE.exe
+
+if(! -f $CODE.exe) then
+g++ -pthread -m64 -I/cvmfs/lhcb.cern.ch/lib/lcg/app/releases/ROOT/5.34.10/x86_64-slc6-gcc49-opt/root/include $CODE.cpp -o $CODE.exe -L/cvmfs/lhcb.cern.ch/lib/lcg/app/releases/ROOT/5.34.10/x86_64-slc6-gcc49-opt/root/lib -lGpad -lHist -lGraf -lGraf3d -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lRIO -lNet -lThread -lCore -lCint  -pthread -lm -ldl -rdynamic -lTreePlayer -lMinuit -lTMVA -lXMLIO -lMLP
+endif
+
+foreach i (0)
+
+#qsub -q l_long -l walltime=15:00:00  -v DIR=`echo $PWD`,DATA="RD",PART="pion",PINN=0.65 HBTAnalysis.csh
+#qsub -q l_long -l walltime=15:00:00  -v DIR=`echo $PWD`,DATA="MC",PART="pion",PINN=0.65 HBTAnalysis.csh
+
+
+end
+

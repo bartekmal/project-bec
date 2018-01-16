@@ -1,0 +1,12 @@
+000000.0000 Input files: 
+000000.0000 /afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/DaVinciDev_v36r7/Phys/HBTCorrelations/job/myjob/test/Pbp/MC/hbtNTuple.root
+000000.0001 Exec args: MC = 1
+TFile**		/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/DaVinciDev_v36r7/Phys/HBTCorrelations/job/myjob/test/Pbp/MC/hbtNTuple.root	Gaudi Trees
+ TFile*		/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/DaVinciDev_v36r7/Phys/HBTCorrelations/job/myjob/test/Pbp/MC/hbtNTuple.root	Gaudi Trees
+  KEY: TTree	HBT;1	HBT
+End loop over files
+
+1/1 reading 23062 entries from: /afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/DaVinciDev_v36r7/Phys/HBTCorrelations/job/myjob/test/Pbp/MC/hbtNTuple.root
+000000.0006 Time of execution [min] : 1.23333
+----------------------------------------------------------
+Histograms wrote to basicVars.root 

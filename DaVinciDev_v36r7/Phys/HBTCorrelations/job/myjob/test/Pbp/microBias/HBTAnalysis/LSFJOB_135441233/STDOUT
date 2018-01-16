@@ -1,0 +1,54 @@
+@(#)CERN job starter $Date: 2010/06/23 14:22:16 $
+Working directory is </pool/lsf/bmalecki/135441233> on <b679d819cf.cern.ch>
+
+WARNING : using environment variable CMTSITE for cmtsite
+WARNING : using environment variable User_release_area for userarea
+WARNING : using environment variable LHCBNIGHTLIES for nightlies_dir
+WARNING : using environment variable VO_LHCB_SW_DIR for sharedarea
+********************************************************************************
+*                          ---- LHCb Login v9r2 ----                           *
+*      Building with gcc49 on slc6 x86_64 system (x86_64-slc6-gcc49-opt)       *
+********************************************************************************
+ --- User_release_area is set to /afs/cern.ch/user/b/bmalecki/cmtuser
+ --- LHCBPROJECTPATH is set to:
+    /cvmfs/lhcb.cern.ch/lib/lhcb
+    /cvmfs/lhcb.cern.ch/lib/lcg/releases
+    /cvmfs/lhcb.cern.ch/lib/lcg/app/releases
+    /cvmfs/lhcb.cern.ch/lib/lcg/external
+--------------------------------------------------------------------------------
+WARNING : using environment variable CMTSITE for cmtsite
+WARNING : using environment variable User_release_area for userarea
+WARNING : using environment variable LHCBNIGHTLIES for nightlies_dir
+WARNING : using environment variable VO_LHCB_SW_DIR for sharedarea
+********************************************************************************
+*                          ---- LHCb Login v9r2 ----                           *
+*      Building with gcc49 on slc6 x86_64 system (x86_64-slc6-gcc49-opt)       *
+********************************************************************************
+ --- User_release_area is set to /afs/cern.ch/user/b/bmalecki/cmtuser
+ --- LHCBPROJECTPATH is set to:
+    /cvmfs/lhcb.cern.ch/lib/lhcb
+    /cvmfs/lhcb.cern.ch/lib/lcg/releases
+    /cvmfs/lhcb.cern.ch/lib/lcg/app/releases
+    /cvmfs/lhcb.cern.ch/lib/lcg/external
+--------------------------------------------------------------------------------
+Configuring DaVinci v36r7 from /cvmfs/lhcb.cern.ch/lib/lhcb/DAVINCI/DAVINCI_v36r7
+Using CMTPROJECTPATH = '/afs/cern.ch/user/b/bmalecki/cmtuser:/cvmfs/lhcb.cern.ch/lib/lhcb:/cvmfs/lhcb.cern.ch/lib/lcg/releases:/cvmfs/lhcb.cern.ch/lib/lcg/app/releases:/cvmfs/lhcb.cern.ch/lib/lcg/external'
+Environment for DaVinci v36r7 ready.
+(Compat v1r19 from /cvmfs/lhcb.cern.ch/lib/lhcb/COMPAT/COMPAT_v1r19,
+ DaVinci v36r7 from /cvmfs/lhcb.cern.ch/lib/lhcb/DAVINCI/DAVINCI_v36r7)
+Error in <TTree::SetBranchAddress>: unknown branch -> N_J
+Error in <TTree::SetBranchAddress>: unknown branch -> pxJet
+Error in <TTree::SetBranchAddress>: unknown branch -> pyJet
+Error in <TTree::SetBranchAddress>: unknown branch -> pzJet
+Error in <TTree::SetBranchAddress>: unknown branch -> eJet
+Error in <TTree::SetBranchAddress>: unknown branch -> pJet
+Error in <TTree::SetBranchAddress>: unknown branch -> multJet
+Error in <TTree::SetBranchAddress>: unknown branch -> piNNcor
+Error in <TTree::SetBranchAddress>: unknown branch -> kNNcor
+Error in <TTree::SetBranchAddress>: unknown branch -> pNNcor
+
+Job finished at Mon Jan 15 18:01:00 CET 2018 on node 
+ under linux version Scientific Linux CERN SLC release 6.9 (Carbon)
+
+CERN statistics: This process used approximately : 0:02:34 KSI2K hours (154 KSI2K seconds)
+                 This process corresponds to     : 0:10:03 HS06  hours (603 HS06  seconds)
