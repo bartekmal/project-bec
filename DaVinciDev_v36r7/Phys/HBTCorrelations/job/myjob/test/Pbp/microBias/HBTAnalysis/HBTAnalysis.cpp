@@ -107,6 +107,7 @@ int main(int argc, char** argv) {
   TH1D* h1053 = new TH1D("h1053","shareVHits", 200, -1.0, 1.0);
   TH1D* h1054 = new TH1D("h1054","isMuon", 10, -5.0, 5.0);
   
+  TH2D* h2000 = new TH2D("h2000","SPDhitsVSPVmult1", 60,0,60,50, 0, 500);
 
   // Loop over ntuples ------------------------
   int nFile      = 1;
@@ -149,6 +150,7 @@ int main(int argc, char** argv) {
       h100->Fill(multNoPreSel);
       h101->Fill(PVMult1);
       h102->Fill(SPDhits); 
+      h2000->Fill(PVMult1,SPDhits);
       // Loop over particles
       for(int i = 0; i < N; i++) {
         // Fill x-check histrograms for particles
@@ -217,7 +219,7 @@ int main(int argc, char** argv) {
         h1053->Fill(shareVHits[i]);
         h1054->Fill(isMuon[i]);
       
-
+        
       }
     }
     
