@@ -32,20 +32,59 @@ def jobBEC(data,collision,magnet,test=False):
        j.name = j.name+"_test"
 
        if collision == "Pbp":
-           j.application.options = [appOpts+'options/HBTCorrelations.py', appOpts+'options/RD_Pbp_MD.py']
-           j.application.readInputData(appOpts+'data/test_ionproton.py')
+           if magnet == "MD":
+               j.application.options = [appOpts+'options/HBTCorrelations_test.py', appOpts+'options/RD_Pbp_MD.py']
+               j.application.readInputData(appOpts+'data/LHCb_Ionproton13_90000000_Beam4000GeVVeloClosedMagDown_RealData_Reco14r1_Stripping20r3_ALL.py')
        if collision == "pPb":
-           j.application.options = [appOpts+'options/HBTCorrelations.py', appOpts+'options/RD_pPb_MD.py']
-           j.application.readInputData(appOpts+'data/test_protonion.py')
+           if magnet == "MD":
+               j.application.options = [appOpts+'options/HBTCorrelations_test.py', appOpts+'options/RD_pPb_MD.py']
+               j.application.readInputData(appOpts+'data/LHCb_Protonion13_90000000_Beam4000GeVVeloClosedMagDown_RealData_Reco14r1_Stripping20r3_ALL.py')
 
-       j.backend = Local()
-       j.outputfiles = [LocalFile('*.root')]
-       #j.splitter = SplitByFiles(filesPerJob = 2)
+       j.backend = Dirac()
+       j.outputfiles = [DiracFile('*.root')]
+       j.splitter = SplitByFiles(filesPerJob = 10, maxFiles = 20)
+
+    if (data == "MC" and test == False):
+        if collision == "Pbp":
+            if magnet == "MD":
+                j.application.options = [appOpts+'options/HBTCorrelations.py', appOpts+'options/MC_Pbp_MD.py']
+                j.application.readInputData(appOpts+'data/MC_2013_30000000_PbpBeam1580GeV4000GeV2013MagDownFix1Epos_Sim09c_L0Trig0x1710_Trig0x406a1710_Reco14r1_Stripping20r3p1_ALLSTREAMS.py')
+            if magnet == "MU":
+                j.application.options = [appOpts+'options/HBTCorrelations.py', appOpts+'options/MC_Pbp_MU.py']
+                j.application.readInputData(appOpts+'data/MC_2013_30000000_PbpBeam1580GeV4000GeV2013MagUpFix1Epos_Sim09c_L0Trig0x1710_Trig0x406a1710_Reco14r1_Stripping20r3p1_ALLSTREAMS.py')
+        if collision == "pPb":
+            if magnet == "MD":
+                j.application.options = [appOpts+'options/HBTCorrelations.py', appOpts+'options/MC_pPb_MD.py']
+                j.application.readInputData(appOpts+'data/MC_2013_30000000_pPbBeam4000GeV1580GeV2013MagDownFix1Epos_Sim09c_L0Trig0x1710_Trig0x406a1710_Reco14r1_Stripping20r3p1_ALLSTREAMS.py')
+            if magnet == "MU":
+                j.application.options = [appOpts+'options/HBTCorrelations.py', appOpts+'options/MC_pPb_MU.py']
+                j.application.readInputData(appOpts+'data/MC_2013_30000000_pPbBeam4000GeV1580GeV2013MagUpFix1Epos_Sim09c_L0Trig0x1710_Trig0x406a1710_Reco14r1_Stripping20r3p1_ALLSTREAMS.py')
+
+        j.backend = Dirac()
+        j.outputfiles = [DiracFile('*.root')]
+        j.splitter = SplitByFiles(filesPerJob = 5, ignoremissing = True)
+
+    if (data == "MC" and test == True):
+       j.name = j.name+"_test"
+
+       if collision == "Pbp":
+           if magnet == "MD":
+               j.application.options = [appOpts+'options/HBTCorrelations_test.py', appOpts+'options/MC_Pbp_MD.py']
+               j.application.readInputData(appOpts+'data/MC_2013_30000000_PbpBeam1580GeV4000GeV2013MagDownFix1Epos_Sim09c_L0Trig0x1710_Trig0x406a1710_Reco14r1_Stripping20r3p1_ALLSTREAMS.py')
+       if collision == "pPb":
+           if magnet == "MD":
+               j.application.options = [appOpts+'options/HBTCorrelations_test.py', appOpts+'options/MC_pPb_MD.py']
+               j.application.readInputData(appOpts+'data/MC_2013_30000000_pPbBeam4000GeV1580GeV2013MagDownFix1Epos_Sim09c_L0Trig0x1710_Trig0x406a1710_Reco14r1_Stripping20r3p1_ALLSTREAMS.py')
+
+       j.backend = Dirac()
+       j.outputfiles = [DiracFile('*.root')]
+       j.splitter = SplitByFiles(filesPerJob = 5, maxFiles = 10, ignoremissing = True)
     
     print j
     queues.add(j.submit)  
 
 #j.inputdata = BKQuery('/LHCb/Ionproton13/Beam4000GeV-VeloClosed-MagDown/Real Data/Reco14r1/Stripping20r3/90000000/ALL.DST').getDataset() 
+
 
 
 

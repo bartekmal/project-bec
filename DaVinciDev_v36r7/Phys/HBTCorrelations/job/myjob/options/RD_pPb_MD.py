@@ -9,4 +9,4 @@ if HBTCorr.Sim == 0:
 else:
   DaVinci().Simulation = True
 
-DaVinci().DataType = "2011"
+DaVinci().DataType = "2012"

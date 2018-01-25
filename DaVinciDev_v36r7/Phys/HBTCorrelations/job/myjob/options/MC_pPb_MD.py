@@ -1,5 +1,3 @@
-
-
 from Configurables import HBT
 HBTCorr = HBT("HBTCorr")
 HBTCorr.Sim = 1
