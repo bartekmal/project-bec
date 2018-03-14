@@ -1,6 +1,6 @@
-#-- GAUDI jobOptions generated on Thu Jan 18 14:57:52 2018
+#-- GAUDI jobOptions generated on Wed Mar 14 16:01:36 2018
 #-- Contains event types : 
-#--   30000000 - 1489 files - 5030969 events - 933.87 GBytes
+#--   30000000 - 1490 files - 5034114 events - 934.46 GBytes
 
 
 #--  Extra information about the data processing phases:
@@ -1560,5 +1560,6 @@ IOHelper('ROOT').inputFiles(['LFN:/lhcb/MC/2013/ALLSTREAMS.DST/00067559/0000/000
 'LFN:/lhcb/MC/2013/ALLSTREAMS.DST/00067559/0000/00067559_00001548_5.AllStreams.dst',
 'LFN:/lhcb/MC/2013/ALLSTREAMS.DST/00067559/0000/00067559_00001549_5.AllStreams.dst',
 'LFN:/lhcb/MC/2013/ALLSTREAMS.DST/00067559/0000/00067559_00001550_5.AllStreams.dst',
-'LFN:/lhcb/MC/2013/ALLSTREAMS.DST/00067559/0000/00067559_00001551_5.AllStreams.dst'
+'LFN:/lhcb/MC/2013/ALLSTREAMS.DST/00067559/0000/00067559_00001551_5.AllStreams.dst',
+'LFN:/lhcb/MC/2013/ALLSTREAMS.DST/00067559/0000/00067559_00001553_5.AllStreams.dst'
 ], clear=True)
