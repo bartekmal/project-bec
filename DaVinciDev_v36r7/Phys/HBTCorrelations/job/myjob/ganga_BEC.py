@@ -84,6 +84,24 @@ def jobBEC(data,collision,magnet,test=False):
     queues.add(j.submit)  
 
 #j.inputdata = BKQuery('/LHCb/Ionproton13/Beam4000GeV-VeloClosed-MagDown/Real Data/Reco14r1/Stripping20r3/90000000/ALL.DST').getDataset() 
+def merge_RD_Ap_MU():
+    merge_root_output(102,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/RD_Pbp_MU/hbtNTuple.root")
+def merge_RD_pA_MU():
+    merge_root_output(94,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/RD_pPb_MU/hbtNTuple.root")
+def merge_RD_Ap_MD():
+    merge_root_output(83,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/RD_Pbp_MD/hbtNTuple.root")
+def merge_RD_pA_MD():
+    merge_root_output(93,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/RD_pPb_MD/hbtNTuple_2.root")
+
+def merge_MC_Ap_MU():
+    merge_root_output(112,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/MC_Pbp_MU/hbtNTuple.root")
+def merge_MC_pA_MU():
+    merge_root_output(107,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/MC_pPb_MU/hbtNTuple.root")
+def merge_MC_Ap_MD():
+    merge_root_output(113,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/MC_Pbp_MD/hbtNTuple.root")
+def merge_MC_pA_MD():
+    merge_root_output(108,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/MC_pPb_MD/hbtNTuple.root")
+
 
 
 
