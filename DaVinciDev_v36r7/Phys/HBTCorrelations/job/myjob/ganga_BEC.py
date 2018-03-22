@@ -91,7 +91,7 @@ def merge_RD_pA_MU():
 def merge_RD_Ap_MD():
     merge_root_output(83,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/RD_Pbp_MD/hbtNTuple.root")
 def merge_RD_pA_MD():
-    merge_root_output(93,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/RD_pPb_MD/hbtNTuple_2.root")
+    merge_root_output(93,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/RD_pPb_MD/hbtNTuple.root")
 
 def merge_MC_Ap_MU():
     merge_root_output(112,"hbtNTuple.root","HBT","/eos/lhcb/user/b/bmalecki/BEC_pPb/ntuple/MC_Pbp_MU/hbtNTuple.root")
