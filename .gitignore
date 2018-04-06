@@ -4,8 +4,9 @@
 */LSFJOB*
 #output
 *.root
-
+*.log
 #backup files
+*/.*
 *~
 .*.swp
 *#*#
