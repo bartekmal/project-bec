@@ -1,0 +1,16 @@
+##### from PIDCalib twiki
+LbLogin -c x86_64-slc6-gcc49-opt
+lb-dev Urania/v7r0
+cd UraniaDev _v7r0
+git lb-use Urania
+git lb-checkout Urania/v7r0 PIDCalib/PIDPerfTools
+git lb-checkout Urania/v7r0 PIDCalib/PIDPerfScripts
+make configure
+make
+make install
+
+###to run
+lb-run -c best LHCbDirac/prod bash
+lhcb-proxy-init
+
+./run bash --norc

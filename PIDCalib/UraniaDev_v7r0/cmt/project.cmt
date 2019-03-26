@@ -1,0 +1,9 @@
+project UraniaDev_v7r0
+
+use URANIA URANIA_v7r0
+
+build_strategy with_installarea
+setup_strategy root
+structure_strategy without_version_directory
+
+container UraniaDevSys

@@ -1,0 +1,1371 @@
+// $Id: $
+// Include files
+#include "RooRealVar.h"
+#include "RooMsgService.h"
+#include <iomanip>
+#include <algorithm>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/bind.hpp>
+#include <boost/algorithm/string/find.hpp>
+#include <boost/foreach.hpp>
+#include <fstream>
+
+// local
+#include "PIDPerfTools/PerfCalculator.h"
+
+using namespace RooFit;
+
+namespace PIDCalib
+{
+  struct length
+  {
+    bool operator() ( const std::string& a, const std::string& b )
+    {
+      return a.size() < b.size();
+    }
+  };
+
+  struct strToDouble
+  {
+    double operator() ( const std::string& s )
+    {
+      return boost::lexical_cast<double>(s);
+    }
+  };
+}
+
+//-----------------------------------------------------------------------------
+// Implementation file for class : PerfCalculator
+//
+// 2010-11-03 : Andrew Powell (LHCb)04
+//-----------------------------------------------------------------------------
+
+//=============================================================================
+// Return PIDRESULT for given PID cut
+//=============================================================================
+template <class T>
+PIDResult PerfCalculator<T>::Perf( const std::string& PIDCut,
+                                   Bool_t BayesErrors )
+{
+  const RooRealVar* MyPar = m_Data->Get_Param("P");
+  Double_t Hi, Lo;
+
+  m_Data->getRange(*(const_cast<RooRealVar *>(MyPar)),
+                   Lo,
+                   Hi);
+
+  RooBinning* OneBin = new RooBinning(Lo,Hi,"P");
+  double _Eff;
+  double _Eff_Err_Lo, _Eff_Err_Hi;
+
+  if(!BayesErrors)
+  {
+    TH1F* MyHis = this->Perf(PIDCut,
+                             OneBin);
+
+    _Eff = MyHis->GetBinContent(1);
+    _Eff_Err_Lo = MyHis->GetBinError(1);
+    _Eff_Err_Hi = MyHis->GetBinError(1);
+
+    delete MyHis;
+  }
+  else{
+    TGraphAsymmErrors* MyGraph = this->Perf_BayesErrors(PIDCut,
+                                                        OneBin);
+    double Dummy;
+    MyGraph->GetPoint(0,Dummy,_Eff);
+    _Eff_Err_Lo =  MyGraph->GetErrorYlow(0);
+    _Eff_Err_Hi =  MyGraph->GetErrorYhigh(0);
+
+    delete MyGraph;
+  }
+
+  delete OneBin;
+
+  std::vector<std::string> Cut_DLLs,Cut_Ops,Cut_Vals;
+  this->FormatCutList(PIDCut,
+                      Cut_DLLs,
+                      Cut_Ops,
+                      Cut_Vals);
+
+  std::vector<double> CutValues;
+  CutValues.resize(Cut_Vals.size());
+  std::transform(Cut_Vals.begin(), Cut_Vals.end(), CutValues.begin(), PIDCalib::strToDouble());
+
+  return PIDResult( _Eff,
+                    _Eff_Err_Lo,
+                    _Eff_Err_Hi,
+                    Cut_DLLs,
+                    Cut_Ops,
+                    CutValues );
+}
+
+//=============================================================================
+// Return list of PIDRESULTs for given list of PID cuts
+//=============================================================================
+template <class T>
+PIDResult::Container PerfCalculator<T>::Perf( const std::list<std::string>& PIDCuts,
+                                              Bool_t BayesErrors )
+{
+  PIDResult::Container results;
+  results.reserve(PIDCuts.size());
+
+  for( std::list<std::string>::const_iterator itr=PIDCuts.begin(); itr!=PIDCuts.end(); ++itr)
+  {
+    results.push_back(this->Perf(*itr,
+                                 BayesErrors));
+  }
+
+  return results;
+}
+
+//========================================================
+// Return efficiency as a function of the  variable(s) given
+// in the vector of RooBinnings, for a given PID cut.
+// essentially just a wrapper for all the "Perf" functions
+// that return histograms of different dimensions. This returns
+// a histogram of arbitrary dimension.
+//========================================================
+template <class T>
+TH1* PerfCalculator<T>::Perf_Hist( const char * histName,
+                                   const std::string& pidCut,
+                                   std::vector<RooBinning*>& theBinSchema,
+                                   Bool_t rejectNonNormalBins,
+                                   Int_t minEntries,
+                                   Bool_t printVals)
+{
+  if (theBinSchema.size()>3){
+    std::cout << "**ERROR** : theBinSchema is too big." << std::endl;
+    return NULL;
+  }
+  else if (theBinSchema.empty()){
+    std::cout << "**ERROR** : theBinSchema is empty." << std::endl;
+    return NULL;
+  }
+
+  TH1* effHist=0;
+  if (theBinSchema.size()==3) effHist = (TH1*)this->Perf(pidCut,
+                                                         theBinSchema.at(0),
+                                                         theBinSchema.at(1),
+                                                         theBinSchema.at(2),
+                                                         rejectNonNormalBins,
+                                                         minEntries,
+                                                         printVals);
+  else if (theBinSchema.size()==2) effHist = (TH1*)this->Perf(pidCut,
+                                                              theBinSchema.at(0),
+                                                              theBinSchema.at(1),
+                                                              rejectNonNormalBins,
+                                                              minEntries,
+                                                              printVals);
+  else if (theBinSchema.size()==1) effHist = (TH1*)this->Perf(pidCut,
+                                                              theBinSchema.at(0),
+                                                              rejectNonNormalBins,
+                                                              minEntries,
+                                                              printVals);
+  effHist->SetName(histName);
+  return effHist;
+}
+
+//=============================================================================
+// Return efficiency as a function of the variable declared in the RooBinning
+// name
+// If rejectNonNormalBins is true, then bins with n_total*eff<minEntries or
+// n_total*(1-eff)<minEntries will have their efficiencies set to zero
+// (since the Normal approximation fails in these bins). minEntries defaults
+// to 10.
+//=============================================================================
+template <class T>
+TH1F* PerfCalculator<T>::Perf( const std::string& PIDCut,
+                               RooBinning* BinSchema,
+                               Bool_t rejectNonNormalBins,
+                               Int_t minEntries,
+                               Bool_t printVals)
+{
+
+  std::vector<std::string> Cut_DLLs,Cut_Ops,Cut_Vals;
+  std::string CutStr = this->FormatCutList(PIDCut,
+                                   Cut_DLLs,
+                                   Cut_Ops,
+                                   Cut_Vals);
+
+  TH1* RawHist = (TH1*)m_Data->createHistogram(m_Data->Get_Param(BinSchema->GetName())->GetTitle(),
+                                               *m_Data->Get_Param(BinSchema->GetName()),
+                                               Binning(*BinSchema)
+                                               );
+
+//   RooDataSet* Data_Cut = (RooDataSet*)m_Data->reduce( Cut.c_str() );
+
+  TH1* CutHist = (TH1*)m_Data->createHistogram(m_Data->Get_Param(BinSchema->GetName())->GetTitle(),
+                                                 *m_Data->Get_Param(BinSchema->GetName()),
+                                                 Binning(*BinSchema),
+                                                 Cut(CutStr.c_str())
+                                                 );
+
+  TH1F* RatioHist = new TH1F("Ratio",
+                             PIDCut.c_str(),
+                             BinSchema->numBins(),
+                             BinSchema->array()
+                             );
+
+  RatioHist->Divide(CutHist,RawHist,1.0,1.0,"B");
+
+  RatioHist->SetYTitle("Efficiency");
+
+  if (printVals) {
+    for (Int_t i=0; i<BinSchema->numBins(); ++i) {
+      std::cout.setf(std::ios::fixed, std::ios::floatfield);
+      std::cout.precision(4);
+      Int_t ntot = static_cast<Int_t>(RawHist->GetBinContent(i+1));
+      Int_t npass = static_cast<Int_t>(CutHist->GetBinContent(i+1));
+      Double_t eff = RatioHist->GetBinContent(i+1);
+      std::cout << "Bin " << i << ", ntotal=" << ntot << ", npass=" << npass
+                << ", eff=" << eff << std::endl;
+    }
+  }
+
+  TString xTitle="";
+
+  if( strcmp(m_Data->Get_Param(BinSchema->GetName())->getUnit(),"")==0)
+    xTitle = m_Data->Get_Param(BinSchema->GetName())->GetTitle();
+  else
+    xTitle.Form("%s [%s]",
+                m_Data->Get_Param(BinSchema->GetName())->GetTitle(),
+                m_Data->Get_Param(BinSchema->GetName())->getUnit());
+
+  RatioHist->SetXTitle( xTitle.Data() );
+
+  if (rejectNonNormalBins) {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    std::cout.precision(4);
+    for (Int_t i=0; i<BinSchema->numBins(); ++i) {
+
+      Float_t eff = RatioHist->GetBinContent(i+1);
+      Float_t ntot = RawHist->GetBinContent(i+1);
+
+      Int_t np = static_cast<Int_t>(eff*ntot);
+      Int_t np1 = static_cast<Int_t>((1-eff)*ntot);
+
+      if (np<=minEntries) {
+
+        std::cout << "WARNING: Bin " << i << " has n_total*eff<=" << minEntries
+                  << " (" << np << "). The efficiency "
+                  << "error associated with this bin is unreliable, and the "
+                  << "efficiency will be set to zero" << std::endl;
+        RatioHist->SetBinContent(i+1, 0.);
+        RatioHist->SetBinError(i+1, 0.);
+      }
+      else if (np1<=minEntries) {
+        std::cout << "WARNING: Bin " << i << " has n_total*(1-eff)<=" << minEntries
+                  << " (" << np1 << "). The efficiency "
+                  << "error associated with this bin is unreliable, and the "
+                  << "efficiency will be set to zero" << std::endl;
+        RatioHist->SetBinContent(i+1, 0.);
+        RatioHist->SetBinError(i+1, 0.);
+      }
+    }
+  }
+//   delete Data_Cut;
+  delete RawHist;
+  delete CutHist;
+
+  return RatioHist;
+}
+
+//=============================================================================
+// Return efficiency as a function of the variable declared in the RooBinning
+// name.Errors returned are from using Bayes' Theorem result
+// (Ensures eff=[0,1]). A better class interface is available in ROOT >v5.27
+//=============================================================================
+template <class T>
+TGraphAsymmErrors* PerfCalculator<T>::Perf_BayesErrors( const std::string& PIDCut,
+                                                        RooBinning* BinSchema )
+{
+  std::vector<std::string> Cut_DLLs,Cut_Ops,Cut_Vals;
+  std::string CutStr = this->FormatCutList(PIDCut,
+                                   Cut_DLLs,
+                                   Cut_Ops,
+                                   Cut_Vals);
+
+  TH1* RawHist = (TH1*)m_Data->createHistogram(m_Data->Get_Param(BinSchema->GetName())->GetTitle(),
+                                               *m_Data->Get_Param(BinSchema->GetName()),
+                                               Binning(*BinSchema)
+                                               );
+
+//   T* Data_Cut = dynamic_cast<T*>(m_Data->reduce( Cut.c_str() ));
+
+  TH1* CutHist = (TH1*)m_Data->createHistogram(m_Data->Get_Param(BinSchema->GetName())->GetTitle(),
+                                                 *m_Data->Get_Param(BinSchema->GetName()),
+                                                 Binning(*BinSchema),
+                                                 Cut(CutStr.c_str())
+                                                 );
+
+  TGraphAsymmErrors* RatioHist = new TGraphAsymmErrors();
+  RatioHist->BayesDivide(CutHist,RawHist);
+
+  RatioHist->GetYaxis()->SetRangeUser(0.0, 1.4);
+  RatioHist->GetYaxis()->SetTitle("Efficiency");
+
+  TString xTitle="";
+
+  if( strcmp(m_Data->Get_Param(BinSchema->GetName())->getUnit(),"")==0)
+    xTitle = m_Data->Get_Param(BinSchema->GetName())->GetTitle();
+  else
+    xTitle.Form("%s [%s]",
+                m_Data->Get_Param(BinSchema->GetName())->GetTitle(),
+                m_Data->Get_Param(BinSchema->GetName())->getUnit());
+
+  RatioHist->GetXaxis()->SetTitle( xTitle.Data() );
+
+//   delete Data_Cut;
+  delete RawHist;
+  delete CutHist;
+
+  return RatioHist;
+}
+
+//=============================================================================
+// Return efficiencies as a function of DLL cut value. If multiple DLLs are
+// used in the cut, then the plotted DLL can be specified by the index argument
+// (set by default to the first sub-cut).
+//=============================================================================
+template <class T>
+TGraphAsymmErrors* PerfCalculator<T>::Perf_Scan( const std::list<std::string>& Cuts,
+                                                 Bool_t BayesErrors,
+                                                 int index )
+{
+  PIDResult::Container Results = this->Perf(Cuts,
+                                            BayesErrors);
+
+  double* Effs  = new double[Results.size()];
+  double* Errsl = new double[Results.size()];
+  double* Errsh = new double[Results.size()];
+  double* DLL   = new double[Results.size()];
+  double* DLLl  = new double[Results.size()];
+  double* DLLh  = new double[Results.size()];
+
+  int i=0;
+  for( PIDResult::Container::iterator itr = Results.begin(); itr!= Results.end(); ++itr, ++i)
+  {
+    /*
+      std::cout<<i<<'\t'
+      <<(*itr)->Eff<<'\t'
+      <<(*itr)->Err_Lo<<'\t'
+      <<(*itr)->Err_Hi<<'\t'
+      <<(*itr)->DLL<<'\t'
+      <<(*itr)->Cut<<'\t'
+      <<std::endl;
+    */
+
+    Effs[i] = (*itr).Eff;
+    Errsl[i] = (*itr).Err_Lo;
+    Errsh[i] = (*itr).Err_Hi;
+
+    DLL[i] = ((*itr).Cut)[index];
+    DLLl[i] = 0;
+    DLLh[i] = 0;
+  }
+
+  TGraphAsymmErrors* DLLScan = new TGraphAsymmErrors(Results.size(),
+                                                     DLL,
+                                                     Effs,
+                                                     DLLl,
+                                                     DLLh,
+                                                     Errsl,
+                                                     Errsh);
+  DLLScan->GetYaxis()->SetTitle("Efficiency");
+
+  if ( (Results.front().DLL)[index] == "DLLK" )
+  {
+    DLLScan->GetXaxis()->SetTitle("DLL(K-#pi)");
+  }
+  else if ( (Results.front().DLL)[index] == "DLLp" )
+  {
+    DLLScan->GetXaxis()->SetTitle("DLL(p-#pi)");
+  }
+  else if ( (Results.front().DLL)[index] == "DLLpK" )
+  {
+    DLLScan->GetXaxis()->SetTitle("DLL(p-K)");
+  }
+  else if ( (Results.front().DLL)[index] == "DLLmu" )
+  {
+    DLLScan->GetXaxis()->SetTitle("DLL(#mu-#pi)");
+  }
+  else
+  {
+    DLLScan->GetXaxis()->SetTitle( ((Results.front().DLL)[index]).c_str() );
+  }
+
+  delete Effs;
+  delete Errsl;
+  delete Errsh;
+  delete DLL;
+  delete DLLl;
+  delete DLLh;
+
+  return DLLScan;
+}
+
+//=============================================================================
+// Return efficiency of this sample against efficiencies from an external
+// sample
+//=============================================================================
+template <class T>
+TGraphAsymmErrors* PerfCalculator<T>::Perf_Scan( const PIDResult::Container & Ex_Results,
+                                                 const std::list<std::string>& PIDCuts,
+                                                 Bool_t BayesErrors )
+{
+  // Extract cuts from Ex_results and store in new list<const char*>
+  PIDResult::Container::const_iterator itr, itr_Ex;
+
+  //---------------------------------------------
+  // For some reason the below code does not work
+  // Would mean it not necessary to pass the list
+  // of PIDCuts
+  //---------------------------------------------
+  /*
+    std::list<const char*> MyCuts;
+    int j = 0;
+    for(itr = Ex_Results.begin(); itr!= Ex_Results.end(); ++itr, ++j)
+    {
+    std::string A = (*itr)->DLL;
+    A += (*itr)->CutOp;
+    A += boost::lexical_cast<string>((*itr)->Cut);
+    std::cout<<j <<'\t'<<A<<'\t'<<(*itr)->CutOp<<std::endl;
+    MyCuts.push_back(A.c_str());
+    }
+
+    std::list<const char*>::iterator litr;
+    j=0;
+    for(litr=MyCuts.begin(); litr!=MyCuts.end(); ++litr,++j)
+    {
+    std::cout<<j<<'\t'<<*litr<<std::endl;
+    }
+  */
+  //---------------------------------------------
+
+  // Calculate PID results for this dataset
+  const PIDResult::Container Results = this->Perf(PIDCuts,
+                                                  BayesErrors);
+
+  double* Effs_1  = new double[Results.size()];
+  double* Errsl_1 = new double[Results.size()];
+  double* Errsh_1 = new double[Results.size()];
+  double* Effs_2  = new double[Results.size()];
+  double* Errsl_2 = new double[Results.size()];
+  double* Errsh_2 = new double[Results.size()];
+
+  std::cout<<std::setfill('-')<<std::setw(112)<<"-"<<std::setfill(' ')<<std::endl;
+  std::cout<<std::setw(16)<<"PID Cut"
+      <<std::setw(16)<<"Int. Eff"
+      <<std::setw(16)<<"Int. Error Lo"
+      <<std::setw(16)<<"Int. Error Hi"
+      <<std::setw(16)<<"Ext. Eff"
+      <<std::setw(16)<<"Ext. Error Lo"
+      <<std::setw(16)<<"Ext. Error Hi"<<std::endl;
+  std::cout<<std::setfill('-')<<std::setw(112)<<"-"<<std::setfill(' ')<<std::endl;
+
+  int i=0;
+  std::list<std::string>::const_iterator cut_itr = PIDCuts.begin();
+  for(itr = Results.begin(), itr_Ex = Ex_Results.begin();
+      itr!= Results.end();
+      ++itr, ++itr_Ex, ++i, ++cut_itr)
+  {
+    std::cout<<std::setw(16)<<*cut_itr
+        <<std::setw(16)<<(*itr).Eff
+        <<std::setw(16)<<(*itr).Err_Lo
+        <<std::setw(16)<<(*itr).Err_Hi
+        <<std::setw(16)<<(*itr_Ex).Eff
+        <<std::setw(16)<<(*itr_Ex).Err_Lo
+        <<std::setw(16)<<(*itr_Ex).Err_Hi
+        <<std::endl;
+
+    Effs_1[i] = (*itr).Eff;
+    Errsl_1[i] = (*itr).Err_Lo;
+    Errsh_1[i] = (*itr).Err_Hi;
+
+    Effs_2[i] = (*itr_Ex).Eff;
+    Errsl_2[i] = (*itr_Ex).Err_Lo;
+    Errsh_2[i] = (*itr_Ex).Err_Hi;
+
+  }
+  std::cout<<std::setfill('-')<<std::setw(112)<<"-"<<std::setfill(' ')<<std::endl;
+
+  TGraphAsymmErrors* DLLScan = new TGraphAsymmErrors(Results.size(),
+                                                     Effs_1,
+                                                     Effs_2,
+                                                     Errsl_1,
+                                                     Errsh_1,
+                                                     Errsl_2,
+                                                     Errsh_2);
+
+  delete Effs_1;
+  delete Errsl_1;
+  delete Errsh_1;
+  delete Effs_2;
+  delete Errsl_2;
+  delete Errsh_2;
+
+  return DLLScan;
+
+}
+
+//=============================================================================
+// Return efficiency of this sample against efficiencies from an external
+// sample and save results to file
+//=============================================================================
+template <class T>
+TGraphAsymmErrors* PerfCalculator<T>::Perf_Scan_ToFile( const PIDResult::Container& Ex_Results,
+                                                        const std::list<std::string>& PIDCuts,
+                                                        const std::string& FileName,
+                                                        Bool_t BayesErrors,
+                                                        int index )
+{
+  // Extract cuts from Ex_results and store in new list<const char*>
+  PIDResult::Container::const_iterator itr, itr_Ex;
+
+  //---------------------------------------------
+  // For some reason the below code does not work
+  // Would mean it not necessary to pass the list
+  // of PIDCuts
+  //---------------------------------------------
+  /*
+  std::list<const char*> MyCuts;
+  int j = 0;
+  for(itr = Ex_Results.begin(); itr!= Ex_Results.end(); ++itr, ++j)
+  {
+    std::string A = (*itr)->DLL;
+    A += (*itr)->CutOp;
+    A += boost::lexical_cast<std::string>((*itr)->Cut);
+    std::cout<<j <<'\t'<<A<<'\t'<<(*itr)->CutOp<<std::endl;
+    MyCuts.push_back(A.c_str());
+  }
+
+  std::list<const char*>::iterator litr;
+  j=0;
+  for(litr=MyCuts.begin(); litr!=MyCuts.end(); ++litr,++j)
+  {
+    std::cout<<j<<'\t'<<*litr<<std::endl;
+  }
+  */
+  //---------------------------------------------
+
+  // Calculate PID results for this dataset
+  const PIDResult::Container Results = this->Perf(PIDCuts,
+                                                  BayesErrors);
+
+  double* Effs_1  = new double[Results.size()];
+  double* Errsl_1 = new double[Results.size()];
+  double* Errsh_1 = new double[Results.size()];
+  double* Effs_2  = new double[Results.size()];
+  double* Errsl_2 = new double[Results.size()];
+  double* Errsh_2 = new double[Results.size()];
+
+  std::ofstream fout(FileName.c_str());
+
+  std::cout<<"PID Cut"
+      <<'\t'<<"Eff"
+      <<'\t'<<"Error"<<std::endl;
+
+  int i=0;
+  std::list<std::string>::const_iterator cut_itr = PIDCuts.begin();
+  for(itr = Results.begin(), itr_Ex = Ex_Results.begin();
+      itr!= Results.end();
+      ++itr, ++itr_Ex, ++i, ++cut_itr)
+  {
+    double error = (*itr).Err_Lo > (*itr).Err_Hi ? (*itr).Err_Lo : (*itr).Err_Hi;
+
+    fout<<std::fixed
+        <<((*itr).Cut)[index]
+        <<'\t'<<(*itr).Eff
+        <<'\t'<<error
+        <<std::endl;
+    std::cout<<std::fixed
+        <<((*itr).Cut)[index]
+        <<'\t'<<(*itr).Eff
+        <<'\t'<<error
+        <<std::endl;
+
+    Effs_1[i] = (*itr).Eff;
+    Errsl_1[i] = (*itr).Err_Lo;
+    Errsh_1[i] = (*itr).Err_Hi;
+
+    Effs_2[i] = (*itr_Ex).Eff;
+    Errsl_2[i] = (*itr_Ex).Err_Lo;
+    Errsh_2[i] = (*itr_Ex).Err_Hi;
+
+  }
+  fout.close();
+
+  TGraphAsymmErrors* DLLScan = new TGraphAsymmErrors(Results.size(),
+                                                     Effs_1,
+                                                     Effs_2,
+                                                     Errsl_1,
+                                                     Errsh_1,
+                                                     Errsl_2,
+                                                     Errsh_2);
+
+  delete Effs_1;
+  delete Errsl_1;
+  delete Errsh_1;
+  delete Effs_2;
+  delete Errsl_2;
+  delete Errsh_2;
+
+  return DLLScan;
+
+}
+
+//=============================================================================
+// Return efficiency as a function of the variables declared in the RooBinning
+// names
+//=============================================================================
+template <class T>
+TH2F* PerfCalculator<T>::Perf( const std::string& PIDCut,
+                               RooBinning* BinSchema1,
+                               RooBinning* BinSchema2,
+                               Bool_t rejectNonNormalBins,
+                               Int_t minEntries,
+                               Bool_t printVals)
+{
+  std::vector<std::string> Cut_DLLs,Cut_Ops,Cut_Vals;
+  std::string CutStr = this->FormatCutList(PIDCut,
+                                   Cut_DLLs,
+                                   Cut_Ops,
+                                   Cut_Vals);
+
+  TH2* RawHist = (TH2*)m_Data->createHistogram(m_Data->Get_Param(BinSchema1->GetName())->GetTitle(),
+                                               *m_Data->Get_Param(BinSchema1->GetName()),
+                                               Binning(*BinSchema1),
+                                               YVar(*m_Data->Get_Param(BinSchema2->GetName()),
+                                                    Binning(*BinSchema2))
+                                               );
+
+//   T* Data_Cut = dynamic_cast<T*>(m_Data->reduce(Cut.c_str()));
+
+  TH2* CutHist = (TH2*)m_Data->createHistogram(m_Data->Get_Param(BinSchema1->GetName())->GetTitle(),
+                                                 *m_Data->Get_Param(BinSchema1->GetName()),
+                                                 Binning(*BinSchema1),
+                                                 YVar(*m_Data->Get_Param(BinSchema2->GetName()),
+                                                      Binning(*BinSchema2) ),
+                                                 Cut(CutStr.c_str())
+                                                 );
+
+  TH2F* RatioHist = new TH2F("Ratio",
+                             "",
+                             BinSchema1->numBins(),
+                             BinSchema1->array(),
+                             BinSchema2->numBins(),
+                             BinSchema2->array()
+                             );
+
+  TString xTitle="";
+  TString yTitle="";
+
+  if( strcmp(m_Data->Get_Param(BinSchema1->GetName())->getUnit(),"")==0)
+    xTitle = m_Data->Get_Param(BinSchema1->GetName())->GetTitle();
+  else
+    xTitle.Form("%s [%s]",
+                m_Data->Get_Param(BinSchema1->GetName())->GetTitle(),
+                m_Data->Get_Param(BinSchema1->GetName())->getUnit());
+
+  RatioHist->SetXTitle( xTitle.Data() );
+
+
+  if( strcmp(m_Data->Get_Param(BinSchema2->GetName())->getUnit(),"")==0)
+    yTitle = m_Data->Get_Param(BinSchema2->GetName())->GetTitle();
+  else
+    yTitle.Form("%s [%s]",
+                m_Data->Get_Param(BinSchema2->GetName())->GetTitle(),
+                m_Data->Get_Param(BinSchema2->GetName())->getUnit());
+
+  RatioHist->SetYTitle( yTitle.Data() );
+
+
+  RatioHist->Divide(CutHist,RawHist,1.0,1.0,"B");
+
+  if (printVals) {
+    for (Int_t i=0; i<BinSchema1->numBins(); ++i) {
+      for (Int_t j=0; j<BinSchema2->numBins(); ++j) {
+        std::cout.setf(std::ios::fixed, std::ios::floatfield);
+        std::cout.precision(4);
+        Int_t ntot = static_cast<Int_t>(RawHist->GetBinContent(i+1,j+1));
+        Int_t npass = static_cast<Int_t>(CutHist->GetBinContent(i+1,j+1));
+        Double_t eff = RatioHist->GetBinContent(i+1,j+1);
+        std::cout << "Bin (" << i << "," << j << "), ntotal=" << ntot << ", npass=" << npass
+             << ", eff=" << eff << std::endl;
+      }
+    }
+  }
+
+  if (rejectNonNormalBins) {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    std::cout.precision(4);
+    for (Int_t i=0; i<BinSchema1->numBins(); ++i) {
+      for (Int_t j=0; j<BinSchema2->numBins(); ++j) {
+
+        Float_t eff = RatioHist->GetBinContent(i+1, j+1);
+        Float_t ntot = RawHist->GetBinContent(i+1, j+1);
+
+        Int_t np = static_cast<Int_t>(eff*ntot);
+        Int_t np1 = static_cast<Int_t>((1-eff)*ntot);
+
+        if (np<=minEntries) {
+          std::cout << "WARNING: Bin (" << i << "," << j << ") "
+               << "has n_total*eff<=" << minEntries
+               << " (" << np << "). The efficiency "
+               << "error associated with this bin is unreliable, and the "
+               << "efficiency will be set to zero" << std::endl;
+          RatioHist->SetBinContent(i+1, j+1, 0.);
+          RatioHist->SetBinError(i+1, j+1, 0.);
+        }
+        else if (np1<=minEntries) {
+          std::cout << "WARNING: Bin (" << i << "," << j << ") "
+               << "has n_total*(1-eff)<=" << minEntries
+               << " (" << np1 << "). The efficiency "
+               << "error associated with this bin is unreliable, and the "
+               << "efficiency will be set to zero" << std::endl;
+          RatioHist->SetBinContent(i+1, j+1, 0.);
+          RatioHist->SetBinError(i+1, j+1, 0.);
+        }
+      }
+    }
+  }
+
+//   delete Data_Cut;
+  delete RawHist;
+  delete CutHist;
+
+  return RatioHist;
+}
+
+//=============================================================================
+// Return efficiency within bins of the variables declared in the RooBinning
+// names
+//=============================================================================
+template <class T>
+TH3F* PerfCalculator<T>::Perf( const std::string& PIDCut,
+                               RooBinning* BinSchema1,
+                               RooBinning* BinSchema2,
+                               RooBinning* BinSchema3,
+                               Bool_t rejectNonNormalBins,
+                               Int_t minEntries,
+                               Bool_t printVals)
+{
+  std::vector<std::string> Cut_DLLs,Cut_Ops,Cut_Vals;
+  std::string CutStr = this->FormatCutList(PIDCut,
+                                   Cut_DLLs,
+                                   Cut_Ops,
+                                   Cut_Vals);
+
+  TH3* RawHist = (TH3*)m_Data->createHistogram(m_Data->Get_Param(BinSchema1->GetName())->GetTitle(),
+                                               *m_Data->Get_Param(BinSchema1->GetName()),
+                                               Binning(*BinSchema1),
+                                               YVar(*m_Data->Get_Param(BinSchema2->GetName()),
+                                                    Binning(*BinSchema2)),
+                                               ZVar(*m_Data->Get_Param(BinSchema3->GetName()),
+                                                    Binning(*BinSchema3))
+                                               );
+
+//   T* Data_Cut = dynamic_cast<T*>(m_Data->reduce(Cut.c_str()));
+
+  TH3* CutHist = (TH3*)m_Data->createHistogram(m_Data->Get_Param(BinSchema1->GetName())->GetTitle(),
+                                                 *m_Data->Get_Param(BinSchema1->GetName()),
+                                                 Binning(*BinSchema1),
+                                                 YVar(*m_Data->Get_Param(BinSchema2->GetName()),
+                                                      Binning(*BinSchema2) ),
+                                                 ZVar(*m_Data->Get_Param(BinSchema3->GetName()),
+                                                      Binning(*BinSchema3)),
+                                                 Cut(CutStr.c_str())
+                                                 );
+
+  TH3F* RatioHist = new TH3F("Ratio",
+                             "",
+                             BinSchema1->numBins(),
+                             BinSchema1->array(),
+                             BinSchema2->numBins(),
+                             BinSchema2->array(),
+                             BinSchema3->numBins(),
+                             BinSchema3->array()
+                             );
+
+  TString xTitle="";
+  TString yTitle="";
+  TString zTitle="";
+
+  if( strcmp(m_Data->Get_Param(BinSchema1->GetName())->getUnit(),"")==0)
+    xTitle = m_Data->Get_Param(BinSchema1->GetName())->GetTitle();
+  else
+    xTitle.Form("%s [%s]",
+                m_Data->Get_Param(BinSchema1->GetName())->GetTitle(),
+                m_Data->Get_Param(BinSchema1->GetName())->getUnit());
+
+  RatioHist->SetXTitle( xTitle.Data() );
+
+
+  if( strcmp(m_Data->Get_Param(BinSchema2->GetName())->getUnit(),"")==0)
+    yTitle = m_Data->Get_Param(BinSchema2->GetName())->GetTitle();
+  else
+    yTitle.Form("%s [%s]",
+                m_Data->Get_Param(BinSchema2->GetName())->GetTitle(),
+                m_Data->Get_Param(BinSchema2->GetName())->getUnit());
+
+  RatioHist->SetYTitle( yTitle.Data() );
+
+
+  if( strcmp(m_Data->Get_Param(BinSchema3->GetName())->getUnit(),"")==0)
+    zTitle = m_Data->Get_Param(BinSchema3->GetName())->GetTitle();
+  else
+    zTitle.Form("%s [%s]",
+                m_Data->Get_Param(BinSchema3->GetName())->GetTitle(),
+                m_Data->Get_Param(BinSchema3->GetName())->getUnit());
+
+  RatioHist->SetZTitle( zTitle.Data() );
+
+
+  RatioHist->Divide(CutHist,RawHist,1.0,1.0,"B");
+
+  if (printVals) {
+    for (Int_t i=0; i<BinSchema1->numBins(); ++i) {
+      for (Int_t j=0; j<BinSchema2->numBins(); ++j) {
+        for (Int_t k=0; k<BinSchema3->numBins(); ++k) {
+          std::cout.setf(std::ios::fixed, std::ios::floatfield);
+          std::cout.precision(4);
+          Double_t ntot = (RawHist->GetBinContent(i+1,j+1,k+1));
+          Double_t npass = (CutHist->GetBinContent(i+1,j+1,k+1));
+          Double_t eff = RatioHist->GetBinContent(i+1,j+1,k+1);
+          Double_t err = RatioHist->GetBinError(i+1,j+1,k+1);
+          std::cout << "Bin (" << i << "," << j << "," << k << "), ntotal="
+               << ntot << ", npass=" << npass
+               << ", eff=" << eff << ", err=" << err << std::endl;
+        }
+      }
+    }
+  }
+
+  if (rejectNonNormalBins) {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    std::cout.precision(4);
+    for (Int_t i=0; i<BinSchema1->numBins(); ++i) {
+      for (Int_t j=0; j<BinSchema2->numBins(); ++j) {
+        for (Int_t k=0; k<BinSchema3->numBins(); ++k) {
+
+          Float_t eff = RatioHist->GetBinContent(i+1, j+1, k+1);
+          Float_t ntot = RawHist->GetBinContent(i+1, j+1, k+1);
+
+          Int_t np = static_cast<Int_t>(eff*ntot);
+          Int_t np1 = static_cast<Int_t>((1-eff)*ntot);
+
+          if (np<=minEntries) {
+            std::cout << "WARNING: Bin (" << i << "," << j << "," << k << ") "
+                 << "has n_total*eff<=" << minEntries
+                 << " (" << np << "). The efficiency "
+                 << "error associated with this bin is unreliable, and the "
+                 << "efficiency will be set to zero" << std::endl;
+
+            RatioHist->SetBinContent(i+1, j+1, k+1, 0.);
+            RatioHist->SetBinError(i+1, j+1, k+1, 0.);
+          }
+          else if (np1<=minEntries) {
+            std::cout << "WARNING: Bin (" << i << "," << j << "," << k << ") "
+                 << "has n_total*(1-eff)<=" << minEntries
+                 << " (" << np1 << "). The efficiency "
+                 << "error associated with this bin is unreliable, and the "
+                 << "efficiency will be set to zero" << std::endl;
+
+            RatioHist->SetBinContent(i+1, j+1, k+1, 0.);
+            RatioHist->SetBinError(i+1, j+1, k+1, 0.);
+          }
+        }
+      }
+    }
+  }
+
+//   delete Data_Cut;
+  delete RawHist;
+  delete CutHist;
+
+  return RatioHist;
+}
+
+//============================================================================
+// Returns a TEfficiency object, which stores the "pass" and "fail" histograms
+// which are used to calculate the efficiencies as a function of the variables
+// declared in the RooBinning names
+//============================================================================
+template <class T>
+TEfficiency* PerfCalculator<T>::Perf_TEff( const std::string& PIDCut,
+                                           RooBinning* xBinning,
+                                           RooBinning* yBinning,
+                                           RooBinning* zBinning)
+{
+  if (!m_Data) {
+    std::cout << "ERROR: No input data set available" << std::endl;
+    return NULL;
+  }
+  std::vector<std::string> Cut_DLLs,Cut_Ops,Cut_Vals;
+  std::string CutStr = this->FormatCutList(PIDCut,
+                                   Cut_DLLs,
+                                   Cut_Ops,
+                                   Cut_Vals);
+
+  TH1* RawHist = NULL;
+  TH1* CutHist = NULL;
+//   T* Data_Cut = dynamic_cast<T*>(m_Data->reduce(Cut.c_str()));
+//   if (!Data_Cut) {
+//     std::cout << "ERROR: Failed to make reduced T" << std::endl;
+//     return NULL;
+//   }
+
+  UInt_t nDim=0;
+
+  std::string xBinName = "";
+  std::string yBinName = "";
+  std::string zBinName = "";
+
+  if (xBinning==NULL) {
+    std::cout << "ERROR: No X binning specified" << std::endl;
+    return NULL;
+  }
+  else {
+    xBinName = xBinning->GetName();
+    if (yBinning==NULL) {
+      if (zBinning!=NULL) {
+        std::cout << "ERROR: No Y binning specified, but Z binning is not NULL"
+             << std::endl;
+        return NULL;
+      }
+      nDim=1;
+    }
+    else {
+      yBinName = yBinning->GetName();
+      if (zBinning==NULL) nDim=2;
+      else {
+        zBinName = zBinning->GetName();
+        nDim=3;
+      }
+    }
+  }
+
+  TString xTitle="";
+  TString yTitle="";
+  TString zTitle="";
+
+  if (nDim==1) {
+    RawHist = m_Data->createHistogram(
+       m_Data->Get_Param(xBinName)->GetTitle(),
+       *m_Data->Get_Param(xBinName),
+       Binning(*xBinning)
+       );
+    CutHist = m_Data->createHistogram(
+       m_Data->Get_Param(xBinName)->GetTitle(),
+       *m_Data->Get_Param(xBinName),
+       Binning(*xBinning),
+       Cut(CutStr.c_str())
+       );
+  }
+  else if (nDim==2) {
+    RawHist = m_Data->createHistogram(
+       m_Data->Get_Param(xBinName)->GetTitle(),
+       *m_Data->Get_Param(xBinName),
+       Binning(*xBinning),
+       YVar(*m_Data->Get_Param(yBinName),
+            Binning(*yBinning))
+       );
+    CutHist = m_Data->createHistogram(
+       m_Data->Get_Param(xBinName)->GetTitle(),
+       *m_Data->Get_Param(xBinName),
+       Binning(*xBinning),
+       YVar(*m_Data->Get_Param(yBinName),
+            Binning(*yBinning)),
+       Cut(CutStr.c_str())
+       );
+  }
+  else {
+    RawHist = m_Data->createHistogram(
+       m_Data->Get_Param(xBinName)->GetTitle(),
+       *m_Data->Get_Param(xBinName),
+       Binning(*xBinning),
+       YVar(*m_Data->Get_Param(yBinName),
+            Binning(*yBinning)),
+       ZVar(*m_Data->Get_Param(zBinName),
+            Binning(*zBinning))
+       );
+    CutHist = m_Data->createHistogram(
+       m_Data->Get_Param(xBinName)->GetTitle(),
+       *m_Data->Get_Param(xBinName),
+       Binning(*xBinning),
+       YVar(*m_Data->Get_Param(yBinName),
+            Binning(*yBinning)),
+       ZVar(*m_Data->Get_Param(zBinName),
+            Binning(*zBinning)),
+       Cut(CutStr.c_str())
+       );
+  }
+  if (!RawHist) {
+    std::cout << "Failed to create 'total' histogram" << std::endl;
+    return NULL;
+  }
+  if (!CutHist) {
+    std::cout << "Failed to create 'pass' histogram" << std::endl;
+    return NULL;
+  }
+  if (!TEfficiency::CheckConsistency(*CutHist,*RawHist)) return NULL;
+
+  if (nDim>=1) {
+    if( strcmp(m_Data->Get_Param(xBinning->GetName())->getUnit(),"")==0)
+      xTitle = m_Data->Get_Param(xBinning->GetName())->GetTitle();
+    else
+      xTitle.Form("%s [%s]",
+                  m_Data->Get_Param(xBinning->GetName())->GetTitle(),
+                  m_Data->Get_Param(xBinning->GetName())->getUnit());
+
+      RawHist->SetXTitle( xTitle.Data() );
+      CutHist->SetXTitle( xTitle.Data() );
+  }
+  if (nDim>=2) {
+    if( strcmp(m_Data->Get_Param(yBinning->GetName())->getUnit(),"")==0)
+      yTitle = m_Data->Get_Param(yBinning->GetName())->GetTitle();
+    else
+      yTitle.Form("%s [%s]",
+                  m_Data->Get_Param(yBinning->GetName())->GetTitle(),
+                  m_Data->Get_Param(yBinning->GetName())->getUnit());
+
+      RawHist->SetYTitle( yTitle.Data() );
+      CutHist->SetYTitle( yTitle.Data() );
+  }
+  if (nDim==3) {
+    if( strcmp(m_Data->Get_Param(zBinning->GetName())->getUnit(),"")==0)
+      zTitle = m_Data->Get_Param(zBinning->GetName())->GetTitle();
+    else
+      zTitle.Form("%s [%s]",
+                  m_Data->Get_Param(zBinning->GetName())->GetTitle(),
+                  m_Data->Get_Param(zBinning->GetName())->getUnit());
+
+      RawHist->SetZTitle( zTitle.Data() );
+      CutHist->SetZTitle( zTitle.Data() );
+  }
+
+  TEfficiency* teff = new TEfficiency(*CutHist,*RawHist);
+//   delete Data_Cut;
+//   Data_Cut=0;
+  delete RawHist;
+  RawHist=0;
+  delete CutHist;
+  CutHist=0;
+  return teff;
+}
+
+//=============================================================================
+// Translate a cut on (P, PT, ETA, DLLK, DLLp) into a cut on the defined
+// corresponding TrackDataSet variable
+//=============================================================================
+template <class T>
+TH3F* PerfCalculator<T>::Table( const std::string& PIDCut,
+                                RooBinning* BinSchema_P,
+                                RooBinning* BinSchema_PT,
+                                RooBinning* BinSchema_ETA,
+                                std::ostream& o,
+                                Bool_t rejectNonNormalBins,
+                                Int_t minEntries)
+{
+  o<<std::setfill('-')<<std::setw(112)<<"-"<<std::setfill(' ')<<std::endl;
+  o<<std::setw(14)<<"P_Min [MeV]"
+   <<std::setw(14)<<"P_Max [MeV]"
+   <<std::setw(14)<<"Pt_Min [MeV]"
+   <<std::setw(14)<<"Pt_Max [MeV]"
+   <<std::setw(14)<<"Eta_Min"
+   <<std::setw(14)<<"Eta_Max"
+   <<std::setw(14)<<"Eff."
+   <<std::setw(14)<<"Error"
+   <<std::endl;
+  o<<std::setfill('-')<<std::setw(112)<<"-"<<std::setfill(' ')<<std::endl;
+
+  TH3F* Effs = this->Perf(PIDCut,
+                          BinSchema_P,
+                          BinSchema_PT,
+                          BinSchema_ETA,
+                          rejectNonNormalBins,
+                          minEntries);
+
+  for(int pBin = 0; pBin<BinSchema_P->numBins(); ++pBin)
+  {
+    for(int ptBin = 0; ptBin<BinSchema_PT->numBins(); ++ptBin)
+    {
+      for(int etaBin = 0; etaBin<BinSchema_ETA->numBins(); ++etaBin)
+      {
+
+        double Eff =Effs->GetBinContent(pBin+1,
+                                        ptBin+1,
+                                        etaBin+1);
+
+        double Err = Effs->GetBinError(pBin+1,
+                                       ptBin+1,
+                                       etaBin+1);
+
+        o.flags(std::ios::fixed);
+        o.precision(1);
+        o<<std::setw(14)<<BinSchema_P->binLow(pBin)
+         <<std::setw(14)<<BinSchema_P->binHigh(pBin)
+         <<std::setw(14)<<BinSchema_PT->binLow(ptBin)
+         <<std::setw(14)<<BinSchema_PT->binHigh(ptBin)
+         <<std::setw(14)<<BinSchema_ETA->binLow(etaBin)
+         <<std::setw(14)<<BinSchema_ETA->binHigh(etaBin);
+        o<<std::setw(14)<<std::setprecision(5)<<Eff
+         <<std::setw(14)<<Err
+         <<std::setprecision(1)<<std::endl;
+
+      }
+    }
+  }
+  o<<std::setfill('-')<<std::setw(112)<<"-"<<std::setfill(' ')<<std::endl;
+
+  return Effs;
+
+}
+
+template <class T>
+PIDTable* PerfCalculator<T>::Table( const std::string& PIDCut,
+                                    RooBinning* BinSchemaX,
+                                    RooBinning* BinSchemaY,
+                                    Bool_t rejectNonNormalBins,
+                                    Int_t minEntries)
+{
+  TH2F* Effs = this->Perf(PIDCut,
+                          BinSchemaX,
+                          BinSchemaY,
+                          rejectNonNormalBins,
+                          minEntries );
+  PIDTable* tbl = new PIDTable(Effs,BinSchemaX,BinSchemaY);
+  return tbl;
+}
+
+template <class T>
+PIDTable* PerfCalculator<T>::Table( const std::string& PIDCut,
+                                    RooBinning* BinSchemaX,
+                                    RooBinning* BinSchemaY,
+                                    RooBinning* BinSchemaZ,
+                                    Bool_t rejectNonNormalBins,
+                                    Int_t minEntries)
+{
+  TH3F* Effs = this->Perf(PIDCut,
+                          BinSchemaX,
+                          BinSchemaY,
+                          BinSchemaZ,
+                          rejectNonNormalBins,
+                          minEntries);
+  PIDTable* tbl = new PIDTable(Effs,BinSchemaX,BinSchemaY,BinSchemaZ);
+  return tbl;
+}
+
+template <class T>
+PIDCrossTable* PerfCalculator<T>::CrossTable( const std::string& PIDCut,
+                                              RooBinning* BinSchemaX,
+                                              RooBinning* BinSchemaY,
+                                              Bool_t rejectNonNormalBins,
+                                              Int_t minEntries)
+{
+  TH2F* Effs = this->Perf(PIDCut,
+                          BinSchemaX,
+                          BinSchemaY,
+                          rejectNonNormalBins,
+                          minEntries);
+  PIDCrossTable* tbl = new PIDCrossTable(Effs,BinSchemaX,BinSchemaY);
+  return tbl;
+}
+
+//=============================================================================
+// Split composite cut string into individual cuts. Here we assumme the
+// individual cuts are separated by the Boolean logic operator '&&'.
+//=============================================================================
+template <class T>
+void PerfCalculator<T>::SplitCut( const std::string& Cut,
+                                  std::vector< std::string >& SplitVec)
+{
+  boost::split( SplitVec, Cut, boost::is_any_of("&&") );
+
+  // Above split command erroneously fills SplitVec with empty strings, in
+  // addition to the wanted sub strings. To correct for this, it is therefore
+  // necessary to remove these entries.
+
+  SplitVec.erase( std::remove_if( SplitVec.begin(), SplitVec.end(),
+                                  boost::bind( &std::string::empty, _1 ) ),
+                  SplitVec.end() );
+}
+
+//=============================================================================
+// Translate a cut on (P, PT, ETA, DLLK, DLLp, DLLKp) into a cut on the defined
+// corresponding TrackDataSet variable
+//=============================================================================
+template <class T>
+const std::string PerfCalculator<T>::TranslateCut( const std::string& Cut,
+                                                   std::string& Cut_DLL,
+                                                   std::string& Cut_Op,
+                                                   std::string& Cut_Val)
+{
+  std::string s(Cut), sre, ret;
+  boost::regex re;
+  boost::cmatch matches;
+
+  //sre = "\\s*(\\w+)\\s*([>=<!]{1,2})\\s*([-+]?[0-9]*\\.?[0-9]+)\\s*";
+  //sre = "\\s*(\\D+)\\s*([>=<!]{1,2})\\s*([-+]?[0-9]*\\.?[0-9]+)\\s*";
+  sre = "\\s*(.+)\\s*([>=<!]{1,2})\\s*([-+]?[0-9]*\\.?[0-9]+)\\s*";
+
+  try
+  {
+    // Assignment and construction initialize the FSM used
+    // for regexp parsing
+    re = sre;
+  }
+
+  catch (boost::regex_error& e)
+  {
+    std::cout << sre << " is not a valid regular expression: \""
+         << e.what() << "\"" << std::endl;
+  }
+
+  if (boost::regex_match(s.c_str(), matches, re))
+  {
+    //std::cout<<"Found a match"<<std::endl;
+    // matches[0] contains the original string.  matches[n]
+    // contains a sub_match object for each matching
+    // subexpression
+    for (unsigned int i = 1; i < matches.size(); i++)
+    {
+      // sub_match::first and sub_match::second are iterators that
+      // refer to the first and one past the last chars of the
+      // matching subexpression
+      std::string match(matches[i].first, matches[i].second);
+
+      //std::cout << "\tmatches[" << i << "] = " << match << std::endl;
+    }
+
+    //If all matches found, format the cut string
+    if (matches.size()==4)
+    {
+      std::string A, B, C;
+      A.assign(matches[1].first, matches[1].second);
+      B.assign(matches[2].first, matches[2].second);
+      C.assign(matches[3].first, matches[3].second);
+
+      // Create a vector<string> storing the keys of m_ParamMap
+      std::pair<std::string, RooRealVar*> me;
+      std::vector<std::string> vec_keys;
+      BOOST_FOREACH(me, m_Data->m_ParamMap)
+      {
+        if(me.first!="P"){
+          vec_keys.push_back(me.first);
+          //std::cout << me.first << "\n";
+        }
+      }
+      // Sort strings with shortest -> longest
+      sort( vec_keys.begin(), vec_keys.end(), PIDCalib::length() );
+
+      // Declare string to store updated cut-variable string
+      std::string newCut = A;
+
+      std::vector<std::string>::iterator iter;
+      for(iter=vec_keys.begin(); iter!=vec_keys.end(); ++iter)
+      {
+        //std::cout<<*iter<<'\t'<<"Current:" <<A;
+
+        // Regular expression to find PID variable surrounded either side by non-word character
+        std::string _regex = "\\b"+(*iter)+"\\b";
+        boost::regex re2(_regex.c_str());
+
+        std::string temp = boost::regex_replace(newCut,
+                                             re2,
+                                             (m_Data->m_ParamMap[*iter])->GetName()
+                                             );
+        newCut = temp;
+        //std::cout<<'\t'<<"New: "<<A<<'\t'<<temp<<'\t'<<newCut<<std::endl;
+      }
+
+      ret = newCut;
+      ret += B;
+      ret += C;
+      Cut_DLL = newCut;
+      Cut_Op = B;
+      Cut_Val = C;
+
+      //std::cout<<Cut<<" -->> "<<ret<<std::endl;
+
+      return ret;
+    }
+    else
+    {
+      std::cout <<"Only "<<matches.size()<<" matches made in "<< s <<std::endl;
+      return NULL;
+    }
+
+  }
+  else
+  {
+    std::cout<<"The regexp \"" << re << "\" does not match \"" << s << "\"" <<std::endl;
+    return NULL;
+  }
+}
+
+//=============================================================================
+// Format a given cut string, possibly composed of multiple cuts separated by
+// the Boolean '&&' operator, into a string to be passed to RooDataSet::reduce()
+//=============================================================================
+template <class T>
+const std::string PerfCalculator<T>::FormatCutList(const std::string& Cut,
+                                                   std::vector<std::string>& Cut_DLLs,
+                                                   std::vector<std::string>& Cut_Ops,
+                                                   std::vector<std::string>& Cut_Vals)
+{
+  std::vector< std::string > CutSeries;
+
+  // If there exist at least one instance of "&&" in the string, then pass it
+  // to the SplitCut function for splitting into individual cuts, else simply
+  // pass cut into CutSeries vector
+  if(boost::algorithm::find_first(Cut, "&&"))
+  {
+    SplitCut( Cut, CutSeries );
+  }
+  else
+  {
+    CutSeries.push_back(Cut);
+  }
+
+  std::string TotCut = "";
+  std::vector< std::string >::iterator cut_itr;
+  for(cut_itr=CutSeries.begin(); cut_itr!=CutSeries.end(); ++cut_itr)
+  {
+    std::string a,b,c;
+    if(!TotCut.empty())
+      TotCut += " && ";
+    TotCut += TranslateCut(*cut_itr, a, b, c);
+    Cut_DLLs.push_back(a);
+    Cut_Ops.push_back(b);
+    Cut_Vals.push_back(c);
+    //std::cout << TotCut <<std::endl;
+  }
+
+  return TotCut;
+}
+
+//=============================================================================
+/*
+  template<class T, class container >
+  inline bool ToArray( const container& vec, T*& pArrayOut  )
+  {
+  int cnt = vec.size();
+  if( cnt > 0)
+  {
+  pArrayOut = new T[cnt];
+  copy(vec.begin(),vec.end(), pArrayOut );
+  return true;
+  }
+  else
+  {
+  pArrayOut = NULL;
+  return false;
+  }
+  }
+*/
+
+//=============================================================================

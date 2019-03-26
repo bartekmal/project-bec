@@ -1,0 +1,6 @@
+[lb-checkout "Urania.PIDCalib/PIDPerfTools"]
+	base = 5b6a9c2ed1b83265c7523e133e62db71a28fa365
+	imported = c75e8ea5924d7271cca3bcfd15d6acf23d12f242
+[lb-checkout "Urania.PIDCalib/PIDPerfScripts"]
+	base = 19fc1f21c474194499dc9a6c7831828201daf22d
+	imported = c75e8ea5924d7271cca3bcfd15d6acf23d12f242

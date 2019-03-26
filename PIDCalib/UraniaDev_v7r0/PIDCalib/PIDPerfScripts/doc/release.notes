@@ -1,0 +1,735 @@
+!-----------------------------------------------------------------------------
+! Package     : PIDCalib/PIDPerfScripts
+! Responsible : Donal Hill
+! Purpose     : Scripts using PIDPerfTools to perform PID studies
+!-----------------------------------------------------------------------------
+
+! 2017-06-14 - Carlos Vazquez Sierra
+ + Tagging v12r0 for Urania v7r0.
+
+! 2017-06-14 - Donal Hill
+ - Updated PlotCalibEfficiency.py to work with updated functions in PerfResults.py, which were edited to enable Run 2 use.
+
+! 2017-06-02 - Donal Hill
+ - Added PID table printout to MakePerfHistsRunRange.py
+
+! 2017-04-21 - Donal Hill
+	- Changed RooDataSet name of nSPDhits to nSPDHits in TupleDataSet.py
+	- Fixes issue with MCResampling package, which did not recognise nSPDhits
+
+! 2017-04-16 - Donal Hill
+	- Fixed issue with MakePIDdistributionsRunRange.py where cuts were not correctly applied to datasets.
+
+! 2017-03-22 - Carlos Vazquez Sierra
+  + Make version v11r2.
+
+!============================================== v11r1 2017-03-08 ==============================
+! 2017-03-28 - Donal Hill
+	- Added a catch in data loading functions to skip over a file if an nTuple with 0 entries is found.
+	- Bug spotted when loading electron calibration samples, which can be very low stats.
+
+! 2017-03-08 - Donal Hill
+	- Added tempdir to TupleDataset.py to create and delete temporary file correctly
+	- Should avoid issue reported by Thomas Ruf
+
+! 2017-02-20 - Donal Hill
+ - Removed "notag" tuple access for DsPhi samples.
+
+! 2017-02-03 - Elena Graverini
+ - Added find_package(Xrootd) to CMakeLists.txt, to have the xrootd libraries loaded from cvmfs at runtime.
+
+! 2017-02-01 - Carlos Vazquez Sierra
+ - Make version v11r1 for release.
+ 
+!============================================== v11r0 2017-02-01 ==============================
+
+! 2017-1-31 - Donal Hill
+	- Updated PIDCalib to use pA and Ap Run 2 calibration data.
+	- Added nVeloClusters variable.
+
+! 2017-1-26 - Donal Hill
+	- Updated PlotCalibDistributions.py in order to use Run 2 samples.
+	- Corresponding update to relevant functions in PerfResults.py
+
+! 2017-1-11 - Donal Hill
+	- Fixed bug in PerformMultiTrackCalib.py which prevented Run 2 performance histograms to be loaded.
+
+! 2017-1-10 - Donal Hill
+	- Fixed bug in TupleDataset.py which was causing e.g. only the DSt_KPTuple to be loaded and ignoring the DSt_KMTuple.
+
+! 2017-1-5 - Donal Hill
+	- Fixed bug with MakePerfHistsRunRange.py to enable running on Run 1 data
+	- Fixed bug with MakePIDdistributionsRunRange.py to enable running on Run 2 data
+
+! 2016-12-21 - Donal Hill
+	- Fixed bug with command line input parsing.
+
+! 2016-12-18 - Carlos Vazquez Sierra
+  - Make version v11r0 for Urania v6r0.
+
+!============================================== v10r7 2016-09-15 ==============================
+!============================================== v10r6 2016-09-15 ==============================
+!============================================== v10r5 2016-09-15 ==============================
+
+! 2016-09-26 - Vincenzo Battista
+ - Memory issue fixing in MakePIDCorrection.py
+
+! 2016-09-13 - Wenbin Qian
+ - Add interface for RUN2 data
+
+! 2016-08-10 - Vincenzo Battista
+ - Added "selection" option in MakePIDCorrection.py to apply arbitrary preselection
+   in the input tuple.
+
+!============================================== v10r4 2016-06-15 ==============================
+
+!============================================== v10r3 2016-06-15 ==============================
+
+!============================================== v10r2 2016-06-04 ==============================
+! 2016-06-04
+  - Add V4ProbNN
+
+! 2016-04-25 - Vincenzo Battista
+ - In MakePIDCorrection.py:
+   >"TFile" replaced by "TFile.Open" to allow usage of xrootd (e.g. EOS)
+   >Case "_LOKI_ETA" included in addition to "_ETA" for pseudorapidity
+    branch name handling
+
+!============================================== v10r1 2016-03-23 ==============================
+! 2016-03-23
+  - Add commands and samples for 5 TeV
+
+!============================================== v10r0 2016-01-27 ==============================
+! 2016-01-27
+  - v9r6 didn't infact allow for S23 samples
+  - Things mostly work for Urania v4r0
+  - PIDtables are broken. Not crucial to anything. Reduction in output dumped to screen might be welcome.
+
+!============================================== v9r6 2016-01-16 ==============================
+! 2016-01-16
+  - v9r6 allows for S23r1 samples
+
+!============================================== v9r5p1 2015-12-15 ==============================
+! re-remove trailing slashes - Sneha
+
+!============================================== v9r5 2015-12-15 ==============================
+
+! 2015-12-15 - Sneha Malde
+  - Making v9r5 that allows for S21
+  - pklfiles for S21 updated/created
+
+
+! 2015-01-05 - Lucio Anderlini
+  - Hotfix: Fixed a bug writing a big tmp file in the user tmp. 
+    It is not obvious this scales properly, tests with larger samples needed.
+
+! 2015-09-22 - Lucio Anderlini
+  - Enabled OVERRIDECALIBDATASTORE env var to point to a file with a list of
+    files used as input of PIDCalib. It overrides Reco, Stripping and Polarity flag,
+    but it does not override run range, which is implemented as a cut.
+
+! 2015-09-17 - Vanya Belyaev
+ - fix minor cmake issued with variables
+   remove the  trailing slashes 
+
+! 2015-09-10 Sneha Malde
+  Update cmt requiremeent and CMakeLists and the python for the file name path.
+
+!============================================== v9r4 2015-08-07 ==============================
+
+! 2015-08-07 Sneha Malde
+Make v9r4
+     - commit corrected full EM samples
+
+!============================================== v9r3 2015-07-30 ==============================
+
+! 2015-07-30 Sneha Malde
+Make v9r3
+     - commit full EM samples
+
+!============================================== v9r2 2015-07-14 ==============================
+
+! 2015-07-14 Sneha Malde
+Make v9r2
+     - commit first tranche of PID pklfiles for EM in bkk 13/07/15 early morning
+t
+!============================================== v9r1 2015-06-29 ==============================
+
+! 2015-06-29 Sneha Malde
+  Make v9r1
+
+  Add the S21 and S21r1 pkl files for Lc protons. 
+  Allow for the access to the new proton samples
+
+! 2015-06-23 - Lucio Anderlini
+  - PIDCalib is now able to read Gaudi nTuples directly from the DaVinci output
+    file with no intermediate step (well, probably a mv is needed)
+    . Added TupleDataset.py to python/PIDPerfScripts 
+    . Modified DataFuncs 
+  
+
+!============================================== v9r0 2015-06-18 ==============================
+
+! 2015-06-18 Sneha Malde
+Make v9r0
+! Remove unsalvagable file GetStatError.py
+! Make possible to have Tesla and Offline variables
+
+! 2015-03-06 Andrea Contu
+ - Bugfix to scripts/python/MCResampling/MakePIDdistributionsRunRange.py
+
+!============================================== v8r1 2014-11-28 ==============================
+
+! 2014-11-28 Sneha Malde
+Make v8r1
+
+! Improve the script output for user usage.
+
+!============================================== v8r0 2014-11-05 ==============================
+
+! 2014-11-05 Sneha Malde
+Make v8r0
+
+! Addition of ProbNNv3
+
+!============================================== v7r2p1 2014-9-29 ==============================
+
+! 2014-8-22 Sneha Malde
+Make v7r2p1
+
+! Minor bug fixes in the plotting of calibration distributions and efficiencies
+
+
+!============================================== v7r2 2014-8-22 ==============================
+
+! 2014-8-22 Sneha Malde
+Make v7r2
+
+! 2014-8-22 Sneha Malde
+ - Addition of the pklfiles folder - now there is no need to access CalibDataScripts
+ - Corresponding path change in RunDictFuncs.py
+ - Minor changes in python user scripts to allow for new proton samples
+
+! 2014-8-19 Thomas Bird
+ - Fixed "Got invalid X bin type" bug where function MakePerfPlotsListPyth 
+   (designed to repalce an unneeded c++ call) accentally had the setTitle 
+   line commented out so the MultiTrackCalibTool couldn't work out which 
+   axis was which
+
+! 2014-8-11 Sneha Malde
+
+ - Added changes to allow new proton classes to be called.
+
+! 2014-8-1 Thomas Bird
+ - New script to help create a binning scheme
+ - Added high resolution binning for new binning script
+ - Improved python version of efficiency calculation, hopefully do away 
+   with some of the unneeded c++ classes in the long run
+
+! 2014-7-31 Thomas Bird
+ - Added flag to enable old averaging
+
+! 2014-07-31 - Vanya Belyaev
+
+ - RunDictFuncs.py 
+   make use of "verbose" parameter for GetRunDictionary and  GetMinMaxFileDictionary functions.
+   The default behaviour for functions is the same.
+
+ - DataFunc.py
+   propagate "verbose" parameter to GetRunDictionary and GetMinMaxFileDictionary calls  
+
+! 2014-7-30 Thomas Bird
+ - Improve the way averaging is done, THIS WILL CHANGE RESULTS (for the better)
+ - Changed constructor used in the TTree conversion scripts
+ - Fix example binning script
+ - Fix imports in GetPIDResultsStatErr.py
+ - Fix writing the PerformMultiTrackCalib.py output
+ - Support for adding triggers into datasets
+
+! 2014-7-30 Thomas Bird
+ - Some small outstanding fixes to the plotting scripts
+
+!============================================== v7r1 2014-7-18 ==============================
+! 2014-7-18 Diego Martinez Santos
+	 Make version v7r1
+! 2014-6-25 Andrea Contu
+ - Fix to MakePIDdistributionsRunRange memory usage. Datasets are now loaded and deleted one by one
+
+! 2014-6-20 Andrea Contu
+ - Minor fixes and cleaning to MakePIDdistributionsRunRange.py
+
+! 2014-6-18 Marco Tresch
+ - Added the MCResampling tool in scripts/python/MCResampling
+
+!============================================== v7r0 2014-5-09 ==============================
+! 2014-5-09 Sneha Malde
+	 Make version v7r0
+
+! 2014-05-05 Thomas Bird
+ - Added check to the DLL cuts to make sure they're valid
+ - Moved functions around in python tdirectory to make things easier to find
+ - New script to verify performance histograms dont change between versions
+ - Renamed nTrack to nTracks
+ - Added default binning schemes for all variables
+ - Improved printing of which runs are in which files
+ - Added more FoMs to CutOptimiser
+ - Added three more scripts in scripts/python/Plots which create histograms of:
+   * The efficiency from calibration samples as a function of a variable
+   * The distribution of a variable from calibration samples, using PIDCalib 
+     binning
+   * The distribution of a variable from a reference, using PIDCalib binning
+   These are useful wehn considering how to bin your data, there will be a 
+   further script with joins the output of these three into one plot for binning 
+   studies
+
+!============================================== v6r3 2014-4-11 ==============================
+! 2014-4-11 Diego Martinez Santos
+	 Make version v6r3
+! 2014-03-20 - Marco Clemencic
+ - Added CMake configuration file.
+
+! 2014-03-19 Thomas Bird
+ - Added new script for PID cut optimisation
+
+! 2014-03-13 Sneha Malde
+
+ - Add to publicity plots scripts to correctly handle plots on variables that 
+   have names starting with particle type.
+
+! 2014-02-13 Thomas Bird
+ - Added new script for making plots with no mid-ID
+ - Added max files option incase you only want to run over the first N
+   files, helps with quicker debugging
+
+! 2014-02-13 Thomas Bird
+ - made an electron a valid rich particle 
+ - added electron mother, particle and tuple names to DataFuncs.py 
+ - added electron to help texts of MultiTrack and PubPlot scripts
+ 
+!============================= v6r2p2 24-01-2014 =============================
+
+! 2014-01-24 Sneha Malde
+ - Make version v6r2p2
+
+! 2014-01-23 Sneha Malde
+ - Adapt RunRangeFuncs to accept the new pkl file names for the muon samples.
+
+
+!============================= v6r2p1 20-12-2013 =============================
+
+! 2013-12-20 Sneha Malde
+ - Make version v6r2p1
+
+! 2013-12-20 Sneha Malde
+ - Adapt data reading to avoid everything in memory first
+
+
+!============================= v6r2 13-12-2013 =============================
+
+! 2013-12-13 Sneha Malde
+ - Make version v6r2
+
+! 2013-12-13 Sneha Malde
+ - Adapt scripts to use the new pkl file names
+
+!============================= v6r1 25-09-2013 =============================
+
+! 2013-09-25 - Philip Hunt (LHCB)
+ - Make version v6r1
+
+! 2013-09-25 - Philip Hunt (LHCB)
+ - Added legacy support for Reco12 datasets in DataFunc.py:
+   . Use RICHTrackDataSet for pre-Reco14 datasets (which didn't include 
+     muon calibration)
+ - Minor modification to MakePerfPlotsList method in PerfCalcFuncs.py
+   to create performance plots for any EvtTrackDataSet-derived dataset
+
+!============================= v6r0p2 23-09-2013 =============================
+! 2013-09-23 - Philip Hunt (LHCB)
+ - Make version v6r0p2
+
+! 2013-09-23 - Philip Hunt (LHCB)
+ - Fix to LBPIDCALIB-14 (incorrect MuonUnBiased proton mother name 
+   in GetMotherName method)
+ 
+!============================= v6r0p1 20-09-2013 =============================
+! 2013-09-20 - Philip Hunt (LHCB)
+ - Make version v6r0p1
+
+! 2013-09-19 - Philip Hunt (LHCB)
+ - Fixed additional typos in PerformMultiTrackCalib.py, as described in JIRA bug
+   LBPIDCALIB-13
+
+! 2013-09-19 - Philip Hunt (LHCB)
+ - Fixed typos in PerformMultiTrackCalib.py, as described in JIRA bug
+   LBPIDCALIB-13
+
+! 2013-09-19 - Philip Hunt (LHCB)
+ - Fixed typo in PubPlots/MakePerfPlotHists.py ("add_agument"->"add_argument")
+ - Added support for custom schemes in PubPlots/MakePerfPlotHists.py
+
+! 2013-09-18 - Philip Hunt (LHCB)
+ - Fixed RICH2 kaon threshold in binning.py and ex_customBinning.py
+ - Removed redundant scripts/python/SingleTrack directory and scripts
+
+!============================= v6r0 18-09-2013 =============================
+! 2013-09-18 - Philip Hunt (LHCB)
+ - Make version v6r0
+
+! 2013-09-18 - Philip Hunt (LHCB)
+ - Added support for user-defined binning schemes in the multi-track
+   calibration scripts and python modules:
+   * Added python/PIDPerfScripts/binning.py, which contains the default
+     binning schemes
+     - Users can either edit this module, or pass a custom binning script
+       as an argument to the multi-track scripts
+   * Added an example custom binning script, "ex_customBinning.py", to 
+     scripts/python/MultiTrack
+ - Multi-track calibration scripts have been updated to use the "argparse"
+   python command-line argument parser, which replaces the outdated "optparse"
+   parser in Python 2.7 and above
+ - Updated python/PIDPerfScripts/PerfResults.py to incorperate the various
+   addition options (verbose printing, allowing missing datasets etc.)
+   introduced in previous package releases
+ - Added new directory scripts/python/PubPlots, containing scripts to
+   make "publication-style" performance plots (PID performance vs. momentum,
+   or other performance-related variable, and PID efficiency vs. misID rate)
+ - Removed redundant "jobs" and "src" directories and the files contained
+   within these directories
+ - Removed redundant directories and scripts in scripts/python, namely 
+   "RICH", "MUON", "CrgAsym" and "B2DX"
+ - Removed redundant or outdated ROOT scripts and directories in scripts/root
+ - Removed redundant doc/README file
+
+!============================= v5r2p2 03-09-2013 =============================
+
+! 2013-09-03 (3) - Philip Hunt (LHCB)
+ - Make version v5r2p2
+
+! 2013-09-03 (2) - Philip Hunt (LHCB)
+ - Removed GaudiPython dependency from MakePerfHistsRunRange.py
+
+! 2013-09-03 - Philip Hunt (LHCB)
+ - Removed GaudiPython dependency from DataFuncs.py and PerfCalcFuncs.py
+
+!============================= v5r2p1 02-09-2013 =============================
+
+
+! 2013-09-02 - Philip Hunt (LHCB)
+ - Make version v5r2p1
+
+! 2013-09-02 - Philip Hunt (LHCB)
+ - Fixed MakePerfHistsSystStudy.py so that it no longer depends on GaudiPython
+ - Removed redundant scripts PerformMultiTrackCalibSystStudy.py and
+   MakePerfHistsSystStudy.py
+
+!============================= v5r1p3 02-08-2013 =============================
+
+! 2013-08-02 - Philip Hunt (LHCB)
+ - Make version v5r1p3
+
+! 2013-08-01 - Philip John Hunt
+ - Updated DataFuncs.py to add support for specifying the ROOT access protocol 
+   for remote filesystems such as CASTOR and EOS (by default, ROOT uses 
+   the very outdated RFIO protocol) 
+   * The ROOT access protocol (without the suceeding '://') is set by the
+     optional environmental variable 'CALIBDATAURLPROTOCOL', whilst the URL
+     query (e.g. the 'service class' for CASTOR/EOS access) is set by the
+     optional environmental variable 'CALIBDATAREFDATASTORE'
+ - Updated the requirements file to set CALIBDATAURLPROTOCOL and 
+   CALIBDATAREFDATASTORE to the correct values for accessing calibration files
+   at CERN
+
+!============================== v5r1p2 18-07-2013 =============================
+
+! 2013-07-18 - Philip Hunt (LHCB)
+ - Make version v5r1p2
+
+! 2013-07-18 - Philip Hunt (LHCB)
+ - Fixed missing "import warnings" in DataFuncs.py
+
+!============================== v5r1p1 17-07-2013 =============================
+
+! 2013-07-17 - Philip Hunt (LHCB)
+ - Make version v5r1p1
+
+! 2013-07-17 - Philip Hunt (LHCB)
+ - Updated python/PIDPerfScripts/DataFuncs.py to account for the changes in
+   PIDPerfTools to include the lepton ANN variables in PIDTrackDataSet
+
+! 2013-07-16 - Philip Hunt (LHCB)
+ - Updated python/PIDPerfScripts/PerfCalcFuncs.py, scripts/python/MultiTrack/MakePerfHistsRunRange.py
+   and scripts/python/MultiTrack/PerformMultiTrackCalib.py to allow ratios of PID 
+   variables to be used to create performance histograms
+     * Previously, the code would fail to add the performance histogram to the list
+       of histograms if there was a slash ('/') character. As with the systematic
+       study scripts, the slash character is now automatically replaced with '_div_'
+       where appropriate
+
+!============================== v5r1 05-07-2013 ==============================
+
+! 2013-07-05 - Philip Hunt
+  - Make version v5r1
+
+! 2013-07-05 - Philip Hunt (LHCB)
+ - Modified python/PIDPerfScripts/DataFuncs.py, python/PIDPerfScripts/RunRangeFuncs.py,
+   scripts/python/MultiTrack/MakePerfHistsRunRange.py and 
+   scripts/python/MultiTrack/PerformMultiTrackCalib.py to
+   a) accomodate the S20 and S20r1 calibration samples utilising the improved MCTuneV2 
+      ANN retuning and 
+   b) to fix the issue of the kaons, pions and proton using the 'MuonUnBiased' samples
+      instead of the RICH samples when performing the PID calibration of semileptonic
+      decays
+   * To use the S20 or S20r1 MCTuneV2 samples, the stripping version should be specified
+     as "20_MCTuneV2" or "20r1_MCTuneV2" respectively
+   * The "-m" option is now unncecessary, and has been removed. Instead, to use the
+     samples of MuonUnBiased kaons, pions or protons, the user should specify the particle
+     type as "K_MuonUnBiased", "Pi_MuonUnBiased" or "P_MuonUnBiased" respectively
+
+
+! 2013-06-28 - Juan Martin Otalora Goicochea
+  - Added ability to consider weighted reference samples to PerformMultyTrackCalib.py
+
+!============================== v5r0p3 08-05-2013 ==============================
+
+! 2013-05-08 - Philip Hunt
+  - Make version v5r0p3
+
+! 2013-05-08 - Philip Hunt
+  - Replaced '/' by '_div_' in output/input filenames in MakePerfHistsSystStudy.py and 
+    MakePerfHistsSystStudy.py to allow the use of ratios of PID variables
+  - Allowed the stripping version to be a string in PerformMultiTrackCalib.py
+
+! 2013-04-27 - Juan Martin Otalora Goicochea
+  - Changes in MultiTrack scripts to allow 3D binning for muons/muon unbiased samples
+
+!============================== v5r0p2 26-04-2013 ==============================
+
+! 2013-04-26 - Philip Hunt
+  - Make version v5r0p2
+
+! 2013-04-26 - Philip Hunt
+  - Fixed typo in PerformMultiTrackCalib.py (PartName->trackType)
+  - Made default binning dimensions for muons/muon unbiased samples 
+    consistent between MakePerfHistsRunRange.py and PerformMultiTrackCalib 
+    (and also for the systematics scripts).
+  - Added 'printFreq' option in PerformMultiTrackCalib to change the print
+    frequency of the reference sample event and track information 
+
+!============================== v5r0p1 15-04-2013 ==============================
+
+! 2013-04-15 - Philip Hunt
+  - Make version v5r0p1 	
+
+! 2013-04-15 - Philip Hunt
+  - Hotfix to scripts/python/MultiTrack/MakePerfHistsSystStudy.py to avoid segfault when 
+    running multiple MultiTrackCalibTool instances
+  - Fixed typos in scripts/python/RICH/MakeRICHPublicationPlots.py ('IsMuon')
+
+! 2013-03-24 - Juan Martin Otalora Goicochea
+  - Updated scripts/python/MultiTrack/MakePerfHistsSystStudy.py to consider adequate binning for muons
+  - Added scripts/python/MUON/MakeMUONPublicationPlots.py to produce muon plots
+  - Updated scripts/python/MUON/MUONPerfCurvesStudy.py
+
+! 2013-03-12 - Juan Martin Otalora Goicochea
+  - Updated python/PIDPerfScripts/{DataFuncs.py,PerfCalcFuncs.py,PerfCalcFuncs.py}
+  - Updated scripts/python/MultiTrack/MakePerfHistsRunRange.py
+
+! 2013-03-12 - Philip Hunt
+  - Updated python/PIDPerfScripts/{DataFuncs.py,PerfCalcFuncs.py,PerfCalcFuncs.py} to support the muon calibration
+  - Mandatory arguments in scripts/python/MultiTrack/MakePerfHists{RunRange,SystStudy}.py now need to be specified as positional arguments, and additional arguments have been included, including those necessary for the muon calibration. A full list of options can be seen by running the scripts with the "-h" option
+  - scripts/python/MultiTrack/erformMultiTrackCalib{,SystStudy} now take a series of optional and mandatory arguments, minimising the need for the end-user to modify the scripts themselves
+
+! 2013-02-27 - Andrew Powell (LHCb)04
+  - Add lines to python/MultiTrack/MakePerfHistsRunRange.py to print to screen
+    the performance table for the average performane histogram for each PID 
+    cut. Please note that the quoted error is purely statistical.	
+
+!============================== v4r0 27-02-2013 ==============================
+
+! 2013-02-27 - Andrew Powell (LHCb)04
+  - Make version v4r0 	
+
+! 2013-02-26 - Andrew Powell (LHCb)04
+  - Updated python/PIDPerfScripts/{DataFuncs.py,PerfCalcFuncs.py} to use new 
+    PIDPerfTools class PIDTrackDataSet following issues found with 
+    LHCbPIDTrackDataSet. 
+
+! 2013-02-25 - Andrew Powell (LHCb)04
+  - Updated python/PIDPerfScripts/{DataFuncs.py,PerfCalcFuncs.py} to use new 
+    PIDPerfTools class LHCbPIDTrackDataSet. Allows studies to utilise any of 
+    the possible PID variables. See twiki page for complete list:
+    https://twiki.cern.ch/twiki/bin/view/LHCb/PIDCalibPackage 
+
+!============================== v3r0 19-02-2013 ==============================
+
+! 2013-02-19 - Andrew Powell (LHCb)04
+  - Make version v3r0 
+
+! 2013-02-19 - Andrew Powell (LHCb)04
+  - python/MultiTrack/MakePerfHistsRunRange.py
+    - Modified track cut string to that of any empty string
+  - python/PIDPerfScripts/DataFuncs.py
+    - Modified to allow an empty string to be passed
+
+! 2013-02-15 - Andrew Powell
+  - Bug fix: added missing 'apply_pattern  install_python_modules' in requirements file
+
+! 2013-02-10 - Andrew Powell
+  - Major restructure of package
+    - All functionality now achievable through python scripts located in scripts/python
+    - Several generic python modules now included in python/PIDPerfScripts
+    - Knowledge of the size and the run ranges spanned by the calibration datasets 
+      now determined through the pickled numpy-arrays in the CalibDataScripts package
+
+! 2012-12-06 - Andrew Powell
+  - Added new python scripts and jobs for charge asymmetry study, performed along
+    with Hamish Gordon:
+    - Master script: python/ChrgAsym/PerfCurvesChrgAsym.py
+    - Ganga job scripts: jobs/ChrgAsym
+      - Ganga scripts use GaudiPython as an application, along with Erasmus as the
+        project
+
+! 2012-10-31 - Andrew Powell
+  - Added python/RICH/PerfStats.py
+    - Determines the D* signal yield for a specified run range
+  - Added python/RICH/testPerfStats.py
+    - Runs the function calcSigYield() to determine the D* yield for specific run
+      ranges associated with a given TCK in 2011 data
+
+! 2012-10-23 - Andrew Powell
+  - Supstantial modifications to python/RICH scripts:
+    - PerfCurvesRunRange.py and PerfPlotsRunRange now accept command line arguments
+      and what were the 'main()' functions are now called makeCurves() and 
+      makePlots().
+  - Added python/RICH/{testPerfCurves.py,testPerfPlots.py}
+    - Scripts that loop over all run ranges defined by field flips and execute the
+      functions makeCurves() and makePlots(), respectively.
+
+! 2012-10-19 - Andrew Powell
+  - Added new python scripts: 
+    - python/RICH/PerfCurvesRunRange.py
+      - Determines ID vs misID curves for data with a specified run range
+    - python/RICH/PerfPlotsRunRange.py
+      - Produces 1D histograms of ID and misID as a function of a given 
+        kinematic variable 
+    - Both only work for S17 and S20 calibration samples since these have been 
+      produced in defined run blocks
+
+! 2012-10-05 - Edmund Smith (LHCb 2010) 
+  - Additions to src/MultiTrack/README in response to questions.
+
+! 2012-09-25 - Juan Otalora
+  - Added python scripts for MUON analysis:
+    - python/MUON/MUONPlots.py
+
+! 2012-07-18 - Andrew Powell
+  - Implemented suggestions from Thomas Ruf to correctly release the memory of RooFit
+    objects in the python script python/RICH/PerfPlots.py:
+    - Excplitly, use X.Delete() and not del X
+
+! 2012-05-05 - Philip Hunt
+  - Fixed multiple errors caused by bug fix to Savannah bug #94227. 
+
+! 2012-02-13 - Andrew Powell
+  - Updated MC10 calibration dataset paths in Test_(Evt)Data.cpp. MC10 and MC11a
+    samples available in the following directories:
+    - $CALIBDATASTORE/Reco08_MC10
+    - $CALIBDATASTORE/Reco12_MC11a
+
+! 2012-02-02 - Andrew Powell
+  - Added directories and scripts for B2DstarX analysis:
+    - python/B2DstarX
+    - jobs/B2DstarX 
+
+! 2012-01-28 - Donal Hill
+  - Updated src/B2DstarX/B2DstarX_EvtData.cpp
+	- Added src/B2DstarX/B2DstarX_PerfCalc.cpp
+
+! 2012-01-27 - Donal Hill
+ - Added directory src/B2DstarX for B2DstarX analysis
+   - Added src/B2DstarX/B2DstarX_EvtData.cpp
+
+! 2012-01-17 - Andrew Powell
+  - Added python script RICH/PerfCurves.py
+    - Produces Kaon ID vs Pion mis-ID curves for a given series of PID cuts.
+  - Updated python script RICH/PerfPlots.py
+    - Produces ID and mis-ID rates vs momentum for *all* calibration events in 
+      a given reconstruction version. 
+
+! 2012-01-02 - Andrew Powell
+  - Updated src/B2DX/B2DX_EvtData.cpp for Stripping17.
+  - Added python/RICH/PerfPlots.py for making standard RICH performance plots.
+
+! 2011-12-13 - Andrew Powell
+  - Updated example scripts in src/ to consider Reco12 calibration samples
+  - Updated src/Test_PerfCalc_Tables.cpp to save TH2F versions of the tables, 
+    in addition to having them printed to screen.
+
+! 2011-11-18 - Andrew Powell
+  - Bug fixes to src/B2DX/B2DX_EvtData.cpp
+
+! 2011-11-16 - Andrew Powell
+  - Improved shell and ganga scripts in jobs/ and jobs/B2DX, respectively: 
+    - jobs/Job.sh now loops over all sub-datasets in one job.
+    - jobs/JobPerf.sh now also runs python/B2DX/WeightedAveragePIDEffs.py to 
+      determine the weighted averaged results in the same job.
+
+!============================== v1r5 06-11-2011 ==============================
+
+! 2011-11-06 - Diego Martinez Santos
+ - Make version v1r5.
+
+! 2011-10-13 - Andrew Powell
+ - Updated B2DX scripts for stripping15 PID performance evaluation.
+
+! 2011-09-26 - Andrew Powell
+ - Modified dataset paths in Test_PerfCalcNN and Test_PerfCalcNN to use 
+   $CALIBDATASTORE variable.
+
+! 2011-09-25 - Andrew Powell
+ - Major modifications to package:
+   - All scripts performing weighting (Test_Evt{Data,MC}.cpp, Test_{Data,MC}.cpp) 
+     modified to use new WeightDataSetTool.
+   - All scripts configured to take input arguments to declare what input data
+     should be used. 
+   - Directories src/RICH, src/MUON added. These contain specific scripts for
+     studying RICH and MUON detector performance, respectively.
+   - Directory scripts/RICH added. Contains plotting scripts for RICH detector
+     performance studies.
+   - Directory src/B2DX added. Contains scripts specific to the B2DX ADS analsysis.
+   - Directory python/B2DX added. Contains script WeightedAveragePIDEffs.py which
+     calculates the weighted average of the PID efficiencies across all the 
+     stripping13b calibration subsamples. 
+   - Directory jobs/B2DX added. Contains ganga job scripts for processing the 
+     multiple calibration subsamples.
+
+!============================== v1r4 28-07-2011 ==============================
+
+! 2011-07-28 - Diego Martinez Santos
+ - Make version v1r4.
+
+! 2011-07-06 - Andrew Powell
+ - Updated MC scripts to use MC10 calibration/signal samples
+
+! 2011-07-01 - Andrew Powell
+	- Updated Test_PerfCalc_Tables.cpp to use Philip Hunt's PIDTable class
+	  - Includes functionality to print tables in flat or LaTeX formats
+
+! 2011-06-23 - Andrew Powell
+  - Updated package for analysis of Reco10, Stripping13b calibration data
+
+!============================== v1r3 27-05-2011 ==============================
+
+! 2011-05-27 - Diego Martinez Santos
+ - Make version v1r3.
+
+! 2011-05-23 - Andrew Powell (for Ed Smith)
+	- Added python/Test_Data.py 
+	  - Python version of src/Test_Data.cpp
+
+! 2011-04-27 - Andrew Powell
+ 	- Changed input data path in Test_Perf_Tables.cpp to the new afs location
+
+! 2011-04-26 - Andrew Powell
+	- Fix 

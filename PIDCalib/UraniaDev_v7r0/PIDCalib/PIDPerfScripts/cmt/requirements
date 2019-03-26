@@ -1,0 +1,71 @@
+#============================================================================
+# Created    : 2010-10-07
+# Maintainer : Donal Hill
+#============================================================================
+package           PIDPerfScripts
+version           v12r0
+
+#============================================================================
+# Structure, i.e. directories to process. 
+#============================================================================
+branches          cmt doc src scripts python
+
+#============================================================================
+# Used packages. 
+#============================================================================
+
+private
+# genconfuser.py cannot be used here
+# Note: the tag must be set before including GaudiPolicy
+apply_tag skip_genconfuser
+end_private
+use   GaudiPolicy         v*
+use   ROOT                v*    LCG_Interfaces
+use   Boost               v*    LCG_Interfaces
+use   PIDPerfTools        v*    PIDCalib
+
+#macro_append ROOT_linkopts " -lFoam -lMathMore -lRooFitCore"
+
+apply_pattern install_more_includes more=PIDPerfScripts
+
+#============================================================================
+# Define environmental variables used by the scripts
+#
+#
+# For CERN access, CALIBDATASTORE should be set to include 'root' (to use the
+# XROOTD protocol) and CALIBDATAURLQUERY should be set to 'svcClass=lhcbuser'
+# (to use the service class for grid user files)
+#
+#------------------------------------------------------------------------------
+# default for CERN access (S20r1, S20, S21,S22,S23)
+set CALIBDATAURLPROTOCOL root:
+set CALIBDATAEXTRA eoslhcb.cern.ch
+set CALIBDATASTORE eos/lhcb/grid/prod/lhcb/calib/lhcb/calib/pid/CalibData/
+
+#------------------------------------------------------------------------------
+#
+###------------------------------------------------------------------------------
+###
+###------------------------------------------------------------------------------
+
+### required for Oxford access (S20r1 and later)
+#set CALIBDATASTORE /data/lhcb/users/malde/October_2014_PID/CalibData/
+# use the above for S20/S0r1 and the below for anything else
+#set CALIBDATASTORE /data/lhcb/users/CalibData/
+#set CALIBDATAURLPROTOCOL 
+#set CALIBDATAEXTRA 
+
+
+#============================================================================
+
+#============================================================================
+# define component library link options
+#============================================================================
+apply_pattern  install_python_modules
+
+#============================================================================
+# Applications
+#============================================================================
+
+
+#============================================================================

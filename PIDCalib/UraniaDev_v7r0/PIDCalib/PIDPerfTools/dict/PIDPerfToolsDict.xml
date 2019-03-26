@@ -1,0 +1,20 @@
+<lcgdict>
+  <class name="TrackDataSet" />
+  <class name="GenericDataSet" />
+  <class name="DataBinCuts" />
+  <class name="PIDResult" />
+  <class name="PIDTable" /> 
+  <class name="PIDCrossTable" /> 
+  <class name="TrkPIDParams" />
+  <class name="MultiTrackCalibTool" />
+  <class name="PIDResult::Container" />
+  <class pattern="PerfCalculator&lt;*&gt;" />
+  <class pattern="WeightDataSetTool&lt;*&gt;" />
+  <class name="std::vector&lt;RooBinning*&gt;" />
+  <class name="std::pair&lt;std::string, RooBinning*&gt;" />
+  <class name="std::list&lt;std::pair&lt;std::string, RooBinning*&gt; &gt;" />
+  <class name="std::vector&lt;std::string&gt;" />
+  <class name="std::pair&lt;std::string, std::string&gt;" />
+  <class name="std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt;" />
+</lcgdict>
+

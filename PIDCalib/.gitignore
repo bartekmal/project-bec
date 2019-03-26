@@ -1,0 +1,5 @@
+*/.svn*
+*.root
+*.log
+!*/MCresample.log
+

@@ -1,0 +1,99 @@
+// $Id: $
+// Include files 
+#include <sstream>
+
+
+// local
+#include "PIDPerfTools/MultiPerfCalculator.h"
+
+//-----------------------------------------------------------------------------
+// Implementation file for class : MultiPerfCalculator
+//
+// 2012-05-24 : Edmund Smith (LHCb 2010) 
+//-----------------------------------------------------------------------------
+
+//=============================================================================
+// Returns a range of cuts (at values plus or minus Range) for the cut string 
+// in theCut. If theCut is a composite cut, the vector contains individual cuts
+// at plus or minus the Range for each in there. And the original cut.
+//=============================================================================
+template <class T>
+std::vector<std::string> MultiPerfCalculator<T>::RangeOfCuts(const std::string theCut, int Range)
+{
+  std::vector<std::string> Cut_DLLs, Cut_Ops, Cut_Vals;
+  std::vector<std::string> theVectorOfCuts;
+  
+  const std::string dummy = PerfCalculator<T>::FormatCutList(theCut,Cut_DLLs,Cut_Ops,Cut_Vals);
+  std::stringstream ss;
+
+  //if it was a composite cut put the original in there, if not
+  //the loop below will do this.
+  if (Cut_DLLs.size()>1) theVectorOfCuts.push_back(dummy);
+  
+  int cut = -999;
+
+  for (uint k = 0; k<Cut_Vals.size(); k++){
+    cut = atoi(Cut_Vals.at(k).c_str());
+    for (int i = cut-Range; i<=cut+Range; i++){
+      ss.str(std::string());
+      ss << i;
+      theVectorOfCuts.push_back(Cut_DLLs.at(k)+Cut_Ops.at(k)+ss.str());
+    }
+  }
+  
+  return theVectorOfCuts;
+}
+
+//=============================================================================
+// Returns a vector of doubles of cut values for range of cuts (at values plus or minus Range) 
+// for the cut string in theCut. Doesn't work for a composite cut.
+//=============================================================================
+template <class T>
+std::vector<double> MultiPerfCalculator<T>::DLLsForRangeOfCuts(const std::string theCut, int Range)
+{
+  std::vector<std::string> Cut_DLLs, Cut_Ops, Cut_Vals;
+  std::vector<double> theVectorOfCutVals;
+  
+  const std::string dummy = PerfCalculator<T>::FormatCutList(theCut,Cut_DLLs,Cut_Ops,Cut_Vals);
+
+  //if it was a composite cut put the original in there, if not
+  //the loop below will do this.
+  if (Cut_DLLs.size()>1) {
+    std::cout << "ERROR this is a composite cut." << std::endl;
+    return theVectorOfCutVals;
+  }
+  
+  int cut = -999;
+  cut = atoi(Cut_Vals.at(0).c_str());
+
+  for (int i = cut-Range; i<=cut+Range; i++){
+    theVectorOfCutVals.push_back((double)i);
+  }
+
+  
+  return theVectorOfCutVals;
+}
+
+//=============================================================================
+// Calls the Perf_Hist function for as many cuts as there are in the vector
+// returns a vector of TH1s adds the cut to the hist name to make them unique.
+//=============================================================================
+template <class T>
+std::vector<TH1*> MultiPerfCalculator<T>::Many_Perf_Hists( std::string histName,
+                                                           std::vector<std::string> pidCuts,
+                                                           std::vector<RooBinning*>& theBinSchema,
+                                                           Bool_t rejectNonNormalBins,
+                                                           Int_t minEntries)
+{
+  std::vector<TH1*> theVector;
+  for (std::vector<std::string>::iterator iter = pidCuts.begin();
+       iter != pidCuts.end(); iter++){
+    theVector.push_back(PerfCalculator<T>::Perf_Hist((histName+"_"+(*iter)).c_str(),
+                                                     *iter,
+                                                     theBinSchema,
+                                                     rejectNonNormalBins,
+                                                     minEntries));
+  }
+  return theVector;
+  
+}

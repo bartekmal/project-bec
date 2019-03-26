@@ -1,0 +1,466 @@
+// $Id: $
+// Include files
+#include <iomanip>
+#include <RooErrorHandler.h>
+
+// local
+#include "PIDPerfTools/WeightDataSetTool.h"
+
+// namespaces
+using std::cout;
+using std::endl;
+
+//-----------------------------------------------------------------------------
+// Implementation file for class : WeightDataSetTool
+//
+// 2011-09-19 : Andrew Powell (LHCb)04
+// 
+// Andrea Contu's assistance in the development of the algorithm used in 
+// GetBinIndicesFromFlatIndex() is gratefully acknowledged. 
+//-----------------------------------------------------------------------------
+
+//=============================================================================
+// Return PIDRESULT for given PID cut
+//=============================================================================
+template <class T>
+RooAbsData* WeightDataSetTool<T>::ANDInBin( const std::string& Cuts_CalData,
+                                            const std::string& Cuts_RefData,
+                                            const std::string& WgtVar,
+                                            const std::string& WgtVar_RefData
+                                            )
+{
+  T* _Cal = new T( m_CalData->GetName(),
+                   m_CalData->GetTitle(),
+                   m_CalData,
+                   *m_CalData->get(),
+                   Cuts_CalData,
+                   WgtVar
+                   );
+  
+  T* _Ref = new T( m_RefData->GetName(),
+                   m_RefData->GetTitle(),
+                   m_RefData,
+                   *m_RefData->get(),
+                   Cuts_RefData,
+                   WgtVar_RefData
+                   );
+  
+  Bool_t Pass = ( (_Ref->sumEntries() > 0.0) & (_Cal->sumEntries() > 0.0) ) ? 1 : 0 ;
+  
+  cout<<std::setw(14)<<_Ref->sumEntries()
+      <<std::setw(14)<<_Cal->sumEntries()
+      <<std::setw(8)<<Pass<<endl;
+    
+  delete _Cal;
+  delete _Ref;
+  
+  T* _CalBin = new T( m_RefData->GetName(),
+                      m_RefData->GetTitle(),
+                      m_RefData,
+                      *m_RefData->get(),
+                      Cuts_RefData,
+                      ""
+                      );
+  
+  if(Pass)
+    return dynamic_cast<RooAbsData*>(_CalBin);
+  else
+  {
+    delete _CalBin;
+    return NULL;
+  }
+
+}
+
+//=============================================================================
+// Protected member function returning the ratio of two TrackDataSet sumEnties
+//=============================================================================
+template <class T>
+RooAbsData* WeightDataSetTool<T>::WeightInBin( const std::string& WgtVar,
+                                               Double_t norm,
+                                               const std::string& Cuts_Ref,
+                                               const std::string& Cuts_Cal,
+                                               const std::string& WgtVar_Ref, 
+                                               const std::string& WgtVar_Cal
+                                               )
+{
+
+  RooRealVar* Weight_Var = NULL;
+    
+  // Is this necessary?
+  if ( !WgtVar_Cal.empty() )
+  {
+    Weight_Var = (RooRealVar*)(m_CalData->get())->find(WgtVar_Cal.c_str());
+    if(Weight_Var == NULL)
+    {
+      cout<<"**ERROR** "<<Weight_Var<<" is not in DataSet"<<endl;
+      RooErrorHandler::softAbort();
+    }
+  }
+ 
+
+  T* _Ref = new T( m_RefData->GetName(),
+                   m_RefData->GetTitle(),
+                   m_RefData,
+                   *m_RefData->get(),
+                   Cuts_Ref,
+                   WgtVar_Ref
+                   );
+  
+  T* _Cal = new T( m_CalData->GetName(),
+                   m_CalData->GetTitle(),
+                   m_CalData,
+                   *m_CalData->get(),
+                   Cuts_Cal,
+                   WgtVar_Cal
+                   );
+  
+  Double_t ratio = (_Cal->sumEntries() > 0.0 && _Ref->sumEntries() > 0.0) ? _Ref->sumEntries()/_Cal->sumEntries() : 0;
+  
+  //---------------------------------------------------------------------------
+  // Check to see if we have no calibration events in this bin, while we have
+  // reference sample events
+  if(_Cal->sumEntries() <= 0.0 && _Ref->sumEntries() > 0.0)
+    m_EmptyBinFlag = true;
+  //---------------------------------------------------------------------------
+  
+  Double_t binwgt = ratio*norm;
+  
+  cout<<std::setw(14)<<_Ref->sumEntries()
+      <<std::setw(14)<<_Cal->sumEntries()
+      <<std::setw(14)
+      <<ratio
+      <<std::setw(14)
+      <<norm
+      <<std::setw(14)
+      << binwgt
+      <<endl;
+  
+  delete _Cal;
+  delete _Ref;
+  
+  RooRealVar wValue( "wValue", 
+                     "", 
+                     binwgt );
+
+  TString Formula = WgtVar_Cal.empty() ? "wValue" : TString(WgtVar_Cal)+"*wValue";
+  
+  RooFormulaVar wFunc( WgtVar.c_str(),
+                       "event weight",
+                       Formula.Data(),
+                       RooArgList(*Weight_Var,
+                                  wValue) );  
+
+  //---------------------------------------------------------------------------
+  // ATTENTION! Adding the weight as an additional column to _Denom and 
+  // returning does not work since there seems to be a bug in the merging of 
+  // weighted datasets. To circumvent this, we now declare a new unweighted 
+  // dataset and return this.
+  T* _Bin = new T( m_CalData->GetName(),
+                   m_CalData->GetTitle(),
+                   m_CalData,
+                   *m_CalData->get(),
+                   Cuts_Cal,
+                   ""
+                   );
+
+  _Bin->addColumn(wFunc);
+  
+  return dynamic_cast<RooAbsData*>(_Bin);
+
+}
+
+//=============================================================================
+// Get a TrackDataSet that contains all those events in this TrackDataSet which 
+// reside in bins where the Reference TrackDataSet also contains events. 
+//=============================================================================
+template<class T>
+RooAbsData* WeightDataSetTool<T>::ANDInBins( const std::string& WgtVar,
+                                             const std::string& WgtVar_Ref
+                                             )
+{
+  //---------------------------------------------------------------------------
+  // Create instances of DataBinCuts for both numerator and denominator 
+  // datasets. Determine total number of bin permuatations (BinDimensions).
+  int BinDimensions = 1;
+  DataBinCuts* Cal_Cuts = NULL;
+  DataBinCuts* Ref_Cuts = NULL;
+  this->MakeDataBinCuts(Cal_Cuts,
+                        Ref_Cuts,
+                        BinDimensions);
+  
+  //----------------------------------------------------------------------------
+  // Print table preample
+  std::vector<RooBinning*>::iterator itr_Binning;
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size()+36)<<"-"<<std::setfill(' ')<<endl;
+  cout<<std::setw( (10*m_BinSchema.size()+9)/2 )<<"Bin Index"<<endl;
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size())<<"-"<<std::setfill(' ')<<endl;
+  for(itr_Binning = m_BinSchema.begin(); itr_Binning != m_BinSchema.end(); ++itr_Binning)
+  {
+    cout<<std::setw(10)<<TString::Format("%s",(*itr_Binning)->GetName()).Data();
+    
+  }
+  cout<<std::setw(14)<<m_RefData->GetName()
+      <<std::setw(14)<<m_CalData->GetName()
+      <<std::setw(8)<<"AND"<<endl;
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size()+36)<<"-"<<std::setfill(' ')<<endl;
+
+  // DataSet to return 
+  T* Merged_WgtDataSet = NULL;
+
+  //----------------------------------------------------------------------------
+  // Loops over all permutations of bin combinations (Cartesian Product)
+  for(int Perm=0; Perm<BinDimensions; ++Perm)//Bin
+  {
+    // List of current bin indices
+    std::list<int> BinIndex= this->GetBinIndicesFromFlatIndex(Perm);
+        
+    //--------------------------------------------------------------------------
+    // Print current bin indices
+    std::list<int>::iterator itr_Indices;
+    for( itr_Indices = BinIndex.begin(); itr_Indices != BinIndex.end(); ++itr_Indices)
+    {
+      cout<<std::setw(10)<<*itr_Indices;
+    }
+
+    //--------------------------------------------------------------------------
+    // Create new dataset which is the logical AND of this and the reference
+    T* WgtDataSet = dynamic_cast<T*>(this->ANDInBin(std::string(Cal_Cuts->GetCuts(BinIndex)),
+                                                    std::string(Ref_Cuts->GetCuts(BinIndex)),
+                                                    WgtVar,
+                                                    WgtVar_Ref ));
+    
+    if(Merged_WgtDataSet==NULL && WgtDataSet!=NULL)
+    {
+      Merged_WgtDataSet = WgtDataSet;
+    }
+    else if(WgtDataSet!=NULL)
+    {
+      Merged_WgtDataSet->append(*WgtDataSet);
+      delete WgtDataSet;
+    }  
+    
+    BinIndex.clear();
+
+  }//Bin
+  
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size()+36)<<"-"<<std::setfill(' ')<<endl;
+  cout<<m_RefData->numEntries()<<'\t'<<Merged_WgtDataSet->numEntries()<<endl;
+  
+  if(m_RefData->numEntries() != Merged_WgtDataSet->numEntries())
+  {
+    cout<<std::setfill('=')<<std::setw(10*m_BinSchema.size()+36)<<"="<<std::setfill(' ')<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+75)/2 )<<"*WARNING* *WARNING* *WARNING* *WARNING*"<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+73)/2 )<<"There exist bins with signal tracks"<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+63)/2 )<<"but no calibration tracks"<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+75)/2 )<<"*WARNING* *WARNING* *WARNING* *WARNING*"<<endl;
+    cout<<std::setfill('=')<<std::setw(10*m_BinSchema.size()+36)<<"="<<std::setfill(' ')<<endl;
+  }
+
+  delete Cal_Cuts;
+  delete Ref_Cuts;
+
+  return dynamic_cast<RooAbsData*>(Merged_WgtDataSet);
+
+
+}
+
+//=============================================================================
+// Produce a 'copy' of this TrackDataSet but weighted wrt the 'Numerator' 
+// TrackDataSet in bins defined in BinSchema. 
+//=============================================================================
+template<class T>
+RooAbsData* WeightDataSetTool<T>::WeightInBins( const std::string& WgtVar,
+                                                Bool_t NormToSumEntries,
+                                                const std::string& WgtVar_Ref, 
+                                                const std::string& WgtVar_Cal
+                                                )
+{
+  //---------------------------------------------------------------------------
+  // Create instances of DataBinCuts for both numerator and denominator 
+  // datasets. Determine total number of bin permuatations (BinDimensions).
+  int BinDimensions = 1;
+  DataBinCuts* Cal_Cuts = NULL;
+  DataBinCuts* Ref_Cuts = NULL;
+  this->MakeDataBinCuts(Cal_Cuts,
+                        Ref_Cuts,
+                        BinDimensions);
+
+  //---------------------------------------------------------------------------
+  // Determine normalisation value
+  T* Weighted_Cal = new T(std::string(m_CalData->GetName()),
+                          std::string(m_CalData->GetCharge()),
+                          m_CalData,
+                          *m_CalData->get(),
+                          "",
+                          WgtVar_Cal);
+
+  double Cal_sumEntries = Weighted_Cal->sumEntries();
+  delete Weighted_Cal;
+
+  T* Weighted_Ref = new T(std::string(m_RefData->GetName()),
+                          std::string(m_RefData->GetCharge()),
+                          m_RefData,
+                          *m_RefData->get(),
+                          "",
+                          WgtVar_Ref);
+
+  double Ref_sumEntries = Weighted_Ref->sumEntries();
+  delete Weighted_Ref;
+  
+  Double_t norm = NormToSumEntries?Cal_sumEntries/Ref_sumEntries:1;
+
+  //----------------------------------------------------------------------------
+  // Print table preample
+  std::vector<RooBinning*>::iterator itr_Binning;
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size()+70)<<"-"<<std::setfill(' ')<<endl;
+  cout<<std::setw( (10*m_BinSchema.size()+9)/2 )<<"Bin Index"<<endl;
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size())<<"-"<<std::setfill(' ')<<endl;
+  for(itr_Binning = m_BinSchema.begin(); itr_Binning != m_BinSchema.end(); ++itr_Binning)
+  {
+    cout<<std::setw(10)<<TString::Format("%s",(*itr_Binning)->GetName()).Data();
+  }
+  cout<<std::setw(14)<<m_RefData->GetName()
+      <<std::setw(14)<<m_CalData->GetName()
+      <<std::setw(14)<<"Ratio"
+      <<std::setw(14)<<"Norm."
+      <<std::setw(14)<<"Weight"<<endl;
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size()+70)<<"-"<<std::setfill(' ')<<endl;
+
+  // DataSet to return 
+  T* Merged_WgtDataSet = NULL;
+
+  //----------------------------------------------------------------------------
+  // Loops over all permutations of bin combinations (Cartesian Product)
+  for(int Perm=0; Perm<BinDimensions; ++Perm)//Bin
+  {
+    // List of current bin indices
+    std::list<int> BinIndex= GetBinIndicesFromFlatIndex(Perm);
+    
+    //--------------------------------------------------------------------------
+    // Print current bin indices
+    std::list<int>::iterator itr_Indices;
+    for( itr_Indices = BinIndex.begin(); itr_Indices != BinIndex.end(); ++itr_Indices)
+    {
+      cout<<std::setw(10)<<*itr_Indices;
+    }
+    
+    //--------------------------------------------------------------------------
+    // Create new dataset with new weight variable WgtVar
+    T* WgtDataSet =
+      dynamic_cast<T*>(WeightInBin( WgtVar,
+                                    norm,
+                                    std::string(Ref_Cuts->GetCuts(BinIndex)),
+                                    std::string(Cal_Cuts->GetCuts(BinIndex)),
+                                    WgtVar_Ref,
+                                    WgtVar_Cal ));
+    
+    if(Merged_WgtDataSet==NULL)
+      Merged_WgtDataSet = WgtDataSet;
+    else
+    {
+      Merged_WgtDataSet->append(*WgtDataSet);
+      delete WgtDataSet;
+    }
+
+    BinIndex.clear();
+  
+  }// Bin
+  
+  cout<<std::setfill('-')<<std::setw(10*m_BinSchema.size()+70)<<"-"<<std::setfill(' ')<<endl;
+  
+  if(m_EmptyBinFlag==true)
+  {
+    cout<<std::setfill('=')<<std::setw(10*m_BinSchema.size()+70)<<"="<<std::setfill(' ')<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+109)/2 )<<"*WARNING* *WARNING* *WARNING* *WARNING*"<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+107)/2 )<<"There exist bins with signal tracks"<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+97)/2 )<<"but no calibration tracks"<<endl;
+    cout<<std::setw( (10*m_BinSchema.size()+109)/2 )<<"*WARNING* *WARNING* *WARNING* *WARNING*"<<endl;
+    cout<<std::setfill('=')<<std::setw(10*m_BinSchema.size()+70)<<"="<<std::setfill(' ')<<endl;
+  }
+  delete Ref_Cuts;
+  delete Cal_Cuts;
+  
+  return dynamic_cast<RooAbsData*>(Merged_WgtDataSet);
+
+}
+
+//=============================================================================
+// Protected method for internal use only. Construct DataBinCut objects for two 
+// TrackDataSets given a Binning Schema (vector<RooBinning*>)
+//=============================================================================
+template <class T>
+void WeightDataSetTool<T>::MakeDataBinCuts(DataBinCuts*& Cal_Cuts,
+                                           DataBinCuts*& Ref_Cuts,
+                                           int& BinDimensions)
+{
+  BinDimensions = 1;
+  std::vector<RooBinning*>::iterator itr_Binning;
+  std::list<std::pair<std::string, RooBinning*> > Cal_BinDefs;
+  std::list<std::pair<std::string, RooBinning*> > Ref_BinDefs;
+
+  for(itr_Binning = m_BinSchema.begin(); itr_Binning != m_BinSchema.end(); ++itr_Binning)
+  {
+    Cal_BinDefs.push_back( make_pair(m_CalData->Get_ParamName((*itr_Binning)->GetName()),
+                                   *itr_Binning) );
+    Ref_BinDefs.push_back( make_pair(m_RefData->Get_ParamName((*itr_Binning)->GetName()),
+                                   *itr_Binning) );
+    BinDimensions *=  (*itr_Binning)->numBins();
+  }
+
+  Cal_Cuts = new DataBinCuts("Cal Data Cuts",
+                             "",
+                             Cal_BinDefs);
+  
+  Ref_Cuts =new DataBinCuts("Ref Data Cuts",
+                            "",
+                            Ref_BinDefs);
+}
+
+//=============================================================================
+// Protected method for internal use only. Determine the bin indices for a 
+// given Binning Schema (vector<RooBinning*>) and a given flat index value.
+//
+// To facilitate any number of binning variables (with any number of bins) in 
+// BinSchema, and avoid the use of nested loops, we exploit the following 
+// result. 
+//
+// For N binning variables with n_1, n_2, ..., n_N bins, respectively, the 
+// Cartesian Product*
+//
+// (i.e. for two sets, X and Y, the set of all possible ordered pairs whose 
+// first component is a member of X and whose second component is a member 
+// of Y)
+//
+// can be constructed for all (x_1, x_2, ..., x_N) using the following 
+// formaulae:
+//
+//     for m : [0, n_T] where n_T = n_1 x n_2 ...x n_N 
+//     (i.e. the counter over all possible bin combinations)
+//
+//     x_1 = m % n_1
+// 
+//     for i > 1:
+//     x_i = m % {Prod_{j=1}^{i} n_j} / Prod_{k=1}^{i-1} n_k
+//
+// *see http://en.wikipedia.org/wiki/Cartesian_product
+//
+//=============================================================================
+template <class T>
+std::list<int> WeightDataSetTool<T>::GetBinIndicesFromFlatIndex(int FlatIndex)
+{
+  std::list<int> BinIndex;
+  
+  BinIndex.push_back(FlatIndex%m_BinSchema[0]->numBins());
+		 
+  int NBinsProd = 1;
+  for(unsigned int Var=1;Var<m_BinSchema.size();++Var)
+  {
+    NBinsProd *= m_BinSchema[Var-1]->numBins();
+    BinIndex.push_back( (FlatIndex%(NBinsProd*m_BinSchema[Var]->numBins())/NBinsProd) );
+  }
+
+  return BinIndex;
+  
+}
+//=============================================================================
