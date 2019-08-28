@@ -2,9 +2,14 @@
 #
 *.exe
 */LSFJOB*
+*slurm*.out
 #output
 *.root
 *.log
+
+#MC production
+production/EPOS/epos*
+
 #backup files
 */.*
 *~
