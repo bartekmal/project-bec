@@ -1,4 +1,0 @@
-####DaVinci::HBT
-tylko 1 PV
-PVMult1 >=5
-
