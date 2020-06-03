@@ -2,6 +2,7 @@ hello world:
   script: echo "Hello world"
 
 build:
+  image: rootproject/root-conda:6.18.04
   script:
     - COMPILER=$(root-config --cxx)
     #- MY_CMTCONFIG=x86_64-slc6-gcc49-opt
