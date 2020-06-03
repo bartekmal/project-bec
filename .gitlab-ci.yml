@@ -1,7 +1,13 @@
+stages:
+  - greeting
+  - build
+
 hello world:
+  stage: greeting
   script: echo "Hello world"
 
 .build_template:
+  stage: build
   before_script:
     - COMPILER=$(root-config --cxx)
     - FLAGS=$(root-config --cflags --libs)
@@ -13,11 +19,12 @@ hello world:
       - ${CODE_INPUT}/*.cpp
 
 build_stable:
-  image: rootproject/root-conda:6.18.04
   extends: .build_template
+  image: rootproject/root-conda:6.18.04
+  
     
 build_latest:
-  image: rootproject/root-conda:latest
   extends: .build_template
+  image: rootproject/root-conda:latest
   allow_failure: true
   
