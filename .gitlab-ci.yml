@@ -1,8 +1,7 @@
 hello world:
   script: echo "Hello world"
 
-build:
-  image: rootproject/root-conda:6.18.04
+.build_template:
   before_script:
     - COMPILER=$(root-config --cxx)
     - FLAGS=$(root-config --cflags --libs)
@@ -12,19 +11,13 @@ build:
   only:
     changes:
       - ${CODE_INPUT}/*.cpp
+
+build_stable:
+  image: rootproject/root-conda:6.18.04
+  extends: .build_template
     
 build_latest:
   image: rootproject/root-conda:latest
-  before_script:
-    - COMPILER=$(root-config --cxx)
-    - FLAGS=$(root-config --cflags --libs)
-    - CODE_INPUT=code/HBTAnalysis
-  script:
-    - $COMPILER -g -O3 -Wall -Wextra -Wpedantic ${CODE_INPUT}/*.cpp -o HBTAnalysis $FLAGS
-  only:
-    changes:
-      - ${CODE_INPUT}/*.cpp
+  extends: .build_template
   allow_failure: true
   
-
-
