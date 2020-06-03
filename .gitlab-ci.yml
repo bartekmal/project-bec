@@ -1,2 +1,14 @@
 hello world:
-    script: echo "Hello world"
+  script: echo "Hello world"
+
+build:
+  script:
+    - COMPILER=$(root-config --cxx)
+    #- MY_CMTCONFIG=x86_64-slc6-gcc49-opt
+    #- source /cvmfs/lhcb.cern.ch/lib/LbEnv.sh -c ${MY_CMTCONFIG}
+    #- MYROOTPATH=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_76root6/ROOT/6.02.08/x86_64-slc6-gcc49-opt
+    #- $COMPILER -g -std=c++11 -O2  -pthread -m64 -Wall -Wextra -Wpedantic -I${MYROOTPATH}/include ${CODE_INPUT}/*.cpp -o HBTAnalysis -L${MYROOTPATH}/lib -lGpad -lHist -lGraf -lGraf3d -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lRIO -lNet -lThread -lCore  -pthread -lm -ldl -rdynamic -lTreePlayer -lMinuit -lTMVA -lXMLIO -lMLP
+    - CODE_INPUT=code/HBTAnalysis
+    - $COMPILER -g -O2 -Wall -Wextra -Wpedantic ${CODE_INPUT}/*.cpp -o HBTAnalysis
+
+
