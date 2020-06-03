@@ -10,11 +10,18 @@ build:
   image: rootproject/root-conda:6.18.04
   script:
     - $COMPILER -g -O3 -Wall -Wextra -Wpedantic ${CODE_INPUT}/*.cpp -o HBTAnalysis $FLAGS
+  only:
+    changes:
+      - ${CODE_INPUT}/*.cpp
     
 build_latest:
   image: rootproject/root-conda:latest
   script:
     - $COMPILER -g -O3 -Wall -Wextra -Wpedantic ${CODE_INPUT}/*.cpp -o HBTAnalysis $FLAGS
+  only:
+    changes:
+      - ${CODE_INPUT}/*.cpp
   allow_failure: true
+  
 
 
