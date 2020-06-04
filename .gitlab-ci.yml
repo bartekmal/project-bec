@@ -37,10 +37,6 @@ run_simple:
   stage: run
   image: rootproject/root-conda:6.18.04
   script:
-    - ./HBTAnalysis > run.log
+    - ./HBTAnalysis
   dependencies:
     - build_stable
-  artifacts:
-    paths:
-      - run.log
-  allow_failure: true
