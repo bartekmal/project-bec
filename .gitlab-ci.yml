@@ -21,7 +21,7 @@ hello world:
       - .gitlab-ci.yml
   artifacts:
     paths:
-      - skim
+      - HBTAnalysis
     expire_in: 1 day
     
 build_stable:
