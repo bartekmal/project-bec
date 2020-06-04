@@ -1,6 +1,7 @@
 stages:
   - greeting
   - build
+  - run
 
 hello world:
   stage: greeting
@@ -17,14 +18,33 @@ hello world:
   only:
     changes:
       - ${CODE_INPUT}/*.cpp
-
+      - .gitlab-ci.yml
+  artifacts:
+    paths:
+      - skim
+    expire_in: 1 day
+    
 build_stable:
   extends: .build_template
   image: rootproject/root-conda:6.18.04
-  
     
 build_latest:
   extends: .build_template
   image: rootproject/root-conda:latest
   allow_failure: true
+  
+run_simple:
+  stage: run
+  image: rootproject/root-conda:6.18.04
+  script:
+    - ./HBTAnalysis > run.log
+  dependencies:
+    - build_stable
+  artifacts:
+    paths:
+      run.log
+      
+    
+  
+
   
