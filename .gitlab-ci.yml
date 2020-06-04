@@ -42,9 +42,4 @@ run_simple:
     - build_stable
   artifacts:
     paths:
-      run.log
-      
-    
-  
-
-  
+      - run.log
