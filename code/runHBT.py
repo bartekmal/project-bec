@@ -2,9 +2,6 @@
 
 import os
 
-#consts
-os.environ['MYROOTPATH'] = '/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_76root6/ROOT/6.02.08/x86_64-slc6-gcc49-opt'
-
 #define a structure for BEC jobs
 class jobBEC:
     def __init__(self, jobName, outputPath, inputData, dataType, outputFileName = 'HBTAnalysis.root', nrOfEventsToProcess = ''):
@@ -13,7 +10,7 @@ class jobBEC:
         self.inputData = inputData
         self.dataType = dataType
         self.outputFileName = outputFileName
-        self.nrOfEventsToProcess = nrOfEventsToProcess
+        self.nrOfEventsToProcess = str(nrOfEventsToProcess)
 
 #helper functions
 
@@ -21,99 +18,153 @@ def mkdirIfNotExists( myPath ):
     if not os.path.exists( myPath ):
         os.mkdir( myPath )
 
+def recreateDir( folderName ):
+    os.system( 'rm -r ' + folderName )
+    os.mkdir( folderName )
+
 def recreateAndChangeDir( folderName ):
     os.system( 'rm -r ' + folderName )
     os.mkdir( folderName )
     os.chdir( folderName )
 
-def prepareOutputFolder( outputFolderName ):
-    outputDirPath = os.getenv('MYDIR') + "/output/" + outputFolderName
-    mkdirIfNotExists( outputDirPath )
+def prepareFolder( outputFolderPath,outputFolderName ):
+    tmpFolder = outputFolderPath + "/" + outputFolderName
+    mkdirIfNotExists( tmpFolder )
 
-    return outputDirPath
+    return tmpFolder
 
 #set the BEC environment
 def setEnvironmentBEC():
-    currentUser = os.getenv( 'USER' )
+    currentHost = os.getenv( 'BEC_HOST' )
 
-    if currentUser == "bmalecki":
-        os.environ['BEC_SETUP_SCRIPT'] = '/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/setupBEC.sh'
-        os.environ['BEC_QUEUE'] = '1nd'
-        os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'bsub -q ' + os.getenv('BEC_QUEUE')
-        os.system( "source " + os.getenv('BEC_SETUP_SCRIPT') )
+    if currentHost == "lxplus":
+        #job flavours in condor
+        #espresso     = 20 mins
+        #microcentury = 1 hour
+        #longlunch    = 2 hours
+        #workday      = 8 hours
+        #tomorrow     = 1 day
+        #testmatch    = 3 days
+        #nextweek     = 1 week
+        os.environ['BEC_SETUP_SCRIPT'] = os.environ['BEC_BASE']+'/setupBEC.sh'
+        os.environ['BEC_BATCH_QUEUE'] = 'tomorrow'
+        os.environ['BEC_BATCH_MAXTIME'] = '50400' # in secs
+        os.environ['BEC_BATCH_TMPDIR'] = 'TMPDIR'
+        os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'condor_submit'
         print "BEC environment set for user: bmalecki (lxplus)\n"
         return True
-    elif currentUser == "plgbmalecki":
-        os.environ['BEC_SETUP_SCRIPT'] = '/mnt/nfs/storage/plgbmalecki/BEC_pPb/setupBEC.sh'
-        os.environ['BEC_QUEUE'] = 'plgrid'
-	os.environ['BEC_BATCH_MAXTIME'] = '24:00:00'
-        os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'sbatch -p ' + os.getenv('BEC_QUEUE') + ' -t ' + os.getenv('BEC_BATCH_MAXTIME')
-        os.system( "source " + os.getenv('BEC_SETUP_SCRIPT') )
+    elif currentHost == "plgrid":
+        os.environ['BEC_SETUP_SCRIPT'] = os.environ['BEC_BASE']+'/setupBEC.sh'
+        os.environ['BEC_BATCH_QUEUE'] = 'plgrid'
+        os.environ['BEC_BATCH_MAXTIME'] = '24:00:00'
+        os.environ['BEC_BATCH_TMPDIR'] = 'SLURM_MYDIR'
+        os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'sbatch -p ' + os.getenv('BEC_BATCH_QUEUE') + ' -t ' + os.getenv('BEC_BATCH_MAXTIME')
         print "BEC environment set for user: plgbmalecki (PLGrid)\n"
         return True
     else:
         return False   
 
-def createRunScriptForJob( aJob ):
-    myFile = open('runHBT_singleJobOnBatch.sh','w')
+def createRunScriptForJob( aJob, outputDir ):
+
+    singleJobOnBatchFileName = 'start_job.sh'
+    batchSubmitFileName = 'condor.sub'
+
+    myFile = open(singleJobOnBatchFileName,'w')
 
     myFile.write('#!/bin/sh\n')
     myFile.write('\n')
-    myFile.write('source ' + os.getenv('BEC_SETUP_SCRIPT') + '\n')
-    myFile.write('OUTPUT_DIR=${SLURM_SUBMIT_DIR}\n')
+    myFile.write('#setup environment\n')
+    myFile.write('source /cvmfs/lhcb.cern.ch/lib/LbEnv.sh -c ' + os.getenv("MY_CMTCONFIG") + '\n')
+    myFile.write('source ' + os.getenv("MY_ROOT_SETUP") + '\n')
     myFile.write('\n')
-    myFile.write('cd ${OUTPUT_DIR}\n')
-    myFile.write( os.getenv('BEC_BASE_DAVINCI') + '/run ' + os.getenv('CODE_EXEC') + ' ' + aJob.inputData + ' ' + aJob.dataType + ' ' + aJob.outputFileName + ' ' + aJob.nrOfEventsToProcess + ' > HBTAnalysis.log' + '\n' )
+    myFile.write('cd ${'+ os.getenv("BEC_BATCH_TMPDIR") +'}\n')
+    myFile.write( os.getenv('CODE_EXEC') + ' ' + aJob.inputData + ' ' + aJob.dataType + ' ' + aJob.outputFileName + ' ' + aJob.nrOfEventsToProcess + ' > HBTAnalysis.log' + '\n' )
+    myFile.write('\n')
+    myFile.write('#get output\n')
+    myFile.write('sleep ' + os.getenv('SLEEP_TIME') + '\n')
+    myFile.write('mv *.log ' + outputDir + '/HBTAnalysis.log\n')
+    myFile.write('mv *.root ' + outputDir+ '/HBTAnalysis.root\n')
 
     myFile.close()
 
-    return os.path.realpath( myFile.name )
+    submitFile = open(batchSubmitFileName,'w')
+
+    submitFile.write('executable = ' + singleJobOnBatchFileName + '\n')
+    submitFile.write('arguments = $(ProcId)\n')
+    submitFile.write('\n')
+    submitFile.write('log = condor.log\n')
+    submitFile.write('output = condor_$(ProcId).out\n')
+    submitFile.write('error = condor_$(ProcId).err\n')
+    submitFile.write('+JobFlavour = ' + os.getenv('BEC_BATCH_QUEUE') + '\n')
+    submitFile.write('+MaxRuntime = ' + os.getenv('BEC_BATCH_MAXTIME') + '\n')
+    submitFile.write('\n')
+    submitFile.write('queue 1\n')
+
+    submitFile.close()
+
+    return os.path.realpath( submitFile.name )
 
 #################################################### analysis `rules`
 
 def runHBTJobs( outputFolderName = "HBTAnalysis" ):
 
-    #prepare output directory
-    outputDirPath = prepareOutputFolder( outputFolderName )
+    #prepare empty job directories
+    os.environ['TEMP_DIR'] = os.getenv('MYDIR') + '/temp'
+    recreateDir(os.getenv('TEMP_DIR'))
+    recreateDir(os.getenv('MYDIR') + '/output')
+    outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
     print "Running HBT jobs with output in directory:\n{0}\n".format( outputDirPath )
 
     #define jobs
     jobsToRun = [
-        jobBEC( jobName = 'RD_pPb_MU', outputPath = 'RD_pPb_MU', inputData = os.getenv('BEC_DATA') + '/ntuple/RD_pPb_MU/hbtNTuple.root', dataType = 'RD' ),
-        jobBEC( jobName = 'RD_pPb_MD', outputPath = 'RD_pPb_MD', inputData = os.getenv('BEC_DATA') + '/ntuple/RD_pPb_MD/hbtNTuple.root', dataType = 'RD' ),
-        jobBEC( jobName = 'RD_Pbp_MU', outputPath = 'RD_Pbp_MU', inputData = os.getenv('BEC_DATA') + '/ntuple/RD_Pbp_MU/hbtNTuple.root', dataType = 'RD' ),
-        jobBEC( jobName = 'RD_Pbp_MD', outputPath = 'RD_Pbp_MD', inputData = os.getenv('BEC_DATA') + '/ntuple/RD_Pbp_MD/hbtNTuple.root', dataType = 'RD' ),
-        jobBEC( jobName = 'MC_pPb_MU', outputPath = 'MC_pPb_MU', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_pPb_MU/hbtNTuple_corrected.root', dataType = 'MC' ),
-        jobBEC( jobName = 'MC_pPb_MD', outputPath = 'MC_pPb_MD', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_pPb_MD/hbtNTuple_corrected.root', dataType = 'MC' ),
-        jobBEC( jobName = 'MC_Pbp_MU', outputPath = 'MC_Pbp_MU', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_Pbp_MU/hbtNTuple_corrected.root', dataType = 'MC' ),
-        jobBEC( jobName = 'MC_Pbp_MD', outputPath = 'MC_Pbp_MD', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_Pbp_MD/hbtNTuple_corrected.root', dataType = 'MC' ),
-        jobBEC( jobName = 'EPOS_local_pPb_MU', outputPath = 'EPOS_local_pPb_MU', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_pPb_MU/EPOS_local/hbtNTuple_corrected.root', dataType = 'MC' ),
-        jobBEC( jobName = 'EPOS_local_pPb_MD', outputPath = 'EPOS_local_pPb_MD', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_pPb_MD/EPOS_local/hbtNTuple_corrected.root', dataType = 'MC' ),
-        jobBEC( jobName = 'EPOS_local_Pbp_MU', outputPath = 'EPOS_local_Pbp_MU', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_Pbp_MU/EPOS_local/hbtNTuple_corrected.root', dataType = 'MC' ),
-        jobBEC( jobName = 'EPOS_local_Pbp_MD', outputPath = 'EPOS_local_Pbp_MD', inputData = os.getenv('BEC_DATA') + '/ntuple/MC_Pbp_MD/EPOS_local/hbtNTuple_corrected.root', dataType = 'MC' ),   
+        jobBEC( jobName = 'RD_pPb_MU', outputPath = 'RD_pPb_MU', inputData = os.getenv('BEC_STORAGE') + '/ntuple/data/pPb_MU/hbtNTuple.root', dataType = 'RD' ),
+        jobBEC( jobName = 'RD_pPb_MD', outputPath = 'RD_pPb_MD', inputData = os.getenv('BEC_STORAGE') + '/ntuple/data/pPb_MD/hbtNTuple.root', dataType = 'RD' ),
+        jobBEC( jobName = 'RD_Pbp_MU', outputPath = 'RD_Pbp_MU', inputData = os.getenv('BEC_STORAGE') + '/ntuple/data/Pbp_MU/hbtNTuple.root', dataType = 'RD' ),
+        jobBEC( jobName = 'RD_Pbp_MD', outputPath = 'RD_Pbp_MD', inputData = os.getenv('BEC_STORAGE') + '/ntuple/data/Pbp_MD/hbtNTuple.root', dataType = 'RD' ),
+        jobBEC( jobName = 'MC_pPb_MU', outputPath = 'MC_pPb_MU', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/central/Sim09c/pPb_MU/hbtNTuple_corrected.root', dataType = 'MC' ),
+        jobBEC( jobName = 'MC_pPb_MD', outputPath = 'MC_pPb_MD', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/central/Sim09c/pPb_MD/hbtNTuple_corrected.root', dataType = 'MC' ),
+        jobBEC( jobName = 'MC_Pbp_MU', outputPath = 'MC_Pbp_MU', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/central/Sim09c/Pbp_MU/hbtNTuple_corrected.root', dataType = 'MC' ),
+        jobBEC( jobName = 'MC_Pbp_MD', outputPath = 'MC_Pbp_MD', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/central/Sim09c/Pbp_MD/hbtNTuple_corrected.root', dataType = 'MC' ),
+        jobBEC( jobName = 'EPOS_local_pPb_MU', outputPath = 'EPOS_local_pPb_MU', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/local/Sim09c/pPb_MU/hbtNTuple_corrected.root', dataType = 'MC' ),
+        jobBEC( jobName = 'EPOS_local_pPb_MD', outputPath = 'EPOS_local_pPb_MD', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/local/Sim09c/pPb_MD/hbtNTuple_corrected.root', dataType = 'MC' ),
+        jobBEC( jobName = 'EPOS_local_Pbp_MU', outputPath = 'EPOS_local_Pbp_MU', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/local/Sim09c/Pbp_MU/hbtNTuple_corrected.root', dataType = 'MC' ),
+        jobBEC( jobName = 'EPOS_local_Pbp_MD', outputPath = 'EPOS_local_Pbp_MD', inputData = os.getenv('BEC_STORAGE') + '/ntuple/sim/epos/local/Sim09c/Pbp_MD/hbtNTuple_corrected.root', dataType = 'MC' ),   
     ]        
+
+    # prepare temporary job scripts/files
+    os.chdir(os.getenv('TEMP_DIR'))
 
     #compile
     os.environ['CODE_NAME'] = 'HBTAnalysis'
     os.environ['CODE_INPUT'] = os.getenv('BEC_BASE_CODE_HBT')
-    os.environ['CODE_EXEC'] = os.getenv('MYDIR')+'/'+os.getenv('CODE_NAME')+'.exe'
-    os.system('rm ${CODE_EXEC}')
-    os.system('${BEC_BASE_DAVINCI}/run g++ -g -std=c++11 -O2  -pthread -m64 -I${MYROOTPATH}/include ${CODE_INPUT}/*.cpp -o ${CODE_EXEC} -L${MYROOTPATH}/lib -lGpad -lHist -lGraf -lGraf3d -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lRIO -lNet -lThread -lCore  -pthread -lm -ldl -rdynamic -lTreePlayer -lMinuit -lTMVA -lXMLIO -lMLP')
-
+    os.environ['CODE_EXEC'] = os.getenv('TEMP_DIR')+'/'+os.getenv('CODE_NAME')+'.exe'
+    os.system(
+        'COMPILER=`root-config --cxx`;' +
+        'FLAGS=`root-config --cflags --libs`;' +
+        '$COMPILER -g -O3 -Wall -Wextra -Wpedantic ${CODE_INPUT}/*.cpp -o ${CODE_EXEC} $FLAGS'
+    )
+    
     #run job
     for aJob in jobsToRun:
-        os.chdir( outputDirPath ) 
+
+        #prepare folder for output files
+        os.chdir(outputDirPath)
+        recreateDir(aJob.outputPath)
+        outputDirForCurrentJob = outputDirPath + "/" + aJob.outputPath
+
+        #temporary job files
+        os.chdir( os.getenv('TEMP_DIR') )
         recreateAndChangeDir( aJob.outputPath )
+        runFilePath = createRunScriptForJob( aJob, outputDirForCurrentJob )
                
-        runFilePath = createRunScriptForJob( aJob )
-        os.system( os.getenv('BEC_BATCH_SYSTEM_COMMAND') + ' -J ' + aJob.jobName + ' ' + runFilePath )
-        #os.system( '${BEC_BASE_DAVINCI}/run ${CODE_EXEC} ' + aJob.inputData + ' ' + aJob.dataType + ' ' + aJob.outputFileName + ' ' + aJob.nrOfEventsToProcess + ' HBTAnalysis.log')
+        os.system( os.getenv('BEC_BATCH_SYSTEM_COMMAND') + " " + runFilePath )
+        #os.system( '${CODE_EXEC} ' + aJob.inputData + ' ' + aJob.dataType + ' ' + aJob.outputFileName + ' ' + aJob.nrOfEventsToProcess + ' > HBTAnalysis.log')
 
 def runMerge( outputFolderName = "merged" ):
 
     #prepare output directory
-    outputDirPath = prepareOutputFolder( outputFolderName )
+    outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
     print "Running merge in directory:\n{0}\n".format( outputDirPath )
 
@@ -158,12 +209,12 @@ def runMerge( outputFolderName = "merged" ):
         os.chdir( outputDirPath ) 
         recreateAndChangeDir( aJob['outputFolder'] )
                 
-        os.system( 'lb-run ROOT hadd -ff merged.root' + ' ' + ' '.join( aJob['filesToMerge'] ) )
+        os.system( 'hadd -ff merged.root' + ' ' + ' '.join( aJob['filesToMerge'] ) )
 
 def runDivide( outputFolderName = "correlations" ):
 
     #prepare output directory
-    outputDirPath = prepareOutputFolder( outputFolderName )
+    outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
     print "Running divide in directory:\n{0}\n".format( outputDirPath )
 
@@ -274,23 +325,23 @@ def runDivide( outputFolderName = "correlations" ):
         recreateAndChangeDir( aJob['outputFolder'] )
         outputFile = os.getenv('MYDIR') + "/output/correlations/" + aJob['outputFolder'] + "/correlations.root"     
 
-        os.system( 'lb-run ROOT root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
             aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEnd']  
         ) )
-        os.system( 'lb-run ROOT root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
             aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEnd']  
         ) )
-        os.system( 'lb-run ROOT root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
             aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEnd']  
         ) )
-        os.system( 'lb-run ROOT root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}")\''.format(
             aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEnd']  
         ) )
 
 def runDraw( outputFolderName = "plots" ):
 
     #prepare output directory
-    outputDirPath = prepareOutputFolder( outputFolderName )
+    outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
     print "Running plots in directory:\n{0}\n".format( outputDirPath )
 
@@ -364,10 +415,10 @@ def runDraw( outputFolderName = "plots" ):
         os.chdir( outputDirPath ) 
         recreateAndChangeDir( aJob['outputFolder'] )    
 
-        os.system( 'lb-run ROOT root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawForBins.C("{0}","{1}","{2}","{3}",{4},{5},"{6}")\''.format(
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawForBins.C("{0}","{1}","{2}","{3}",{4},{5},"{6}")\''.format(
             aJob['fileName'], aJob['hBaseNameLike'], aJob['hBaseNameUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEnd']  
         ) )
-        os.system( 'lb-run ROOT root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawForBins.C("{0}","{1}","{2}","{3}",{4},{5},"{6}")\''.format(
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawForBins.C("{0}","{1}","{2}","{3}",{4},{5},"{6}")\''.format(
             aJob['fileName'], aJob['hBaseNameLike'], aJob['hBaseNameUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hNameCommonEnd']  
         ) )
 
@@ -376,7 +427,7 @@ def runDraw( outputFolderName = "plots" ):
 #setup local job environment
 
 if not setEnvironmentBEC():
-    print "BEC environemnt not set -> exiting.\n"
+    print "BEC environment not set -> exiting.\n"
 exit
 
 os.environ['MYDIR'] = os.getenv('PWD')

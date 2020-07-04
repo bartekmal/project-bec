@@ -90,7 +90,7 @@ int main( int argc, char** argv ) {
        << "from:\t" << inputFilePath << endl;
   
   //loop over events in the input file
-  for ( auto iEvent=0; iEvent<maxNrEvents; ++iEvent ){
+  for ( unsigned int iEvent=0; iEvent<maxNrEvents; ++iEvent ){
     hbtTuple->GetEntry( iEvent );
     
     if ( !hbtSelection.passEventSelection() ) continue;

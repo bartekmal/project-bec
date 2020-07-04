@@ -157,11 +157,11 @@ inline void HBT::EventMixing::printEventMixingSummary(){
 
     printf( "\n--> Event mixing summary:\n" );
 
-    printf( "\t - #errors [type 1] ( region not covered by event classes )         : \t %d \n", m_counterErrorType1 );
-    printf( "\t - #errors [type 2] ( required #events for mixing not available )   : \t %d \n", m_counterErrorType2 );
-    printf( "\t - #errors [type 3] ( no more particles for mixing in the event )   : \t %d \n", m_counterErrorType3 );
+    printf( "\t - #errors [type 1] ( region not covered by event classes )         : \t %lu \n", m_counterErrorType1 );
+    printf( "\t - #errors [type 2] ( required #events for mixing not available )   : \t %lu \n", m_counterErrorType2 );
+    printf( "\t - #errors [type 3] ( no more particles for mixing in the event )   : \t %lu \n", m_counterErrorType3 );
     printf( "\n");
-    printf( "\t - #errors [total]                                                  : \t %d \n", m_counterErrorType1 + m_counterErrorType2 + m_counterErrorType3 );
+    printf( "\t - #errors [total]                                                  : \t %lu \n", m_counterErrorType1 + m_counterErrorType2 + m_counterErrorType3 );
 
 
     printf( "<-- End of event mixing summary\n\n" );  
@@ -219,7 +219,7 @@ inline std::vector< HBT::ParticlePair > HBT::EventMixing::getPairsFromEventMixin
     } 
 
     //try to find non-empty event m_maxNrOfTries times
-    for( unsigned int i = 0; i < m_maxNrOfTries; ++i ){
+    for( int i = 0; i < m_maxNrOfTries; ++i ){
 
       const auto eventIndex = m_randomNumberGeneratorForEvent.Integer( m_numberOfEventsForMixing );
       const auto eventSize = m_eventsForMixing[ multIndex ]->at( zPvIndex )->at( eventIndex )->size();
