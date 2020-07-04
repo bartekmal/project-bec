@@ -244,7 +244,6 @@ inline std::vector<HBT::Units::TH2FloatType> HBT::Histograms::CreateHistogramSer
   const HBT::Units::FloatType qRangeMax = 2.0;
   const HBT::Units::FloatType chargedParticleMultiplicityMax = 150.0; 
   const HBT::Units::FloatType averagePairTransverseMomentumMax = 2.0; 
-  const HBT::Units::FloatType particleTransverseMomentumMax = 3.0; 
   
   const int histogram2DBinning = 100;
   const int histogram2DBinningForMultiplicity = chargedParticleMultiplicityMax / 2.;
@@ -267,7 +266,7 @@ inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSer
   const HBT::Units::FloatType qRangeMin = 0.0;
   const HBT::Units::FloatType qRangeMax = 2.0;
   const HBT::Units::FloatType qExtendedRangeMax = 5.0;
-  const HBT::Units::FloatType qLCMSRangeMax = 1.0;
+  // const HBT::Units::FloatType qLCMSRangeMax = 1.0;
   const int qBinning = 400;
   const int qExtendedBinning = qBinning * ( qExtendedRangeMax / qRangeMax );
 

@@ -171,7 +171,7 @@ inline TLorentzVector HBT::Particle::build4V( const HBT::Units::FloatType& p, co
   const HBT::Units::FloatType a = p * p - pt * pt;
   if(a < 0) {
     cout << "Error in build4V: negative value detected!" << endl;
-    exit;
+    exit(1);
   }
   TLorentzVector v(pt * cos(phi), pt * sin(phi), sqrt(a), sqrt(p * p + m * m));
   return v;

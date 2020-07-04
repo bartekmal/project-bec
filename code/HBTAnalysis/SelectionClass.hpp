@@ -98,7 +98,7 @@ inline void SelectionClass::printSelectionCuts(){
     printf( "\t IP [mm]\t : \t < %3.2f \n", m_ipCut );
     printf( "\t p [GeV]\t : \t > %3.2f \n", m_pCut );
     printf( "\t pT [GeV]\t : \t > %3.2f \n", m_ptCut );
-    printf( "\t ShVeloHits [%]\t : \t < %3.2f \n", m_sharedVeloHitsCut * 100 );
+    printf( "\t ShVeloHits [%%]\t : \t < %3.2f \n", m_sharedVeloHitsCut * 100 );
     printf( "\t ghostNN\t : \t < %3.2f \n", m_ghostNNCut );
     printf( "\t piNN\t\t : \t > %3.2f \n", m_piNNCut );
     printf( "\t kNN\t\t : \t < %3.2f \n", m_kNNCut );
