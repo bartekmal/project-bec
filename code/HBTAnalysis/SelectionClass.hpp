@@ -81,8 +81,8 @@ inline void SelectionClass::initializeSelectionCuts(){
     this->m_qCut = 0.05f;
     this->m_openingAngleCut = 0.0003f; //rad
 
-    this->m_binsOfMultiplicity = { 0, 34, 45, 54, 64, 78, 141 };
-    this->m_binsOfMultiplicityForKt = { 0, 45, 64, 141 };
+    this->m_binsOfMultiplicity = { 0, 10, 15, 20, 25, 30, 35, 42, 49, 62, 78, 141 };
+    this->m_binsOfMultiplicityForKt = { 0, 15,25, 30, 40, 49, 64, 141 };
     this->m_binsOfKt = { 0., 0.3, 0.6, 1.2 };
     //this->m_binsOfKt = { 0., 0.25, 0.4, 0.6, 1.2 }; //4 bins version
 
@@ -124,7 +124,7 @@ inline bool SelectionClass::passEventSelection(){
 inline bool SelectionClass::passTrackSelection( const int& part_i ){
     auto passStatus = true;
 
-    if ( charge[part_i] == 0 ) passStatus = false;
+    if ( abs(charge[part_i]) != 1 ) passStatus = false;
     else if ( isMuon[part_i] != 0 ) passStatus = false;
     else if ( eta[part_i] < 2.0 || eta[part_i] > 5.0 ) passStatus = false;
 
