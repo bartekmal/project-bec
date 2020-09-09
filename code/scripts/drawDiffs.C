@@ -1,8 +1,8 @@
 /*-------------- configure plots -------------------*/
-Double_t binsMult[] = {15.0, 39.0, 49.0, 59.0, 71.0, 109.0};
-Double_t binsMultError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-Double_t binsMultForKt[] = {25.0, 53.0, 102.};
-Double_t binsMultForKtError[] = {0.5, 0.5, 0.5};
+Double_t binsMult[] = {7.5, 12.5, 17.5, 22.5, 27.5, 32.5, 38.0, 45.0, 55.0, 70.0, 109.0};
+Double_t binsMultError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+Double_t binsMultForKt[] = {10.0, 20.0, 27.5, 35.0, 45.0, 56.5, 102.0};
+Double_t binsMultForKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
 Double_t binsKt[] = {0.15, 0.45, 0.9};
 Double_t binsKtError[] = {0.5, 0.5, 0.5};
 Color_t binsKtColor[] = {kRed, kOrange, kGreen};
@@ -25,11 +25,11 @@ struct FitParam
 std::vector<FitParam> initFitParams()
 {
     std::vector<FitParam> fitParams{
-        FitParam(0, "N", -20., 20.),
+        FitParam(0, "N", -60., 60.),
         FitParam(1, "lambda", -40., 40.),
         FitParam(2, "R", -40., 40.),
         // FitParam(3, "R_eff [fm]", -100., 100.),
-        FitParam(4, "delta", -40., 40.),
+        FitParam(4, "delta", -100., 100.),
         FitParam(5, "lambda_bkg", -40., 40.),
         FitParam(6, "R_bkg", -40., 40.),
         // FitParam(7, "alpha_bkg", -100., 100.),

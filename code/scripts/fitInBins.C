@@ -295,10 +295,10 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const bool 
                 funcMain->FixParameter(7, 2);
                 funcMain->FixParameter(8, 1.0);
 
-                funcMain->SetParLimits(0, 0.5, 1.5);
+                funcMain->SetParLimits(0, 0., 2.0);
                 funcMain->SetParLimits(1, 0., 2.0);
                 funcMain->SetParLimits(2, 0., 50.);
-                funcMain->SetParLimits(4, -0.5, 0.5);
+                funcMain->SetParLimits(4, -1.0, 1.0);
                 funcMain->SetParLimits(5, 0., 10.);
                 funcMain->SetParLimits(6, 0., 50.);
 
