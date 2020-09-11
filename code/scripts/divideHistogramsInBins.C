@@ -1,7 +1,15 @@
+#include "../HBTAnalysis/Units.hpp"
+
 const Double_t Pi = TMath::Pi();
 const Double_t TwoPi = 2 * TMath::Pi();
 const Double_t MassPion = 0.140;
 const Double_t FineStructureConstant = 1.0 / 137.0;
+
+inline int getBinIndex(const HBT::Units::FloatType x, const HBT::Units::FloatType xMin, const HBT::Units::FloatType binWidth)
+{
+  //follow the ROOT histograms bin numbering
+  return static_cast<int>(floor((x - xMin) / binWidth)) + 1;
+}
 
 Double_t gamovFactorForPionPair(const Double_t &Q, const bool &sameSign)
 {
@@ -89,7 +97,7 @@ TString getFullHistogramName(const TString baseNameBegin, const TString baseName
   return multBinsOnly ? TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_0") + baseNameEnd : TString(TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_") += (binNrKt + 1)) + baseNameEnd;
 }
 
-void divideHistogramsInBins(const TString file1, const TString h1BaseName, const TString file2, const TString h2BaseName, const TString fileOut, const TString hOutBaseName, const int isDR = 0, const int nrBinsMult = 6, const int nrBinsKt = 0, TString hCommonEndName = "", const int flagCorrectCoulomb = 0, const int isLikePair = 0)
+void divideHistogramsInBins(const TString file1, const TString h1BaseName, const TString file2, const TString h2BaseName, const TString fileOut, const TString hOutBaseName, const int isDR = 0, const int nrBinsMult = 6, const int nrBinsKt = 0, TString hCommonEndName = "", const int flagCorrectCoulomb = 0, const int isLikePair = 0, const bool flagRemoveResonances = true)
 {
 
   // prepare settings for type of binning
@@ -128,6 +136,48 @@ void divideHistogramsInBins(const TString file1, const TString h1BaseName, const
           const auto currentBinContent = hOut->GetBinContent(i);
           const auto currentCorrectionFactor = 1. / fullCoulombCorrectionForPionPair(hOut->GetBinCenter(i), isLikePair);
           hOut->SetBinContent(i, currentBinContent * currentCorrectionFactor);
+        }
+      }
+
+      // remove resonances from the correlation function for UNLIKE pairs
+      if (flagRemoveResonances && !isLikePair)
+      {
+        const float binWidth = hOut->GetBinWidth(1);
+        {
+          const int minBin = getBinIndex(0.55, 0., binWidth);
+          const int maxBin = getBinIndex(0.88, 0., binWidth);
+          for (int i = minBin; i < maxBin; i++)
+          {
+            hOut->SetBinContent(i, 0.);
+            hOut->SetBinError(i, 0.);
+          }
+        }
+        {
+          const int minBin = getBinIndex(0.38, 0., binWidth);
+          const int maxBin = getBinIndex(0.44, 0., binWidth);
+          for (int i = minBin; i < maxBin; i++)
+          {
+            hOut->SetBinContent(i, 0.);
+            hOut->SetBinError(i, 0.);
+          }
+        }
+        {
+          const int minBin = getBinIndex(0.91, 0., binWidth);
+          const int maxBin = getBinIndex(0.97, 0., binWidth);
+          for (int i = minBin; i < maxBin; i++)
+          {
+            hOut->SetBinContent(i, 0.);
+            hOut->SetBinError(i, 0.);
+          }
+        }
+        {
+          const int minBin = getBinIndex(1.21, 0., binWidth);
+          const int maxBin = getBinIndex(1.27, 0., binWidth);
+          for (int i = minBin; i < maxBin; i++)
+          {
+            hOut->SetBinContent(i, 0.);
+            hOut->SetBinError(i, 0.);
+          }
         }
       }
 
