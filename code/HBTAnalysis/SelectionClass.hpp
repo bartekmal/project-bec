@@ -50,6 +50,7 @@ class SelectionClass{
         bool isLikePair( const HBT::ParticlePair &pair );
         bool isUnlikePair( const HBT::ParticlePair &pair );
         bool isInResonanceRange( const HBT::ParticlePair &pair );
+        bool isInResonanceRangeInQ(const HBT::ParticlePair &pair);
 
         //getters
         const std::vector< HBT::Units::FloatType > getBinsOfMultiplicity() { return this->m_binsOfMultiplicity; }
@@ -200,8 +201,13 @@ inline bool SelectionClass::isInResonanceRange( const HBT::ParticlePair &pair ){
 
 }
 
+inline bool SelectionClass::isInResonanceRangeInQ(const HBT::ParticlePair &pair)
+{
+    auto passStatus = false;
 
-
-
+    if ((pair.m_Q_LAB >= 0.55 && pair.m_Q_LAB < 0.88) || (pair.m_Q_LAB >= 0.38 && pair.m_Q_LAB < 0.44) || (pair.m_Q_LAB >= 0.91 && pair.m_Q_LAB < 0.97) || (pair.m_Q_LAB >= 1.21 && pair.m_Q_LAB < 1.27))
+        passStatus = true;
+    return passStatus;
+}
 
 #endif /* !SELECTIONCLASS_H */

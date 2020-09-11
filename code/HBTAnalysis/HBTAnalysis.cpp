@@ -147,13 +147,13 @@ int main( int argc, char** argv ) {
           // HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100InMultiplicityBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicity() );
           // HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100InMultiplicityAndKtBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
          
-          if ( !hbtSelection.isInResonanceRange( currentPair ) ) {
+          // if ( !hbtSelection.isInResonanceRangeInQ( currentPair ) ) {
             
             HBT::Histograms::FillHistogramSeries2000( histogramSet2200, currentPair );
             HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3200NoBins, currentPair, false, MC );
             HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3200InMultiplicityBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicity() );
             HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3200InMultiplicityAndKtBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
-          }
+          // }
 
         }
         

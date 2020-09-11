@@ -251,7 +251,7 @@ inline std::vector< HBT::ParticlePair > HBT::EventMixing::getValidPairsFromEvent
           const auto particleIndex = m_randomNumberGeneratorForParticle.Integer(eventSize);
           const auto tmpPair = HBT::ParticlePair(currentParticle, currentEvent.at(requiredChargeIndex)->at(particleIndex));
 
-          const auto passesSelection = sameSign ? hbtSelectionObj.passPairSelection(tmpPair) : hbtSelectionObj.passPairSelection(tmpPair) && !hbtSelectionObj.isInResonanceRange(tmpPair);
+          const auto passesSelection = hbtSelectionObj.passPairSelection(tmpPair);
 
           if (passesSelection)
           {
