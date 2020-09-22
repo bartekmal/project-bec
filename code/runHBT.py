@@ -48,10 +48,10 @@ def setEnvironmentBEC():
         #nextweek     = 1 week
         os.environ['BEC_SETUP_SCRIPT'] = os.environ['BEC_BASE']+'/setupBEC.sh'
         os.environ['BEC_BATCH_QUEUE'] = 'tomorrow'
-        os.environ['BEC_BATCH_MAXTIME'] = '50400' # in secs
+        os.environ['BEC_BATCH_MAXTIME'] = '86000' # in secs
         os.environ['BEC_BATCH_TMPDIR'] = 'TMPDIR'
         os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'condor_submit'
-        print "BEC environment set for user: bmalecki (lxplus)\n"
+        print("BEC environment set for user: bmalecki (lxplus)\n")
         return True
     elif currentHost == "plgrid":
         os.environ['BEC_SETUP_SCRIPT'] = os.environ['BEC_BASE']+'/setupBEC.sh'
@@ -59,7 +59,7 @@ def setEnvironmentBEC():
         os.environ['BEC_BATCH_MAXTIME'] = '24:00:00'
         os.environ['BEC_BATCH_TMPDIR'] = 'SLURM_MYDIR'
         os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'sbatch -p ' + os.getenv('BEC_BATCH_QUEUE') + ' -t ' + os.getenv('BEC_BATCH_MAXTIME')
-        print "BEC environment set for user: plgbmalecki (PLGrid)\n"
+        print("BEC environment set for user: plgbmalecki (PLGrid)\n")
         return True
     else:
         return False   
@@ -114,7 +114,7 @@ def runHBTJobs( outputFolderName = "HBTAnalysis" ):
     recreateDir(os.getenv('MYDIR') + '/output')
     outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
-    print "Running HBT jobs with output in directory:\n{0}\n".format( outputDirPath )
+    print("Running HBT jobs with output in directory:\n{0}\n".format( outputDirPath ))
 
     #define jobs
     jobsToRun = [
@@ -167,7 +167,7 @@ def runMerge( outputFolderName = "merged" ):
     #prepare output directory
     outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
-    print "Running merge in directory:\n{0}\n".format( outputDirPath )
+    print("Running merge in directory:\n{0}\n".format( outputDirPath ))
 
     #define jobs
     jobsToRun = [
@@ -217,110 +217,116 @@ def runDivide( outputFolderName = "correlations" ):
     #prepare output directory
     outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
-    print "Running divide in directory:\n{0}\n".format( outputDirPath )
+    print("Running divide in directory:\n{0}\n".format( outputDirPath ))
 
     #define jobs
     jobsToRun = [
         { 
             'file1Path' : os.getenv('MYDIR') + "/output/merged/RD_pPb/merged.root",
             'h1NameLike' : "h3010",
-            'h1NameUnlike' : "h3210",
+            'h1NameUnlike' : "h3110",
             'file2Path' : os.getenv('MYDIR') + "/output/merged/RD_pPb/merged.root",
             'h2NameLike' : "h3510",
             'h2NameUnlike' : "h3610",
             'outputFolder' : "RD_pPb",
             'hOutNameLike' : "h4010",
-            'hOutNameUnlike' : "h4210",
+            'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
         },
         { 
             'file1Path' : os.getenv('MYDIR') + "/output/merged/RD_Pbp/merged.root",
             'h1NameLike' : "h3010",
-            'h1NameUnlike' : "h3210",
+            'h1NameUnlike' : "h3110",
             'file2Path' : os.getenv('MYDIR') + "/output/merged/RD_Pbp/merged.root",
             'h2NameLike' : "h3510",
             'h2NameUnlike' : "h3610",
             'outputFolder' : "RD_Pbp",
             'hOutNameLike' : "h4010",
-            'hOutNameUnlike' : "h4210",
+            'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
         },
         { 
             'file1Path' : os.getenv('MYDIR') + "/output/merged/MC_pPb/merged.root",
             'h1NameLike' : "h3010",
-            'h1NameUnlike' : "h3210",
+            'h1NameUnlike' : "h3110",
             'file2Path' : os.getenv('MYDIR') + "/output/merged/MC_pPb/merged.root",
             'h2NameLike' : "h3510",
             'h2NameUnlike' : "h3610",
             'outputFolder' : "MC_pPb",
             'hOutNameLike' : "h4010",
-            'hOutNameUnlike' : "h4210",
+            'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
         },
         { 
             'file1Path' : os.getenv('MYDIR') + "/output/merged/MC_Pbp/merged.root",
             'h1NameLike' : "h3010",
-            'h1NameUnlike' : "h3210",
+            'h1NameUnlike' : "h3110",
             'file2Path' : os.getenv('MYDIR') + "/output/merged/MC_Pbp/merged.root",
             'h2NameLike' : "h3510",
             'h2NameUnlike' : "h3610",
             'outputFolder' : "MC_Pbp",
             'hOutNameLike' : "h4010",
-            'hOutNameUnlike' : "h4210",
+            'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
         },
         { 
             'file1Path' : os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'h1NameLike' : "h4010",
-            'h1NameUnlike' : "h4210",
+            'h1NameUnlike' : "h4110",
             'file2Path' : os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
             'h2NameLike' : "h4010",
-            'h2NameUnlike' : "h4210",
+            'h2NameUnlike' : "h4110",
             'outputFolder' : "DR_pPb",
             'hOutNameLike' : "h5010",
-            'hOutNameUnlike' : "h5210",
+            'hOutNameUnlike' : "h5110",
             'isDR' : True,
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
         },
         { 
             'file1Path' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'h1NameLike' : "h4010",
-            'h1NameUnlike' : "h4210",
+            'h1NameUnlike' : "h4110",
             'file2Path' : os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
             'h2NameLike' : "h4010",
-            'h2NameUnlike' : "h4210",
+            'h2NameUnlike' : "h4110",
             'outputFolder' : "DR_Pbp",
             'hOutNameLike' : "h5010",
-            'hOutNameUnlike' : "h5210",
+            'hOutNameUnlike' : "h5110",
             'isDR' : True,
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
         },
         
@@ -333,16 +339,16 @@ def runDivide( outputFolderName = "correlations" ):
         outputFile = os.getenv('MYDIR') + "/output/correlations/" + aJob['outputFolder'] + "/correlations.root"     
 
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEnd'], int( aJob['flagCorrectCoulomb'] ), int( True )  
+            aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult'], int( aJob['flagCorrectCoulomb'] ), int( True )  
         ) )
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEnd'], int( aJob['flagCorrectCoulomb'] ), int( True )  
+            aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt'], int( aJob['flagCorrectCoulomb'] ), int( True )  
         ) )
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEnd'], int( aJob['flagCorrectCoulomb'] ), int( False )  
+            aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult'], int( aJob['flagCorrectCoulomb'] ), int( False )  
         ) )
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEnd'], int( aJob['flagCorrectCoulomb'] ), int( False )    
+            aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt'], int( aJob['flagCorrectCoulomb'] ), int( False )    
         ) )
 
 def runFits( outputFolderName = "fits" ):
@@ -350,21 +356,22 @@ def runFits( outputFolderName = "fits" ):
     #prepare output directory
     outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
-    print "Running plots in directory:\n{0}\n".format( outputDirPath )
+    print("Running plots in directory:\n{0}\n".format( outputDirPath ))
 
     #define jobs
     jobsToRun = [
         # MC UNLIKE
         # { 
         #     'inputFile' : os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
-        #     'hMainNameBase' : "h4210",
+        #     'hMainNameBase' : "h4110",
         #     'isMC' : "true",
         #     'isUnlike' : "true",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hCommonEndName' : "_200",
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hCommonEndNameForMult' : "_400",
+        #     'hCommonEndNameForKt' : "_200",   
         #     'flagDoFit' : "true",
         #     'inputFileRef' : "",
         #     'hRefNameBase' : "",
@@ -375,14 +382,15 @@ def runFits( outputFolderName = "fits" ):
         # },
         # { 
         #     'inputFile' : os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
-        #     'hMainNameBase' : "h4210",
+        #     'hMainNameBase' : "h4110",
         #     'isMC' : "true",
         #     'isUnlike' : "true",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hCommonEndName' : "_200",
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hCommonEndNameForMult' : "_400",
+        #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : "true",
         #     'inputFileRef' : "",
         #     'hRefNameBase' : "",
@@ -399,13 +407,14 @@ def runFits( outputFolderName = "fits" ):
         #     'isMC' : "true",
         #     'isUnlike' : "false",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hCommonEndName' : "_200",
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hCommonEndNameForMult' : "_400",
+        #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : "true",
         #     'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
-        #     'hRefNameBase' : "h4210",
+        #     'hRefNameBase' : "h4110",
         #     'refType' : "MC_pPb - UNLIKE",
         #     'flagDrawRef' : "true",
         #     'flagUseBkgFromRef' : "false",
@@ -417,13 +426,14 @@ def runFits( outputFolderName = "fits" ):
         #     'isMC' : "true",
         #     'isUnlike' : "false",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hCommonEndName' : "_200",
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hCommonEndNameForMult' : "_400",
+        #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : "true",
         #     'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
-        #     'hRefNameBase' : "h4210",
+        #     'hRefNameBase' : "h4110",
         #     'refType' : "MC_Pbp - UNLIKE",
         #     'flagDrawRef' : "true",
         #     'flagUseBkgFromRef' : "false",
@@ -433,17 +443,18 @@ def runFits( outputFolderName = "fits" ):
         # DATA UNLIKE
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-            'hMainNameBase' : "h4210",
+            'hMainNameBase' : "h4110",
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "MC_pPb - UNLIKE",
             'flagDrawRef' : "false",
             'flagUseBkgFromRef' : "false",
@@ -454,17 +465,18 @@ def runFits( outputFolderName = "fits" ):
         },
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-            'hMainNameBase' : "h4210",
+            'hMainNameBase' : "h4110",
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "MC_Pbp - UNLIKE",
             'flagDrawRef' : "false",
             'flagUseBkgFromRef' : "false",
@@ -477,17 +489,18 @@ def runFits( outputFolderName = "fits" ):
         # bkg scaling: DATA UNLIKE
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-            'hMainNameBase' : "h4210",
+            'hMainNameBase' : "h4110",
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "MC_pPb - UNLIKE",
             'flagDrawRef' : "false",
             'flagUseBkgFromRef' : "true",
@@ -498,17 +511,18 @@ def runFits( outputFolderName = "fits" ):
         },
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-            'hMainNameBase' : "h4210",
+            'hMainNameBase' : "h4110",
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "MC_Pbp - UNLIKE",
             'flagDrawRef' : "false",
             'flagUseBkgFromRef' : "true",
@@ -525,13 +539,14 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "RD_pPb - UNLIKE",
             'flagDrawRef' : "true",
             'flagUseBkgFromRef' : "true",
@@ -546,13 +561,14 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "RD_Pbp - UNLIKE",
             'flagDrawRef' : "true",
             'flagUseBkgFromRef' : "true",
@@ -569,13 +585,14 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "RD_pPb - UNLIKE",
             'flagDrawRef' : "true",
             'flagUseBkgFromRef' : "true",
@@ -590,13 +607,14 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hCommonEndName' : "_200",
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hCommonEndNameForMult' : "_400",
+            'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
             'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-            'hRefNameBase' : "h4210",
+            'hRefNameBase' : "h4110",
             'refType' : "RD_Pbp - UNLIKE",
             'flagDrawRef' : "true",
             'flagUseBkgFromRef' : "true",
@@ -614,10 +632,10 @@ def runFits( outputFolderName = "fits" ):
         os.chdir( aJob['outputFolder'] )    
 
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}",{},{},"{}",{},"{}","{}","{}",{},{},{},{},"{}","{}")\''.format(
-            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hCommonEndName'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']    
+            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hCommonEndNameForMult'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']    
         ) )
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}",{},{},"{}",{},"{}","{}","{}",{},{},{},{},"{}","{}")\''.format(
-            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hCommonEndName'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']
+            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']
         ) )
 
 def runTrends( outputFolderName = "trends" ):
@@ -625,30 +643,32 @@ def runTrends( outputFolderName = "trends" ):
     #prepare output directory
     outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
-    print "Running trends in directory:\n{0}\n".format( outputDirPath )
+    print("Running trends in directory:\n{0}\n".format( outputDirPath ))
 
     #define jobs
     jobsToRun = [
         # MC UNLIKE
         # { 
         #     'fileName' : os.getenv('MYDIR') + "/output/fits/MC_pPb/fitResults.root",
-        #     'hBaseName' : "h4210",
+        #     'hBaseName' : "h4110",
         #     'flagIsUnlike' : "true",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hNameCommonEnd' : "_200"
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hNameCommonEndForMult' : "_400",
+        #     'hNameCommonEndForKt' : "_200"
         # },
         # { 
         #     'fileName' : os.getenv('MYDIR') + "/output/fits/MC_Pbp/fitResults.root",
-        #     'hBaseName' : "h4210",
+        #     'hBaseName' : "h4110",
         #     'flagIsUnlike' : "true",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hNameCommonEnd' : "_200"
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hNameCommonEndForMult' : "_400",
+        #     'hNameCommonEndForKt' : "_200"
         # },
 
         # MC LIKE
@@ -657,68 +677,74 @@ def runTrends( outputFolderName = "trends" ):
         #     'hBaseName' : "h4010",
         #     'flagIsUnlike' : "false",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hNameCommonEnd' : "_200"
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hNameCommonEndForMult' : "_400",
+        #     'hNameCommonEndForKt' : "_200"
         # },
         # { 
         #     'fileName' : os.getenv('MYDIR') + "/output/fits/MC_Pbp/fitResults.root",
         #     'hBaseName' : "h4010",
         #     'flagIsUnlike' : "false",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 11,
-        #     'nrBinsMultForKt' : 7,
-        #     'nrBinsKt' : 3,
-        #     'hNameCommonEnd' : "_200"
+        #     'nrBinsMultOnly' : 18,
+        #     'nrBinsMultForKt' : 6,
+        #     'nrBinsKt' : 10,
+        #     'hNameCommonEndForMult' : "_400",
+        #     'hNameCommonEndForKt' : "_200"
         # },
 
         # DATA UNLIKE
         { 
             'fileName' : os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-            'hBaseName' : "h4210",
+            'hBaseName' : "h4110",
             'fName' : "funcMain",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileName' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-            'hBaseName' : "h4210",
+            'hBaseName' : "h4110",
             'fName' : "funcMain",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
 
         # bkg scaling: DATA UNLIKE
         { 
             'fileName' : os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-            'hBaseName' : "h4210",
+            'hBaseName' : "h4110",
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileName' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-            'hBaseName' : "h4210",
+            'hBaseName' : "h4110",
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },  
 
         # bkg scaling: DATA LIKE
@@ -728,10 +754,11 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileName' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -739,10 +766,11 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         
         # DATA LIKE
@@ -752,10 +780,11 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcMain",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileName' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -763,10 +792,11 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcMain",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         }  
     ]        
 
@@ -777,10 +807,10 @@ def runTrends( outputFolderName = "trends" ):
         os.chdir( aJob['outputFolder'] )    
         
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEnd']  
+            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult']  
         ) )
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hNameCommonEnd']  
+            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt']  
         ) )
 
 def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_reference/output/fits", outputFolderName = "diffs" ):
@@ -788,68 +818,72 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
     #prepare output directory
     outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
     
-    print "Running trends in directory:\n{0}\n".format( outputDirPath )
+    print("Running trends in directory:\n{0}\n".format( outputDirPath ))
 
     #define jobs
     jobsToRun = [
         # DATA UNLIKE
         { 
             'fileNameMain' : os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-            'hBaseNameMain' : "h4210",
+            'hBaseNameMain' : "h4110",
             'fNameMain' : "funcMain",
             'fileNameRef' : referencePath + "/RD_pPb/fitResults.root",
-            'hBaseNameRef' : "h4210",
+            'hBaseNameRef' : "h4110",
             'fNameRef' : "funcMain",                    
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileNameMain' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-            'hBaseNameMain' : "h4210",
+            'hBaseNameMain' : "h4110",
             'fNameMain' : "funcMain",  
             'fileNameRef' : referencePath + "/RD_Pbp/fitResults.root",
-            'hBaseNameRef' : "h4210",
+            'hBaseNameRef' : "h4110",
             'fNameRef' : "funcMain",             
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
 
         # bkg scaling: DATA UNLIKE
         { 
             'fileNameMain' : os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-            'hBaseNameMain' : "h4210",
+            'hBaseNameMain' : "h4110",
             'fNameMain' : "funcBkgScaling", 
             'fileNameRef' : referencePath + "/RD_pPb/fitResults.root",
-            'hBaseNameRef' : "h4210",
+            'hBaseNameRef' : "h4110",
             'fNameRef' : "funcBkgScaling",                             
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileNameMain' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-            'hBaseNameMain' : "h4210",
+            'hBaseNameMain' : "h4110",
             'fNameMain' : "funcBkgScaling",
             'fileNameRef' : referencePath + "/RD_Pbp/fitResults.root",
-            'hBaseNameRef' : "h4210",
+            'hBaseNameRef' : "h4110",
             'fNameRef' : "funcBkgScaling",                                     
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },  
 
         # bkg scaling: DATA LIKE
@@ -862,10 +896,11 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcBkgScaling",                                                   
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileNameMain' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -876,10 +911,11 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcBkgScaling",                                                           
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         
         # DATA LIKE
@@ -892,10 +928,11 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcMain",                                                                     
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         },
         { 
             'fileNameMain' : os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -906,10 +943,11 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcMain",                                                                            
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 11,
-            'nrBinsMultForKt' : 7,
-            'nrBinsKt' : 3,
-            'hNameCommonEnd' : "_200"
+            'nrBinsMultOnly' : 18,
+            'nrBinsMultForKt' : 6,
+            'nrBinsKt' : 10,
+            'hNameCommonEndForMult' : "_400",
+            'hNameCommonEndForKt' : "_200"
         }  
     ]        
 
@@ -920,10 +958,10 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
         os.chdir( aJob['outputFolder'] )    
         
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'],aJob['fileNameRef'], aJob['hBaseNameRef'], aJob['fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEnd']  
+            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'],aJob['fileNameRef'], aJob['hBaseNameRef'], aJob['fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult']  
         ) )
         os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'],aJob['fileNameRef'], aJob['hBaseNameRef'], aJob['fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hNameCommonEnd']  
+            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'],aJob['fileNameRef'], aJob['hBaseNameRef'], aJob['fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt']  
         ) )
 
 ####################################################
@@ -931,9 +969,9 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
 #setup local job environment
 
 if not setEnvironmentBEC():
-    print "BEC environment not set -> exiting.\n"
+    print("BEC environment not set -> exiting.\n")
     exit
 
 os.environ['MYDIR'] = os.getenv('PWD')
 mkdirIfNotExists( os.getenv('MYDIR') + "/output" )
-print "Setup local BEC job environment in directory:\n{0}\n".format( os.getenv('MYDIR') )
+print("Setup local BEC job environment in directory:\n{0}\n".format( os.getenv('MYDIR') ))

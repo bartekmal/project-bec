@@ -37,11 +37,11 @@ namespace HBT {
     //fill histograms
     void FillHistogramSetWithEventLevelInfo( std::vector<HistDef> &histogramSet );
     void FillHistogramSetWithParticleLevelInfo( std::vector<HistDef> &histogramSet, const int &part_i );
-    void FillHistogramSetWithParticlePairLevelInfo( std::vector<HBT::Units::TH1FloatType> &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC );
+    void FillHistogramSetWithParticlePairLevelInfo( std::vector<HBT::Units::TH1FloatType> &histogramSet, const HBT::ParticlePair &pair, const bool &isMC );
     void FillHistogramSeries2000( std::vector<HBT::Units::TH2FloatType> &histogramSet, const HBT::ParticlePair &pair );
-    void FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC );
-    void FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity );
-    void FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity, const std::vector< HBT::Units::FloatType > &binsOfKt );
+    void FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isMC );
+    void FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity );
+    void FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity, const std::vector< HBT::Units::FloatType > &binsOfKt );
 
 
     //create histograms
@@ -68,13 +68,13 @@ inline void HBT::Histograms::FillHistogramSetWithParticleLevelInfo( std::vector<
   }
 }
 
-inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC ){ 
+inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isMC ){ 
   
-  HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( histogramSet[ 0 ][ 0 ], pair, isSameSignPair, isMC );
+  HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( histogramSet[ 0 ][ 0 ], pair, isMC );
   
 }
 
-inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity ){ 
+inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity ){ 
   
   //useful consts (assume valid bins definition - it is checked at histogram series creation)
   const auto nrOfMultiplicityBins = binsOfMultiplicity.empty() ? 0 : binsOfMultiplicity.size() - 1;
@@ -86,7 +86,7 @@ inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::ve
     //find the multiplicity bin of the pair
     if ( pairMultiplicity >= binsOfMultiplicity[ iMultiplicityBins ] && pairMultiplicity < binsOfMultiplicity[ iMultiplicityBins + 1 ] ) {
         
-      HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( histogramSet[ iMultiplicityBins ][ 0 ], pair, isSameSignPair, isMC );
+      HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( histogramSet[ iMultiplicityBins ][ 0 ], pair, isMC );
         
       //break the loop once the bin is found
       break;
@@ -97,7 +97,7 @@ inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::ve
 
 }
 
-inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity, const std::vector< HBT::Units::FloatType > &binsOfKt ){ 
+inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::vector< std::vector<HBT::Units::TH1FloatType> > > &histogramSet, const HBT::ParticlePair &pair, const bool &isMC, const std::vector< HBT::Units::FloatType > &binsOfMultiplicity, const std::vector< HBT::Units::FloatType > &binsOfKt ){ 
   
   //useful consts (assume valid bins definition - it is checked at histogram series creation)
   const auto nrOfMultiplicityBins = binsOfMultiplicity.empty() ? 0 : binsOfMultiplicity.size() - 1;
@@ -117,7 +117,7 @@ inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::ve
         //find the kT bin of the pair
         if ( pairKt >= binsOfKt[ iKtBins ] && pairKt < binsOfKt[ iKtBins + 1 ] ) {
 
-          HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( histogramSet[ iMultiplicityBins ][ iKtBins ], pair, isSameSignPair, isMC );
+          HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( histogramSet[ iMultiplicityBins ][ iKtBins ], pair, isMC );
 
           //break the loop once the bin is found
           break;
@@ -135,11 +135,10 @@ inline void HBT::Histograms::FillHistogramSeries3000InBins( std::vector< std::ve
 
 }
 
-inline void HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( std::vector<HBT::Units::TH1FloatType> &histogramSet, const HBT::ParticlePair &pair, const bool &isSameSignPair, const bool &isMC ){ 
+inline void HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( std::vector<HBT::Units::TH1FloatType> &histogramSet, const HBT::ParticlePair &pair, const bool &isMC ){ 
   
       //general
       histogramSet[0].Fill( pair.m_invariantMass );
-      
       if ( isMC ) histogramSet[1].Fill( pair.m_pairMCID );
       histogramSet[2].Fill( pair.m_chargedParticleMultiplicity );
       histogramSet[3].Fill( pair.m_kt );
@@ -148,18 +147,7 @@ inline void HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo( std::vec
       histogramSet[4].Fill( pair.m_Q_LAB );
       histogramSet[5].Fill( pair.m_Q_LAB );
       histogramSet[6].Fill( pair.m_Q_LAB );
-      histogramSet[7].Fill( pair.m_Q_LAB );
       
-      if ( !isMC ) {
-
-        const HBT::Units::FloatType gamovFactorInverted = 1. / HBT::Coulomb::gamovFactorForPionPair( pair.m_Q_LAB, isSameSignPair );
-
-        histogramSet[8].Fill( pair.m_Q_LAB, gamovFactorInverted );
-        histogramSet[9].Fill( pair.m_Q_LAB, gamovFactorInverted );
-        histogramSet[10].Fill( pair.m_Q_LAB, gamovFactorInverted );
-        histogramSet[11].Fill( pair.m_Q_LAB, gamovFactorInverted );
-      }
-
       // histogramSet[12].Fill( pair.m_deltaPhi_LAB );
       // histogramSet[13].Fill( pair.m_deltaRapidity_LAB );
       // histogramSet[14].Fill( pair.m_deltaPt_LAB );
@@ -268,7 +256,7 @@ inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSer
   const HBT::Units::FloatType qExtendedRangeMax = 5.0;
   // const HBT::Units::FloatType qLCMSRangeMax = 1.0;
   const int qBinning = 400;
-  const int qExtendedBinning = qBinning * ( qExtendedRangeMax / qRangeMax );
+  const int qExtendedBinning = qBinning / 2 * ( qExtendedRangeMax / qRangeMax );
 
   const HBT::Units::FloatType chargedParticleMultiplicityMax = 200.0; 
   const HBT::Units::FloatType averagePairTransverseMomentumMax = 2.0; 
@@ -287,15 +275,10 @@ inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSer
       hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"03" + "_" + strMultiplicity + "_" + strKt ).c_str(), std::string( "average pair transverse momentum" + tmpPairType  + ";k_{T} [GeV]; dN/d(k_{T})").c_str(), 100, 0.0, averagePairTransverseMomentumMax ) );
         
       //h3x10 - h3x19
-      //Q distributions in LAB frame (different binnings; Coulomb-corrected by Gamov; extended Q range)
+      //Q distributions in LAB frame (different binnings; extended Q range)
       hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"10" + "_" + strMultiplicity + "_" + strKt + "_" + "400" ).c_str(), std::string( "Q_LAB" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qBinning, qRangeMin, qRangeMax ) );
       hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"10" + "_" + strMultiplicity + "_" + strKt + "_" + "200" ).c_str(), std::string( "Q_LAB" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qBinning / 2.0, qRangeMin, qRangeMax ) );
-      hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"10" + "_" + strMultiplicity + "_" + strKt + "_" + "80" ).c_str(), std::string( "Q_LAB" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qBinning / 5.0, qRangeMin, qRangeMax ) );
       hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"11" + "_" + strMultiplicity + "_" + strKt ).c_str(), std::string( "Q_LAB" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qExtendedBinning, qRangeMin, qExtendedRangeMax ) );
-      hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"12" + "_" + strMultiplicity + "_" + strKt + "_" + "400" ).c_str(), std::string( "Q_LAB (Coulomb-corrected)" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qBinning, qRangeMin, qRangeMax ) );
-      hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"12" + "_" + strMultiplicity + "_" + strKt + "_" + "200" ).c_str(), std::string( "Q_LAB (Coulomb-corrected)" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qBinning / 2.0, qRangeMin, qRangeMax ) );
-      hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"12" + "_" + strMultiplicity + "_" + strKt + "_" + "80" ).c_str(), std::string( "Q_LAB (Coulomb-corrected)" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qBinning / 5.0, qRangeMin, qRangeMax ) );
-      hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"13" + "_" + strMultiplicity + "_" + strKt ).c_str(), std::string( "Q_LAB (Coulomb-corrected)" + tmpPairType  + ";Q [GeV]; dN/dQ").c_str(), qExtendedBinning, qRangeMin, qExtendedRangeMax ) );
       //h3x20 - h3x29
       //dY, dPhi, dpT in LAB frame
       // hSet.push_back( HBT::Units::TH1FloatType( std::string( "h"+setHeader+"20" + "_" + strMultiplicity + "_" + strKt ).c_str(), std::string( "#Deltaphi_LAB" + tmpPairType  + ";#Delta#phi [rad]; dN/d(#Delta#phi)").c_str(), 100, 0.0, HBT::Units::Pi ) );

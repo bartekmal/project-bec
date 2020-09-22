@@ -14,6 +14,7 @@ namespace HBT {
     typedef TH1D TH1FloatType;
     typedef TH2D TH2FloatType;
     typedef float FloatTypeForNNCorrectedValues;
+    typedef unsigned long PairsCounterType;
 
     //define consts (maths)
     const FloatType Pi = TMath::Pi();
