@@ -1,13 +1,13 @@
 /*-------------- configure plots -------------------*/
-Double_t binsMult[] = {7.5, 12.5, 17.5, 22.5, 27.5, 32.5, 38.0, 45.0, 55.0, 70.0, 109.0};
-Double_t binsMultError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-Double_t binsMultForKt[] = {10.0, 20.0, 27.5, 35.0, 45.0, 56.5, 102.0};
-Double_t binsMultForKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-Double_t binsKt[] = {0.15, 0.45, 0.9};
-Double_t binsKtError[] = {0.5, 0.5, 0.5};
-Color_t binsKtColor[] = {kRed, kOrange, kGreen};
+Double_t binsMult[] = {7.5, 12.5, 17.5, 22.5, 27.5, 32.5, 37.5, 42.5, 47.5, 52.5, 57.5, 62.5, 72.5, 85.0, 95.0, 107.5, 127.5, 160.0};
+Double_t binsMultError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+Double_t binsMultForKt[] = {10.0, 25.0, 42.5, 65.0, 90.0, 120.0};
+Double_t binsMultForKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+Double_t binsKt[] = {0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95};
+Double_t binsKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+Color_t binsKtColor[] = {kRed, kOrange, kGreen, kViolet, kAzure, kBlue, kMagenta, kCyan, kYellow, kGray};
 
-Double_t multMax = 150.;
+Double_t multMax = 200.;
 
 /*-------------- configure fit params -------------------*/
 
@@ -152,7 +152,7 @@ void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const T
                 TString hNameRef = isMultBinsOnly ? getFullHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i, j);
                 const auto fitResultMain = (TFitResult *)fInMain->Get(getFitResultName(hNameMain, fNameMain));
                 const auto fitResultRef = (TFitResult *)fInRef->Get(getFitResultName(hNameRef, fNameRef));
-                if (!fitResultMain->IsValid() || !fitResultRef->IsValid())
+                if (!(fitResultMain && fitResultMain->IsValid()) || !(fitResultRef && fitResultRef->IsValid()))
                 {
                     std::cout << "One of the fits is not valid: \n\t" << fInMain->GetName() << "\n\t" << hNameMain << "\n\t" << fNameMain << "\n\t" << fInRef->GetName() << "\n\t" << hNameRef << "\n\t" << fNameRef << std::endl;
                     continue;

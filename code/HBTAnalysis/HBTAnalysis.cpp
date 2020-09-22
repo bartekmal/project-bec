@@ -46,31 +46,27 @@ int main( int argc, char** argv ) {
   auto histogramSet1200 = HBT::Histograms::CreateHistogramSeries1000( "12" );
 
   auto histogramSet2000 = HBT::Histograms::CreateHistogramSeries2000( "20", "LIKE pairs" );
-  //auto histogramSet2100 = HBT::Histograms::CreateHistogramSeries2000( "21", "UNLIKE pairs" );
-  auto histogramSet2200 = HBT::Histograms::CreateHistogramSeries2000( "22", "UNLIKE pairs - no resonances" );
+  auto histogramSet2100 = HBT::Histograms::CreateHistogramSeries2000( "21", "UNLIKE pairs" );
   auto histogramSet2500 = HBT::Histograms::CreateHistogramSeries2000( "25", "EVMIX LIKE pairs" );
-  auto histogramSet2600 = HBT::Histograms::CreateHistogramSeries2000( "26", "EVMIX UNLIKE pairs - no resonances" );
+  auto histogramSet2600 = HBT::Histograms::CreateHistogramSeries2000( "26", "EVMIX UNLIKE pairs" );
 
   //no bins
   auto histogramSet3000NoBins = HBT::Histograms::CreateHistogramSeries3000InBins( "30", "LIKE pairs" );
-  //auto histogramSet3100NoBins = HBT::Histograms::CreateHistogramSeries3000InBins( "31", "UNLIKE pairs" );
-  auto histogramSet3200NoBins = HBT::Histograms::CreateHistogramSeries3000InBins( "32", "UNLIKE pairs - no resonances" );
+  auto histogramSet3100NoBins = HBT::Histograms::CreateHistogramSeries3000InBins( "31", "UNLIKE pairs" );
   auto histogramSet3500NoBins = HBT::Histograms::CreateHistogramSeries3000InBins( "35", "EVMIX LIKE pairs" );
-  auto histogramSet3600NoBins = HBT::Histograms::CreateHistogramSeries3000InBins( "36", "EVMIX UNLIKE pairs - no resonances" );
+  auto histogramSet3600NoBins = HBT::Histograms::CreateHistogramSeries3000InBins( "36", "EVMIX UNLIKE pairs" );
 
   //multiplicity bins only
   auto histogramSet3000InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins( "30", "LIKE pairs", hbtSelection.getBinsOfMultiplicity() );
-  //auto histogramSet3100InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins( "31", "UNLIKE pairs", hbtSelection.getBinsOfMultiplicity() );
-  auto histogramSet3200InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins( "32", "UNLIKE pairs - no resonances", hbtSelection.getBinsOfMultiplicity() );
+  auto histogramSet3100InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins( "31", "UNLIKE pairs", hbtSelection.getBinsOfMultiplicity() );
   auto histogramSet3500InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins( "35", "EVMIX LIKE pairs", hbtSelection.getBinsOfMultiplicity() );
-  auto histogramSet3600InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins( "36", "EVMIX UNLIKE pairs - no resonances", hbtSelection.getBinsOfMultiplicity() );
+  auto histogramSet3600InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins( "36", "EVMIX UNLIKE pairs", hbtSelection.getBinsOfMultiplicity() );
 
   //multiplicity and kT bins
   auto histogramSet3000InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins( "30", "LIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
-  //auto histogramSet3100InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins( "31", "UNLIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
-  auto histogramSet3200InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins( "32", "UNLIKE pairs - no resonances", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
+  auto histogramSet3100InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins( "31", "UNLIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
   auto histogramSet3500InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins( "35", "EVMIX LIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
-  auto histogramSet3600InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins( "36", "EVMIX UNLIKE pairs - no resonances", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
+  auto histogramSet3600InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins( "36", "EVMIX UNLIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
 
   //setup reading from the ntuple
   auto* inputFile = new TFile( inputFilePath );
@@ -136,25 +132,15 @@ int main( int argc, char** argv ) {
 
         if ( hbtSelection.isLikePair( currentPair ) ) {
           HBT::Histograms::FillHistogramSeries2000( histogramSet2000, currentPair );
-          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3000NoBins, currentPair, true, MC );
-          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3000InMultiplicityBins, currentPair, true, MC, hbtSelection.getBinsOfMultiplicity() );
-          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3000InMultiplicityAndKtBins, currentPair, true, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
+          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3000NoBins, currentPair, MC );
+          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3000InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity() );
+          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3000InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
         }
-        else if ( hbtSelection.isUnlikePair( currentPair ) ) {
-
-          // HBT::Histograms::FillHistogramSeries2000( histogramSet2100, currentPair );
-          // HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100NoBins, currentPair, false, MC );
-          // HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100InMultiplicityBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicity() );
-          // HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100InMultiplicityAndKtBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
-         
-          // if ( !hbtSelection.isInResonanceRangeInQ( currentPair ) ) {
-            
-            HBT::Histograms::FillHistogramSeries2000( histogramSet2200, currentPair );
-            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3200NoBins, currentPair, false, MC );
-            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3200InMultiplicityBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicity() );
-            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3200InMultiplicityAndKtBins, currentPair, false, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
-          // }
-
+        else if ( hbtSelection.isUnlikePair( currentPair ) ) {  
+            HBT::Histograms::FillHistogramSeries2000( histogramSet2100, currentPair );
+            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100NoBins, currentPair, MC );
+            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity() );
+            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3100InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
         }
         
       }
@@ -166,23 +152,20 @@ int main( int argc, char** argv ) {
         const auto pairsFromEventMixingLike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, true, hbtSelection);
 
         for ( const auto &pairFromEventMixing : pairsFromEventMixingLike ){
-
           HBT::Histograms::FillHistogramSeries2000( histogramSet2500, pairFromEventMixing );
-          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3500NoBins, pairFromEventMixing, true, MC );        
-          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3500InMultiplicityBins, pairFromEventMixing, true, MC, hbtSelection.getBinsOfMultiplicity() );
-          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, true, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
-
+          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3500NoBins, pairFromEventMixing, MC );        
+          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3500InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity() );
+          HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
         }
 
         // EVMIX UNLIKE pairs
         const auto pairsFromEventMixingUnlike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, false, hbtSelection);
 
         for ( const auto &pairFromEventMixing : pairsFromEventMixingUnlike ){
-
             HBT::Histograms::FillHistogramSeries2000( histogramSet2600, pairFromEventMixing );
-            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3600NoBins, pairFromEventMixing, false, MC );
-            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3600InMultiplicityBins, pairFromEventMixing, false, MC, hbtSelection.getBinsOfMultiplicity() );
-            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, false, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
+            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3600NoBins, pairFromEventMixing, MC );
+            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3600InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity() );
+            HBT::Histograms::FillHistogramSeries3000InBins( histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt() );
         }
       }
     }
@@ -201,25 +184,31 @@ int main( int argc, char** argv ) {
 
   // summary on #pairs
   {
-    const unsigned int nrOfMultBins = histogramSet3000InMultiplicityBins.size();
+    const auto idOfHistogramToUseForSummary = 4;
 
-    for (unsigned int i = 0; i < nrOfMultBins; ++i)
+    HBT::Units::PairsCounterType nrOfPairsLikeTotal = histogramSet3000NoBins[0][0][idOfHistogramToUseForSummary].GetEntries();
+    HBT::Units::PairsCounterType nrOfPairsUnlikeTotal = histogramSet3100NoBins[0][0][idOfHistogramToUseForSummary].GetEntries();
+    HBT::Units::PairsCounterType nrOfPairsEvmixLikeTotal = histogramSet3500NoBins[0][0][idOfHistogramToUseForSummary].GetEntries();
+    HBT::Units::PairsCounterType nrOfPairsEvmixUnlikeTotal = histogramSet3600NoBins[0][0][idOfHistogramToUseForSummary].GetEntries();
+
+    // for each mult bin
+    for (unsigned int i = 0; i < histogramSet3000InMultiplicityBins.size(); ++i)
     {
-      const unsigned long totalNumberOfPairsLike = histogramSet3000InMultiplicityBins[i][0][4].GetEntries();
-      const unsigned long totalNumberOfPairsUnlike = histogramSet3200InMultiplicityBins[i][0][4].GetEntries();
-      const unsigned long totalNumberOfPairsEvmixLike = histogramSet3500InMultiplicityBins[i][0][4].GetEntries();
-      const unsigned long totalNumberOfPairsEvmixUnlike = histogramSet3600InMultiplicityBins[i][0][4].GetEntries();
+      HBT::Units::PairsCounterType nrOfPairsLikeInBin = histogramSet3000InMultiplicityBins[i][0][idOfHistogramToUseForSummary].GetEntries();
+      HBT::Units::PairsCounterType nrOfPairsUnlikeInBin = histogramSet3100InMultiplicityBins[i][0][idOfHistogramToUseForSummary].GetEntries();
+      HBT::Units::PairsCounterType nrOfPairsEvmixLikeInBin = histogramSet3500InMultiplicityBins[i][0][idOfHistogramToUseForSummary].GetEntries();
+      HBT::Units::PairsCounterType nrOfPairsEvmixUnlikeInBin = histogramSet3600InMultiplicityBins[i][0][idOfHistogramToUseForSummary].GetEntries();
 
-      cout << "Total number of pairs of the given type in mult bin nr: " << i + 1 << endl;
-      cout << "\t LIKE \t\t\t" << totalNumberOfPairsLike << endl;
-      cout << "\t UNLIKE \t\t" << totalNumberOfPairsUnlike << endl;
-      cout << "\t LIKE / UNLIKE \t\t" << (double)totalNumberOfPairsLike / totalNumberOfPairsUnlike << endl;
-      cout << "\t EVMIX LIKE \t\t" << totalNumberOfPairsEvmixLike << endl;
-      cout << "\t EVMIX UNLIKE \t\t" << totalNumberOfPairsEvmixUnlike << endl;
-      cout << "\t LIKE / UNLIKE (EVMIX)\t" << (double)totalNumberOfPairsEvmixLike / totalNumberOfPairsEvmixUnlike << endl;
-      cout << "\t LIKE / EVMIX LIKE\t" << (double)totalNumberOfPairsLike / totalNumberOfPairsEvmixLike << endl;
-      cout << "\t UNLIKE / EVMIX UNLIKE\t" << (double)totalNumberOfPairsUnlike / totalNumberOfPairsEvmixUnlike << endl;
+      cout << "Total number and fraction of pairs of the given type in mult bin nr: " << i + 1 << endl;
+      printPairsSummaryEntryType1("LIKE", nrOfPairsLikeInBin, nrOfPairsLikeTotal);
+      printPairsSummaryEntryType1("UNLIKE", nrOfPairsUnlikeInBin, nrOfPairsUnlikeTotal);
+      printPairsSummaryEntryType1("EVMIX LIKE", nrOfPairsEvmixLikeInBin, nrOfPairsEvmixLikeTotal);
+      printPairsSummaryEntryType1("EVMIX UNLIKE", nrOfPairsEvmixUnlikeInBin, nrOfPairsEvmixUnlikeTotal);
 
+      printPairsSummaryEntryType2("LIKE / UNLIKE", nrOfPairsLikeInBin, nrOfPairsUnlikeInBin);
+      printPairsSummaryEntryType2("LIKE / UNLIKE (EVMIX)", nrOfPairsEvmixLikeInBin, nrOfPairsEvmixUnlikeInBin);
+      printPairsSummaryEntryType2("LIKE / EVMIX LIKE", nrOfPairsLikeInBin, nrOfPairsEvmixLikeInBin);
+      printPairsSummaryEntryType2("UNLIKE / EVMIX UNLIKE", nrOfPairsUnlikeInBin, nrOfPairsEvmixUnlikeInBin);
       cout << endl;
     }
   }

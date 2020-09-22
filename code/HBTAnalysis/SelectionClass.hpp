@@ -82,10 +82,9 @@ inline void SelectionClass::initializeSelectionCuts(){
     this->m_qCut = 0.05f;
     this->m_openingAngleCut = 0.0003f; //rad
 
-    this->m_binsOfMultiplicity = { 0, 10, 15, 20, 25, 30, 35, 42, 49, 62, 78, 141 };
-    this->m_binsOfMultiplicityForKt = { 0, 15,25, 30, 40, 49, 64, 141 };
-    this->m_binsOfKt = { 0., 0.3, 0.6, 1.2 };
-    //this->m_binsOfKt = { 0., 0.25, 0.4, 0.6, 1.2 }; //4 bins version
+    this->m_binsOfMultiplicity = { 0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 80, 90, 100, 115, 140, 180 };
+    this->m_binsOfMultiplicityForKt = { 0, 15, 35, 50, 80, 100, 140 };
+    this->m_binsOfKt = { 0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
 
 } 
 

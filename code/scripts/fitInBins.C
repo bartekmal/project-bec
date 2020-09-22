@@ -92,6 +92,11 @@ Double_t getBkgScalingFactor(const TFitResult *fitResultMain, const TFitResult *
 TFitResultPtr doFit(TH1D *h, TF1 *f, const TString fitOpts = "S0R")
 {
     TFitResultPtr fitResult = h->Fit(f->GetName(), fitOpts);
+
+    // sanitize TFitResultPtr
+    if (fitResult.Get() == nullptr)
+        return TFitResultPtr();
+
     fitResult->Write(getFitResultName(h->GetName(), f->GetName()));
 
     return fitResult;
@@ -329,7 +334,7 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const bool 
                 if (flagUseBkgFromRef)
                 {
                     // use the fit only if it was valid
-                    if (fitResultRef->IsValid())
+                    if (fitResultRef && fitResultRef->IsValid())
                     {
                         // scale the bkg parameters if needed
                         if (flagUseBkgScaling)
@@ -362,7 +367,7 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const bool 
 
                 // do a fit and draw if it is valid
                 const auto fitResult = doFit(hMain, funcMain);
-                if (fitResult->IsValid())
+                if ((fitResult.Get() != nullptr) && fitResult->IsValid())
                 {
                     funcMain->SetLineColor(kRed);
                     funcMain->SetLineWidth(funcMain->GetLineWidth() * 0.5);
