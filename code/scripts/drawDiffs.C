@@ -1,15 +1,9 @@
-/*-------------- configure plots -------------------*/
-Double_t binsMult[] = {7.5, 12.5, 17.5, 22.5, 27.5, 32.5, 37.5, 42.5, 47.5, 52.5, 57.5, 62.5, 72.5, 85.0, 95.0, 107.5, 127.5, 160.0};
-Double_t binsMultError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-Double_t binsMultForKt[] = {10.0, 25.0, 42.5, 65.0, 90.0, 120.0};
-Double_t binsMultForKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-Double_t binsKt[] = {0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95};
-Double_t binsKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+#include "../HBTAnalysis/Utils.hpp"
+#include "../HBTAnalysis/SelectionClass.hpp"
+
+/*-------------- configuration -------------------*/
 Color_t binsKtColor[] = {kRed, kOrange, kGreen, kViolet, kAzure, kBlue, kMagenta, kCyan, kYellow, kGray};
-
 Double_t multMax = 200.;
-
-/*-------------- configure fit params -------------------*/
 
 struct FitParam
 {
@@ -42,6 +36,8 @@ std::vector<FitParam> initFitParams()
 const int parIdLambdaBkg = 5;
 const int parIdLambdaBkgScaleFactor = 8;
 
+/*-------------- enf of configuration -------------*/
+
 void printDescription(const TString dataType, const TString paramName)
 {
     Double_t commPosX = 0.20;
@@ -54,59 +50,20 @@ void printDescription(const TString dataType, const TString paramName)
     comments.DrawLatex(commPosX, commPosY - 0.10, "relative diff wrt reference [%]");
 }
 
-void setStyle()
+void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
 {
-    //style
-    gROOT->Reset();                  // Reset options
-    gStyle->SetPadGridX(kFALSE);     // No grid in x (0)
-    gStyle->SetPadGridY(kFALSE);     // No grid in y (0)
-    gStyle->SetOptTitle(kFALSE);     // No title
-    gStyle->SetStatBorderSize(0);    // Stats box shadow size (2)
-    gStyle->SetStatColor(18);        // Stats box fill color (0)
-    gStyle->SetStatFont(62);         // Stats font style (62)
-    gStyle->SetStatH(0.1);           // Stats box height
-    gStyle->SetStatW(0.15);          // Stats box width
-    gStyle->SetStatX(0.91);          // Stats box x coordinate
-    gStyle->SetStatY(0.91);          // Stats box y coordinate
-    gStyle->SetStatStyle(1001);      // Stat box fill style
-    gStyle->SetStatTextColor(1);     // Stat text color (1)
-    gStyle->SetOptStat(0);           // No statistics (0) (1000001110)
-    gStyle->SetOptFit(111);          // No fit box (0) (111)
-    gStyle->SetFrameBorderMode(0);   // No red box
-    gStyle->SetHistFillColor(0);     // Histogram fill color (0) (18)
-    gStyle->SetHistFillStyle(1001);  // Histogram fill style (1001) (0)
-    gStyle->SetHistLineColor(kBlue); // Histogram line color (1)
-    gStyle->SetHistLineStyle(0);     // Histogram line style (0)
-    gStyle->SetHistLineWidth(1);     // Histogram line width (1.0)
-    gStyle->SetMarkerStyle(21);      // Marker style (0)
-    gStyle->SetMarkerColor(kBlack);  // Marker color (1)
-    gStyle->SetMarkerSize(1.2);      // Marker size ()
-    gStyle->SetLineColor(kBlack);    // Line color (1)
-    gStyle->SetLineWidth(1.0);       // Line width (1.0)
-    gStyle->SetTextSize(0.07);       // Text size (1.0)
-    gStyle->SetLabelSize(0.03, "x"); // X numbers label size ()
-    gStyle->SetLabelSize(0.03, "y"); // Y numbers label size ()
-    gStyle->SetTitleSize(0.04, "x"); // X title size ()
-    gStyle->SetTitleSize(0.04, "y"); // Y title size ()
-    gStyle->SetErrorX(0);            // No errors along x
-    gROOT->ForceStyle();
-}
+    // get configuration
+    auto selection = SelectionClass();
 
-// get a full histogram name in the given bin
-TString getFullHistogramName(const TString baseNameBegin, const TString baseNameEnd, const bool multBinsOnly, const int binNrMult, const int binNrKt = 0)
-{
-    return multBinsOnly ? TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_0") + baseNameEnd : TString(TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_") += (binNrKt + 1)) + baseNameEnd;
-}
+    auto binsMult = selection.getBinsOfMultiplicityCentres();
+    auto binsMultError = selection.getBinsOfMultiplicityErrors();
+    auto binsMultForKt = selection.getBinsOfMultiplicityForKtCentres();
+    auto binsMultForKtError = selection.getBinsOfMultiplicityForKtErrors();
+    auto binsKt = selection.getBinsOfKtCentres();
+    auto binsKtError = selection.getBinsOfKtErrors();
 
-// get a name of the fit result
-TString getFitResultName(const TString hName, const TString fName)
-{
-    return hName + TString("_") + fName;
-}
-
-void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool flagIsUnlike = false, const TString dataType = "", const int nrBinsMult = 6, const int nrBinsKt = 0, TString hCommonEndName = "")
-{
-    setStyle();
+    // set ROOT style
+    HBT::Utils::setStyle();
 
     // prepare settings for type of binning
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
@@ -148,10 +105,10 @@ void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const T
             for (int j = 0; j < nrBinsKtForLoops; ++j)
             {
                 // get the fit result in the given bin
-                TString hNameMain = isMultBinsOnly ? getFullHistogramName(hNameBaseMain, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(hNameBaseMain, hCommonEndName, isMultBinsOnly, i, j);
-                TString hNameRef = isMultBinsOnly ? getFullHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i, j);
-                const auto fitResultMain = (TFitResult *)fInMain->Get(getFitResultName(hNameMain, fNameMain));
-                const auto fitResultRef = (TFitResult *)fInRef->Get(getFitResultName(hNameRef, fNameRef));
+                TString hNameMain = isMultBinsOnly ? HBT::Utils::getHistogramName(hNameBaseMain, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hNameBaseMain, hCommonEndName, isMultBinsOnly, i, j);
+                TString hNameRef = isMultBinsOnly ? HBT::Utils::getHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i, j);
+                const auto fitResultMain = (TFitResult *)fInMain->Get(HBT::Utils::getFitResultName(hNameMain, fNameMain));
+                const auto fitResultRef = (TFitResult *)fInRef->Get(HBT::Utils::getFitResultName(hNameRef, fNameRef));
                 if (!(fitResultMain && fitResultMain->IsValid()) || !(fitResultRef && fitResultRef->IsValid()))
                 {
                     std::cout << "One of the fits is not valid: \n\t" << fInMain->GetName() << "\n\t" << hNameMain << "\n\t" << fNameMain << "\n\t" << fInRef->GetName() << "\n\t" << hNameRef << "\n\t" << fNameRef << std::endl;
@@ -166,6 +123,7 @@ void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const T
 
                     // plot a ratio of the chi2/ndf values (just to see how it changes)
                     tGraphs[j].SetPoint(i, curBinsMult[i], (float)(chi2ndfMain - chi2ndfRef) / chi2ndfRef * 100.0);
+                    tGraphs[j].SetPointError(i, curBinsMultError[i], 0.);
                 }
                 else if (!param.name.compare("effective(lambda_bkg)"))
                 {
@@ -226,4 +184,19 @@ void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const T
     delete fInMain;
     fInRef->Close();
     delete fInRef;
+}
+
+void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "")
+{
+    // get configuration
+    auto selection = SelectionClass();
+
+    auto nrBinsMult = selection.getNrOfBinsMult();
+    auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
+    auto nrBinsKt = selection.getNrOfBinsKt();
+
+    // call for mult bins only
+    drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
+    // call for mult + kT bins
+    drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
 }

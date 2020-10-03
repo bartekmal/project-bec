@@ -36,7 +36,11 @@ class SelectionClass{
         std::vector< HBT::Units::FloatType > m_binsOfMultiplicity;
         std::vector< HBT::Units::FloatType > m_binsOfMultiplicityForKt;
         std::vector< HBT::Units::FloatType > m_binsOfKt;
-    
+
+        // utility functions
+        inline std::vector<HBT::Units::FloatType> getBinErrors(const std::vector<HBT::Units::FloatType> &bins) const;
+        inline std::vector<HBT::Units::FloatType> getBinCentres(const std::vector<HBT::Units::FloatType> &bins) const;
+
     public:
         //methods
         void initializeSelectionCuts();
@@ -49,18 +53,29 @@ class SelectionClass{
         
         bool isLikePair( const HBT::ParticlePair &pair );
         bool isUnlikePair( const HBT::ParticlePair &pair );
-        bool isInResonanceRange( const HBT::ParticlePair &pair );
-        bool isInResonanceRangeInQ(const HBT::ParticlePair &pair);
 
         //getters
         const std::vector< HBT::Units::FloatType > getBinsOfMultiplicity() { return this->m_binsOfMultiplicity; }
         const std::vector< HBT::Units::FloatType > getBinsOfMultiplicityForKt() { return this->m_binsOfMultiplicityForKt; }
         const std::vector< HBT::Units::FloatType > getBinsOfKt() { return this->m_binsOfKt; }
 
-    SelectionClass(){
-        initializeSelectionCuts();
-    }
-        
+        // bins utility functions
+        inline unsigned int getNrOfBinsMult() const { return m_binsOfMultiplicity.size() - 1; };
+        inline unsigned int getNrOfBinsMultForKt() const { return m_binsOfMultiplicityForKt.size() - 1; };
+        inline unsigned int getNrOfBinsKt() const { return m_binsOfKt.size() - 1; };
+
+        inline std::vector<HBT::Units::FloatType> getBinsOfMultiplicityCentres() const { return getBinCentres(m_binsOfMultiplicity); }
+        inline std::vector<HBT::Units::FloatType> getBinsOfMultiplicityForKtCentres() const { return getBinCentres(m_binsOfMultiplicityForKt); }
+        inline std::vector<HBT::Units::FloatType> getBinsOfKtCentres() const { return getBinCentres(m_binsOfKt); }
+
+        inline std::vector<HBT::Units::FloatType> getBinsOfMultiplicityErrors() const { return getBinErrors(m_binsOfMultiplicity); }
+        inline std::vector<HBT::Units::FloatType> getBinsOfMultiplicityForKtErrors() const { return getBinErrors(m_binsOfMultiplicityForKt); }
+        inline std::vector<HBT::Units::FloatType> getBinsOfKtErrors() const { return getBinErrors(m_binsOfKt); }
+
+        SelectionClass()
+        {
+            initializeSelectionCuts();
+        }
 };
 
 inline void SelectionClass::initializeSelectionCuts(){
@@ -86,6 +101,10 @@ inline void SelectionClass::initializeSelectionCuts(){
     this->m_binsOfMultiplicityForKt = { 0, 15, 35, 50, 80, 100, 140 };
     this->m_binsOfKt = { 0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
 
+    // sanitize input (bins)
+    assert(m_binsOfMultiplicity.size() >= 2);
+    assert(m_binsOfMultiplicityForKt.size() >= 2);
+    assert(m_binsOfKt.size() >= 2);
 } 
 
 inline void SelectionClass::printSelectionCuts(){
@@ -191,22 +210,34 @@ inline bool SelectionClass::isUnlikePair( const HBT::ParticlePair &pair ){
 
 }
 
-inline bool SelectionClass::isInResonanceRange( const HBT::ParticlePair &pair ){
+// utility functions
 
-    auto passStatus = false;
+inline std::vector<HBT::Units::FloatType> SelectionClass::getBinErrors(const std::vector<HBT::Units::FloatType> &bins) const
+{
+    //prepare the output vector
+    std::vector<HBT::Units::FloatType> binErrors{};
+    binErrors.reserve(bins.size() - 1);
 
-    if ( ( fabs( pair.m_invariantMass - HBT::Units::MassRho ) < HBT::Units::WidthRho ) || ( fabs( pair.m_invariantMass - HBT::Units::MassKs ) < HBT::Units::WidthKs ) ) passStatus = true;
-    return passStatus;
+    for (auto it = bins.begin(); it != bins.end() - 1; it++)
+    {
+        binErrors.push_back((*(it + 1) - *it) / 2.);
+    }
 
+    return binErrors;
 }
 
-inline bool SelectionClass::isInResonanceRangeInQ(const HBT::ParticlePair &pair)
+inline std::vector<HBT::Units::FloatType> SelectionClass::getBinCentres(const std::vector<HBT::Units::FloatType> &bins) const
 {
-    auto passStatus = false;
+    //prepare the output vector
+    std::vector<HBT::Units::FloatType> binCentres{};
+    binCentres.reserve(bins.size() - 1);
 
-    if ((pair.m_Q_LAB >= 0.55 && pair.m_Q_LAB < 0.88) || (pair.m_Q_LAB >= 0.38 && pair.m_Q_LAB < 0.44) || (pair.m_Q_LAB >= 0.91 && pair.m_Q_LAB < 0.97) || (pair.m_Q_LAB >= 1.21 && pair.m_Q_LAB < 1.27))
-        passStatus = true;
-    return passStatus;
+    for (auto it = bins.begin(); it != bins.end() - 1; it++)
+    {
+        binCentres.push_back(*it + (*(it + 1) - *it) / 2.);
+    }
+
+    return binCentres;
 }
 
 #endif /* !SELECTIONCLASS_H */

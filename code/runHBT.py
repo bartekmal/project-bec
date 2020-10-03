@@ -232,9 +232,6 @@ def runDivide( outputFolderName = "correlations" ):
             'hOutNameLike' : "h4010",
             'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
@@ -250,9 +247,6 @@ def runDivide( outputFolderName = "correlations" ):
             'hOutNameLike' : "h4010",
             'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
@@ -268,9 +262,6 @@ def runDivide( outputFolderName = "correlations" ):
             'hOutNameLike' : "h4010",
             'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
@@ -286,9 +277,6 @@ def runDivide( outputFolderName = "correlations" ):
             'hOutNameLike' : "h4010",
             'hOutNameUnlike' : "h4110",
             'isDR' : False,
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
@@ -304,9 +292,6 @@ def runDivide( outputFolderName = "correlations" ):
             'hOutNameLike' : "h5010",
             'hOutNameUnlike' : "h5110",
             'isDR' : True,
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
@@ -322,9 +307,6 @@ def runDivide( outputFolderName = "correlations" ):
             'hOutNameLike' : "h5010",
             'hOutNameUnlike' : "h5110",
             'isDR' : True,
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200",
             'flagCorrectCoulomb' : False
@@ -338,18 +320,13 @@ def runDivide( outputFolderName = "correlations" ):
         recreateAndChangeDir( aJob['outputFolder'] )
         outputFile = os.getenv('MYDIR') + "/output/correlations/" + aJob['outputFolder'] + "/correlations.root"     
 
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult'], int( aJob['flagCorrectCoulomb'] ), int( True )  
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}",{8},{9},{10})\''.format(
+            aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt'], int( aJob['isDR'] ), int( aJob['flagCorrectCoulomb'] ), int( True )  
         ) )
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt'], int( aJob['flagCorrectCoulomb'] ), int( True )  
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}",{8},{9},{10})\''.format(
+            aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt'], int( aJob['isDR'] ), int( aJob['flagCorrectCoulomb'] ), int( False )  
         ) )
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult'], int( aJob['flagCorrectCoulomb'] ), int( False )  
-        ) )
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}",{6},{7},{8},"{9}",{10},{11})\''.format(
-            aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], int( aJob['isDR'] ), int( aJob['nrBinsMultForKt'] ),  int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt'], int( aJob['flagCorrectCoulomb'] ), int( False )    
-        ) )
+        
 
 def runFits( outputFolderName = "fits" ):
 
@@ -367,9 +344,6 @@ def runFits( outputFolderName = "fits" ):
         #     'isMC' : "true",
         #     'isUnlike' : "true",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hCommonEndNameForMult' : "_400",
         #     'hCommonEndNameForKt' : "_200",   
         #     'flagDoFit' : "true",
@@ -386,9 +360,6 @@ def runFits( outputFolderName = "fits" ):
         #     'isMC' : "true",
         #     'isUnlike' : "true",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hCommonEndNameForMult' : "_400",
         #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : "true",
@@ -407,9 +378,6 @@ def runFits( outputFolderName = "fits" ):
         #     'isMC' : "true",
         #     'isUnlike' : "false",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hCommonEndNameForMult' : "_400",
         #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : "true",
@@ -426,9 +394,6 @@ def runFits( outputFolderName = "fits" ):
         #     'isMC' : "true",
         #     'isUnlike' : "false",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hCommonEndNameForMult' : "_400",
         #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : "true",
@@ -447,9 +412,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -469,9 +431,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -493,9 +452,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -515,9 +471,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -539,9 +492,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -561,9 +511,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -585,9 +532,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -607,9 +551,6 @@ def runFits( outputFolderName = "fits" ):
             'isMC' : "false",
             'isUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hCommonEndNameForMult' : "_400",
             'hCommonEndNameForKt' : "_200",
             'flagDoFit' : "true",
@@ -631,11 +572,8 @@ def runFits( outputFolderName = "fits" ):
         mkdirIfNotExists( aJob['outputFolder'] )
         os.chdir( aJob['outputFolder'] )    
 
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}",{},{},"{}",{},"{}","{}","{}",{},{},{},{},"{}","{}")\''.format(
-            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hCommonEndNameForMult'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']    
-        ) )
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}",{},{},"{}",{},"{}","{}","{}",{},{},{},{},"{}","{}")\''.format(
-            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}")\''.format(
+            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']    
         ) )
 
 def runTrends( outputFolderName = "trends" ):
@@ -653,9 +591,6 @@ def runTrends( outputFolderName = "trends" ):
         #     'hBaseName' : "h4110",
         #     'flagIsUnlike' : "true",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hNameCommonEndForMult' : "_400",
         #     'hNameCommonEndForKt' : "_200"
         # },
@@ -664,9 +599,6 @@ def runTrends( outputFolderName = "trends" ):
         #     'hBaseName' : "h4110",
         #     'flagIsUnlike' : "true",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hNameCommonEndForMult' : "_400",
         #     'hNameCommonEndForKt' : "_200"
         # },
@@ -677,9 +609,6 @@ def runTrends( outputFolderName = "trends" ):
         #     'hBaseName' : "h4010",
         #     'flagIsUnlike' : "false",
         #     'outputFolder' : "MC_pPb",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hNameCommonEndForMult' : "_400",
         #     'hNameCommonEndForKt' : "_200"
         # },
@@ -688,9 +617,6 @@ def runTrends( outputFolderName = "trends" ):
         #     'hBaseName' : "h4010",
         #     'flagIsUnlike' : "false",
         #     'outputFolder' : "MC_Pbp",
-        #     'nrBinsMultOnly' : 18,
-        #     'nrBinsMultForKt' : 6,
-        #     'nrBinsKt' : 10,
         #     'hNameCommonEndForMult' : "_400",
         #     'hNameCommonEndForKt' : "_200"
         # },
@@ -702,9 +628,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcMain",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -714,9 +637,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcMain",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -728,9 +648,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -740,9 +657,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },  
@@ -754,9 +668,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -766,9 +677,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcBkgScaling",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -780,9 +688,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcMain",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -792,9 +697,6 @@ def runTrends( outputFolderName = "trends" ):
             'fName' : "funcMain",          
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         }  
@@ -806,14 +708,11 @@ def runTrends( outputFolderName = "trends" ):
         mkdirIfNotExists( aJob['outputFolder'] )
         os.chdir( aJob['outputFolder'] )    
         
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult']  
-        ) )
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt']  
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}","{}","{}")\''.format(
+            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob['outputFolder'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt']   
         ) )
 
-def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_reference/output/fits", outputFolderName = "diffs" ):
+def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits", outputFolderName = "diffs" ):
 
     #prepare output directory
     outputDirPath = prepareFolder( os.getenv('MYDIR') + '/output', outputFolderName )
@@ -832,9 +731,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcMain",                    
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -847,9 +743,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcMain",             
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -864,9 +757,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcBkgScaling",                             
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -879,9 +769,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcBkgScaling",                                     
             'flagIsUnlike' : "true",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },  
@@ -896,9 +783,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcBkgScaling",                                                   
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -911,9 +795,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcBkgScaling",                                                           
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -928,9 +809,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcMain",                                                                     
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_pPb",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         },
@@ -943,9 +821,6 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
             'fNameRef' : "funcMain",                                                                            
             'flagIsUnlike' : "false",
             'outputFolder' : "RD_Pbp",
-            'nrBinsMultOnly' : 18,
-            'nrBinsMultForKt' : 6,
-            'nrBinsKt' : 10,
             'hNameCommonEndForMult' : "_400",
             'hNameCommonEndForKt' : "_200"
         }  
@@ -957,11 +832,8 @@ def runDiffs( referencePath = os.getenv('BEC_BASE_ANALYSIS') + "/evmix/0_referen
         mkdirIfNotExists( aJob['outputFolder'] )
         os.chdir( aJob['outputFolder'] )    
         
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'],aJob['fileNameRef'], aJob['hBaseNameRef'], aJob['fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultOnly'] ), 0, aJob['hNameCommonEndForMult']  
-        ) )
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}",{},{},"{}")\''.format(
-            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'],aJob['fileNameRef'], aJob['hBaseNameRef'], aJob['fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], int( aJob['nrBinsMultForKt'] ), int( aJob['nrBinsKt'] ), aJob['hNameCommonEndForKt']  
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}","{}","{}")\''.format(
+            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'],aJob['fileNameRef'], aJob['hBaseNameRef'], aJob['fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt']  
         ) )
 
 ####################################################

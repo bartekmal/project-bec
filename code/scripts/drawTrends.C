@@ -1,16 +1,9 @@
-/*-------------- configure plots -------------------*/
-Double_t binsMult[] = {7.5, 12.5, 17.5, 22.5, 27.5, 32.5, 37.5, 42.5, 47.5, 52.5, 57.5, 62.5, 72.5, 85.0, 95.0, 107.5, 127.5, 160.0};
-Double_t binsMultError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-Double_t binsMultForKt[] = {10.0, 25.0, 42.5, 65.0, 90.0, 120.0};
-Double_t binsMultForKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-Double_t binsKt[] = {0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95};
-Double_t binsKtError[] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+#include "../HBTAnalysis/Utils.hpp"
+#include "../HBTAnalysis/SelectionClass.hpp"
+
+/*-------------- configuration -------------------*/
 Color_t binsKtColor[] = {kRed, kOrange, kGreen, kViolet, kAzure, kBlue, kMagenta, kCyan, kYellow, kGray};
-
 Double_t multMax = 200.;
-
-/*-------------- configure fit params -------------------*/
-
 struct FitParam
 {
     int id;
@@ -42,6 +35,9 @@ std::vector<FitParam> initFitParams()
 const int parIdLambdaBkg = 5;
 const int parIdLambdaBkgScaleFactor = 8;
 
+/*-------------- enf of configuration -------------*/
+
+
 void printDescription(const TString dataType, const TString paramName)
 {
     Double_t commPosX = 0.20;
@@ -53,59 +49,21 @@ void printDescription(const TString dataType, const TString paramName)
     comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs Nch");
 }
 
-void setStyle()
+void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const TString fName, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
 {
-    //style
-    gROOT->Reset();                  // Reset options
-    gStyle->SetPadGridX(kFALSE);     // No grid in x (0)
-    gStyle->SetPadGridY(kFALSE);     // No grid in y (0)
-    gStyle->SetOptTitle(kFALSE);     // No title
-    gStyle->SetStatBorderSize(0);    // Stats box shadow size (2)
-    gStyle->SetStatColor(18);        // Stats box fill color (0)
-    gStyle->SetStatFont(62);         // Stats font style (62)
-    gStyle->SetStatH(0.1);           // Stats box height
-    gStyle->SetStatW(0.15);          // Stats box width
-    gStyle->SetStatX(0.91);          // Stats box x coordinate
-    gStyle->SetStatY(0.91);          // Stats box y coordinate
-    gStyle->SetStatStyle(1001);      // Stat box fill style
-    gStyle->SetStatTextColor(1);     // Stat text color (1)
-    gStyle->SetOptStat(0);           // No statistics (0) (1000001110)
-    gStyle->SetOptFit(111);          // No fit box (0) (111)
-    gStyle->SetFrameBorderMode(0);   // No red box
-    gStyle->SetHistFillColor(0);     // Histogram fill color (0) (18)
-    gStyle->SetHistFillStyle(1001);  // Histogram fill style (1001) (0)
-    gStyle->SetHistLineColor(kBlue); // Histogram line color (1)
-    gStyle->SetHistLineStyle(0);     // Histogram line style (0)
-    gStyle->SetHistLineWidth(1);     // Histogram line width (1.0)
-    gStyle->SetMarkerStyle(21);      // Marker style (0)
-    gStyle->SetMarkerColor(kBlack);  // Marker color (1)
-    gStyle->SetMarkerSize(1.2);      // Marker size ()
-    gStyle->SetLineColor(kBlack);    // Line color (1)
-    gStyle->SetLineWidth(1.0);       // Line width (1.0)
-    gStyle->SetTextSize(0.07);       // Text size (1.0)
-    gStyle->SetLabelSize(0.03, "x"); // X numbers label size ()
-    gStyle->SetLabelSize(0.03, "y"); // Y numbers label size ()
-    gStyle->SetTitleSize(0.04, "x"); // X title size ()
-    gStyle->SetTitleSize(0.04, "y"); // Y title size ()
-    gStyle->SetErrorX(0);            // No errors along x
-    gROOT->ForceStyle();
-}
 
-// get a full histogram name in the given bin
-TString getFullHistogramName(const TString baseNameBegin, const TString baseNameEnd, const bool multBinsOnly, const int binNrMult, const int binNrKt = 0)
-{
-    return multBinsOnly ? TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_0") + baseNameEnd : TString(TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_") += (binNrKt + 1)) + baseNameEnd;
-}
+    // get configuration
+    auto selection = SelectionClass();
 
-// get a name of the fit result
-TString getFitResultName(const TString hName, const TString fName)
-{
-    return hName + TString("_") + fName;
-}
+    auto binsMult = selection.getBinsOfMultiplicityCentres();
+    auto binsMultError = selection.getBinsOfMultiplicityErrors();
+    auto binsMultForKt = selection.getBinsOfMultiplicityForKtCentres();
+    auto binsMultForKtError = selection.getBinsOfMultiplicityForKtErrors();
+    auto binsKt = selection.getBinsOfKtCentres();
+    auto binsKtError = selection.getBinsOfKtErrors();
 
-void drawTrends(const TString inputFile, const TString hNameBase, const TString fName, const bool flagIsUnlike = false, const TString dataType = "", const int nrBinsMult = 6, const int nrBinsKt = 0, TString hCommonEndName = "")
-{
-    setStyle();
+    // set ROOT style
+    HBT::Utils::setStyle();
 
     // prepare settings for type of binning
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
@@ -146,8 +104,8 @@ void drawTrends(const TString inputFile, const TString hNameBase, const TString 
             for (int j = 0; j < nrBinsKtForLoops; ++j)
             {
                 // get the fit result in the given bin
-                TString hName = isMultBinsOnly ? getFullHistogramName(hNameBase, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(hNameBase, hCommonEndName, isMultBinsOnly, i, j);
-                const auto fitResult = (TFitResult *)fIn->Get(getFitResultName(hName, fName));
+                TString hName = isMultBinsOnly ? HBT::Utils::getHistogramName(hNameBase, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hNameBase, hCommonEndName, isMultBinsOnly, i, j);
+                const auto fitResult = (TFitResult *)fIn->Get(HBT::Utils::getFitResultName(hName, fName));
                 if (!(fitResult && fitResult->IsValid()))
                 {
                     std::cout << "The given fit is not valid: \n\t" << fIn->GetName() << "\n\t" << hName << "\n\t" << fName << std::endl;
@@ -157,6 +115,7 @@ void drawTrends(const TString inputFile, const TString hNameBase, const TString 
                 if (!param.name.compare("chi2"))
                 {
                     tGraphs[j].SetPoint(i, curBinsMult[i], fitResult->Chi2() / fitResult->Ndf());
+                    tGraphs[j].SetPointError(i, curBinsMultError[i], 0.);
                 }
                 else if (!param.name.compare("effective(lambda_bkg)"))
                 {
@@ -196,4 +155,19 @@ void drawTrends(const TString inputFile, const TString hNameBase, const TString 
 
     fIn->Close();
     delete fIn;
+}
+
+void drawTrends(const TString inputFile, const TString hNameBase, const TString fName, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "")
+{
+    // get configuration
+    auto selection = SelectionClass();
+
+    auto nrBinsMult = selection.getNrOfBinsMult();
+    auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
+    auto nrBinsKt = selection.getNrOfBinsKt();
+
+    // call for mult bins only
+    drawTrendsGeneric(inputFile, hNameBase, fName, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
+    // call for mult + kT bins
+    drawTrendsGeneric(inputFile, hNameBase, fName, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
 }

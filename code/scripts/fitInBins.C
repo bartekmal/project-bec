@@ -1,6 +1,16 @@
-/*-------------- configure fit -------------------*/
+#include "../HBTAnalysis/Units.hpp"
+#include "../HBTAnalysis/Utils.hpp"
+#include "../HBTAnalysis/SelectionClass.hpp"
+#include "../HBTAnalysis/CoulombCorrection.hpp"
 
-const Double_t R_eff = 2.0;
+// use consts from Units
+using namespace HBT::Units;
+
+/*-------------- configuration -------------------*/
+
+const HBT::Units::FloatType particleMass = HBT::Units::MassPion;
+const Double_t R_eff = HBT::Coulomb::REffForPions;
+
 const Double_t fitRangeLikeMin = 0.05;
 const Double_t fitRangeUnlikeMin = 0.25;
 const Double_t fitRangeMcMin = 0.25;
@@ -8,35 +18,8 @@ const Double_t fitRangeBkgScaleMin = 0.4;
 const Double_t fitRangeMax = 2.0;
 const Int_t fitNrOfParams = 9;
 
-/*-------------- define some constants -------------------*/
+/*-------------- enf of configuration -------------*/
 
-const Double_t Pi = TMath::Pi();
-const Double_t TwoPi = 2 * TMath::Pi();
-const Double_t MassPion = 0.140;
-const Double_t FineStructureConstant = 1.0 / 137.0;
-
-/*-------------- define elementary functions -------------------*/
-
-Double_t funcGamov(const Double_t &Q, const bool &sameSign)
-{
-
-    const int sign = sameSign ? 1 : -1;
-
-    const Double_t tmpEtaTwoPi = TwoPi * MassPion * FineStructureConstant / Q;
-
-    return sign * tmpEtaTwoPi / (exp(sign * tmpEtaTwoPi) - 1);
-}
-
-Double_t funcBS(const Double_t &Q, const Double_t &assumedR, const bool &sameSign)
-{
-    const Double_t tmpDzeta = MassPion * FineStructureConstant / Q;
-
-    const Double_t weight = (1 + Pi * tmpDzeta * Q * assumedR / (1.26 + Q * assumedR));
-
-    return funcGamov(Q, sameSign) * weight;
-}
-
-/*----------------------------------------------------------------*/
 
 /*-------------- define partial fit functions -------------------*/
 
@@ -52,12 +35,12 @@ Double_t funcBEC(Double_t *x, Double_t *par)
 
 Double_t funcCoulombLike(Double_t *x, Double_t *par)
 {
-    return funcBS(x[0], par[0], true);
+    return HBT::Coulomb::BS(x[0], true, par[0], particleMass);
 }
 
 Double_t funcCoulombUnlike(Double_t *x, Double_t *par)
 {
-    return funcBS(x[0], par[0], false);
+    return HBT::Coulomb::BS(x[0], false, par[0], particleMass);
 }
 
 /*-------------- define final fit functions -------------------*/
@@ -79,11 +62,6 @@ Double_t funcFullUnlike(Double_t *x, Double_t *par)
 
 /*----------------------------------------------------------------*/
 
-TString getFitResultName(const TString hName, const TString fName)
-{
-    return hName + TString("_") + fName;
-}
-
 Double_t getBkgScalingFactor(const TFitResult *fitResultMain, const TFitResult *fitResultRef, const int &parameterId)
 {
     return float(fitResultMain->Parameter(parameterId)) / fitResultRef->Parameter(parameterId);
@@ -97,7 +75,7 @@ TFitResultPtr doFit(TH1D *h, TF1 *f, const TString fitOpts = "S0R")
     if (fitResult.Get() == nullptr)
         return TFitResultPtr();
 
-    fitResult->Write(getFitResultName(h->GetName(), f->GetName()));
+    fitResult->Write(HBT::Utils::getFitResultName(h->GetName(), f->GetName()));
 
     return fitResult;
 }
@@ -161,50 +139,6 @@ void drawPull(TH1D *hFit, TF1 *fFit, const TString drawOpts = "BSAME")
     lineDown->Draw("SAME");
 }
 
-void setStyle()
-{
-    //style
-    gROOT->Reset();                  // Reset options
-    gStyle->SetPadGridX(kFALSE);     // No grid in x (0)
-    gStyle->SetPadGridY(kFALSE);     // No grid in y (0)
-    gStyle->SetOptTitle(kFALSE);     // No title
-    gStyle->SetStatBorderSize(0);    // Stats box shadow size (2)
-    gStyle->SetStatColor(18);        // Stats box fill color (0)
-    gStyle->SetStatFont(62);         // Stats font style (62)
-    gStyle->SetStatH(0.1);           // Stats box height
-    gStyle->SetStatW(0.15);          // Stats box width
-    gStyle->SetStatX(0.91);          // Stats box x coordinate
-    gStyle->SetStatY(0.91);          // Stats box y coordinate
-    gStyle->SetStatStyle(1001);      // Stat box fill style
-    gStyle->SetStatTextColor(1);     // Stat text color (1)
-    gStyle->SetOptStat(0);           // No statistics (0) (1000001110)
-    gStyle->SetOptFit(111);          // No fit box (0) (111)
-    gStyle->SetFrameBorderMode(0);   // No red box
-    gStyle->SetHistFillColor(0);     // Histogram fill color (0) (18)
-    gStyle->SetHistFillStyle(1001);  // Histogram fill style (1001) (0)
-    gStyle->SetHistLineColor(kBlue); // Histogram line color (1)
-    gStyle->SetHistLineStyle(0);     // Histogram line style (0)
-    gStyle->SetHistLineWidth(1);     // Histogram line width (1.0)
-    gStyle->SetMarkerStyle(21);      // Marker style (0)
-    gStyle->SetMarkerColor(kBlack);  // Marker color (1)
-    gStyle->SetMarkerSize(1.2);      // Marker size ()
-    gStyle->SetLineColor(kBlack);    // Line color (1)
-    gStyle->SetLineWidth(1.0);       // Line width (1.0)
-    gStyle->SetTextSize(0.07);       // Text size (1.0)
-    gStyle->SetLabelSize(0.03, "x"); // X numbers label size ()
-    gStyle->SetLabelSize(0.03, "y"); // Y numbers label size ()
-    gStyle->SetTitleSize(0.04, "x"); // X title size ()
-    gStyle->SetTitleSize(0.04, "y"); // Y title size ()
-    gStyle->SetErrorX(0);            // No errors along x
-    gROOT->ForceStyle();
-}
-
-// get a full histogram name in the given bin
-TString getFullHistogramName(const TString baseNameBegin, const TString baseNameEnd, const bool multBinsOnly, const int binNrMult, const int binNrKt = 0)
-{
-    return multBinsOnly ? TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_0") + baseNameEnd : TString(TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_") += (binNrKt + 1)) + baseNameEnd;
-}
-
 void drawHistogram(TH1D *h, const int color = kBlue, const TString drawOpts = "ESAME", const Double_t yMin = 0.5, const Double_t yMax = 1.6)
 {
 
@@ -217,10 +151,10 @@ void drawHistogram(TH1D *h, const int color = kBlue, const TString drawOpts = "E
     h->Draw(drawOpts);
 }
 
-void fitInBins(const TString inputFile, const TString hMainNameBase, const bool flagIsMc = false, const bool flagIsUnlike = false, const TString dataType = "", const int nrBinsMult = 6, const int nrBinsKt = 0, TString hCommonEndName = "", const bool flagDoFit = true, const TString inputFileRef = "", const TString hRefNameBase = "", const TString refType = "", const bool flagDrawRef = false, const bool flagUseBkgFromRef = false, const bool flagIsBkgScaling = false, const bool flagUseBkgScaling = false, const TString funcNameBkgScalingMain = "", const TString funcNameBkgScalingRef = "")
+void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const bool flagDoFit, const TString inputFileRef , const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef)
 {
-
-    setStyle();
+    // set ROOT style
+    HBT::Utils::setStyle();
 
     // prepare settings for type of binning and histogram type
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
@@ -265,13 +199,13 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const bool 
             p2->Draw();
 
             // get histograms
-            TString hMainName = isMultBinsOnly ? getFullHistogramName(hMainNameBase, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(hMainNameBase, hCommonEndName, isMultBinsOnly, i, j);
+            TString hMainName = isMultBinsOnly ? HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, isMultBinsOnly, i, j);
             TH1D *hMain = (TH1D *)fIn->Get(hMainName);
 
             //get the reference histogram and fit result if available
-            const auto hRefName = isMultBinsOnly ? getFullHistogramName(hRefNameBase, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(hRefNameBase, hCommonEndName, isMultBinsOnly, i, j);
+            const auto hRefName = isMultBinsOnly ? HBT::Utils::getHistogramName(hRefNameBase, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hRefNameBase, hCommonEndName, isMultBinsOnly, i, j);
             TH1D *hRef = flagDrawRef ? (TH1D *)fInRef->Get(hRefName) : nullptr;
-            auto fitResultRef = flagUseBkgFromRef ? (TFitResult *)fInRefFitResults->Get(getFitResultName(hRefName, "funcMain")) : nullptr;
+            auto fitResultRef = flagUseBkgFromRef ? (TFitResult *)fInRefFitResults->Get(HBT::Utils::getFitResultName(hRefName, "funcMain")) : nullptr;
             fOut->cd();
 
             // draw histograms
@@ -339,8 +273,8 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const bool 
                         // scale the bkg parameters if needed
                         if (flagUseBkgScaling)
                         {
-                            auto fitResultBkgScalingMain = (TFitResult *)fInRefFitResults->Get(getFitResultName(hMainName, funcNameBkgScalingMain));
-                            auto fitResultBkgScalingRef = (TFitResult *)fInRefFitResults->Get(getFitResultName(hRefName, funcNameBkgScalingRef));
+                            auto fitResultBkgScalingMain = (TFitResult *)fInRefFitResults->Get(HBT::Utils::getFitResultName(hMainName, funcNameBkgScalingMain));
+                            auto fitResultBkgScalingRef = (TFitResult *)fInRefFitResults->Get(HBT::Utils::getFitResultName(hRefName, funcNameBkgScalingRef));
 
                             if (fitResultBkgScalingMain->IsValid() && fitResultBkgScalingRef->IsValid())
                             {
@@ -414,4 +348,19 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const bool 
         fInRefFitResults->Close();
         delete fInRefFitResults;
     }
+}
+
+void fitInBins(const TString inputFile, const TString hMainNameBase, const bool flagIsMc = false, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "", const bool flagDoFit = true, const TString inputFileRef = "", const TString hRefNameBase = "", const TString refType = "", const bool flagDrawRef = false, const bool flagUseBkgFromRef = false, const bool flagIsBkgScaling = false, const bool flagUseBkgScaling = false, const TString funcNameBkgScalingMain = "", const TString funcNameBkgScalingRef = "")
+{
+    // get configuration
+    auto selection = SelectionClass();
+
+    auto nrBinsMult = selection.getNrOfBinsMult();
+    auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
+    auto nrBinsKt = selection.getNrOfBinsKt();
+
+    // call for mult bins only
+    fitInBinsGeneric(inputFile, hMainNameBase, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef);
+    // call for mult + kT bins
+    fitInBinsGeneric(inputFile, hMainNameBase, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef);
 }
