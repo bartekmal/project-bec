@@ -1,36 +1,33 @@
 #include "../HBTAnalysis/Units.hpp"
+#include "../HBTAnalysis/Utils.hpp"
+#include "../HBTAnalysis/SelectionClass.hpp"
+#include "../HBTAnalysis/CoulombCorrection.hpp"
 
-const Double_t Pi = TMath::Pi();
-const Double_t TwoPi = 2 * TMath::Pi();
-const Double_t MassPion = 0.140;
-const Double_t FineStructureConstant = 1.0 / 137.0;
+// use consts from Units
+using namespace HBT::Units;
 
-inline int getBinIndex(const HBT::Units::FloatType x, const HBT::Units::FloatType xMin, const HBT::Units::FloatType binWidth)
+/*-------------- configuration -------------------*/
+
+const HBT::Units::FloatType R_eff = HBT::Coulomb::REffForPions;
+const HBT::Units::FloatType particleMass = HBT::Units::MassPion;
+
+/*-------------- enf of configuration -------------*/
+
+void removeResonances(TH1D *&h)
 {
-  //follow the ROOT histograms bin numbering
-  return static_cast<int>(floor((x - xMin) / binWidth)) + 1;
-}
+  const HBT::Units::FloatType binWidth = h->GetBinWidth(1);
+  const HBT::Units::FloatType histQMin = h->GetXaxis()->GetBinLowEdge(1);
 
-Double_t gamovFactorForPionPair(const Double_t &Q, const bool &sameSign)
-{
-
-  const int sign = sameSign ? 1 : -1;
-
-  const Double_t tmpEtaTwoPi = TwoPi * MassPion * FineStructureConstant / Q;
-
-  return sign * tmpEtaTwoPi / (exp(sign * tmpEtaTwoPi) - 1);
-}
-
-Double_t fullCoulombCorrectionForPionPair(const Double_t &Q, const bool &sameSign, const Double_t assumedR = 2.)
-{
-
-  const int sign = sameSign ? 1 : -1;
-
-  const Double_t tmpDzeta = MassPion * FineStructureConstant / Q;
-
-  const Double_t weight = (1 + sign * Pi * tmpDzeta * Q * assumedR / (1.26 + Q * assumedR));
-
-  return gamovFactorForPionPair(Q, sameSign) * weight;
+  for (auto const &resonance : HBT::Units::Resonances)
+  {
+    const unsigned int minBin = HBT::Utils::getBinIndex(resonance.second.getQRangeMin(), histQMin, binWidth);
+    const unsigned int maxBin = HBT::Utils::getBinIndex(resonance.second.getQRangeMax(), histQMin, binWidth);
+    for (unsigned int i = minBin; i < maxBin; i++)
+    {
+      h->SetBinContent(i, 0.);
+      h->SetBinError(i, 0.);
+    }
+  }
 }
 
 TH1D *divideHistograms(TH1D *h1, TH1D *h2, const TString hOutName = "", const bool isDR = false)
@@ -91,13 +88,7 @@ TH1D *divideHistograms(TH1D *h1, TH1D *h2, const TString hOutName = "", const bo
   return hOut;
 }
 
-// get a full histogram name in the given bin
-TString getFullHistogramName(const TString baseNameBegin, const TString baseNameEnd, const bool multBinsOnly, const int binNrMult, const int binNrKt = 0)
-{
-  return multBinsOnly ? TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_0") + baseNameEnd : TString(TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_") += (binNrKt + 1)) + baseNameEnd;
-}
-
-void divideHistogramsInBins(const TString file1, const TString h1BaseName, const TString file2, const TString h2BaseName, const TString fileOut, const TString hOutBaseName, const int isDR = 0, const int nrBinsMult = 6, const int nrBinsKt = 0, TString hCommonEndName = "", const int flagCorrectCoulomb = 0, const int isLikePair = 0, const bool flagRemoveResonances = true)
+void divideHistogramsInBinsGeneric(const TString file1, const TString h1BaseName, const TString file2, const TString h2BaseName, const TString fileOut, const TString hOutBaseName, const int isDR, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagCorrectCoulomb, const int isLike, const bool flagRemoveResonances )
 {
 
   // prepare settings for type of binning
@@ -116,9 +107,9 @@ void divideHistogramsInBins(const TString file1, const TString h1BaseName, const
     for (int j = 0; j < nrBinsKtForLoops; ++j)
     {
 
-      TString h1Name = isMultBinsOnly ? getFullHistogramName(h1BaseName, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(h1BaseName, hCommonEndName, isMultBinsOnly, i, j);
-      TString h2Name = isMultBinsOnly ? getFullHistogramName(h2BaseName, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(h2BaseName, hCommonEndName, isMultBinsOnly, i, j);
-      TString hOutName = isMultBinsOnly ? getFullHistogramName(hOutBaseName, hCommonEndName, isMultBinsOnly, i) : getFullHistogramName(hOutBaseName, hCommonEndName, isMultBinsOnly, i, j);
+      TString h1Name = isMultBinsOnly ? HBT::Utils::getHistogramName(h1BaseName, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(h1BaseName, hCommonEndName, isMultBinsOnly, i, j);
+      TString h2Name = isMultBinsOnly ? HBT::Utils::getHistogramName(h2BaseName, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(h2BaseName, hCommonEndName, isMultBinsOnly, i, j);
+      TString hOutName = isMultBinsOnly ? HBT::Utils::getHistogramName(hOutBaseName, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hOutBaseName, hCommonEndName, isMultBinsOnly, i, j);
 
       TH1D *h1 = (TH1D *)f1->Get(h1Name);
       TH1D *h2 = (TH1D *)f2->Get(h2Name);
@@ -134,51 +125,15 @@ void divideHistogramsInBins(const TString file1, const TString h1BaseName, const
         {
 
           const auto currentBinContent = hOut->GetBinContent(i);
-          const auto currentCorrectionFactor = 1. / fullCoulombCorrectionForPionPair(hOut->GetBinCenter(i), isLikePair);
+          const auto currentCorrectionFactor = 1. / HBT::Coulomb::BS(hOut->GetBinCenter(i), isLike, R_eff, particleMass);
           hOut->SetBinContent(i, currentBinContent * currentCorrectionFactor);
         }
       }
 
       // remove resonances from the correlation function for UNLIKE pairs
-      if (flagRemoveResonances && !isLikePair)
+      if (flagRemoveResonances && !isLike)
       {
-        const float binWidth = hOut->GetBinWidth(1);
-        {
-          const int minBin = getBinIndex(0.55, 0., binWidth);
-          const int maxBin = getBinIndex(0.88, 0., binWidth);
-          for (int i = minBin; i < maxBin; i++)
-          {
-            hOut->SetBinContent(i, 0.);
-            hOut->SetBinError(i, 0.);
-          }
-        }
-        {
-          const int minBin = getBinIndex(0.38, 0., binWidth);
-          const int maxBin = getBinIndex(0.44, 0., binWidth);
-          for (int i = minBin; i < maxBin; i++)
-          {
-            hOut->SetBinContent(i, 0.);
-            hOut->SetBinError(i, 0.);
-          }
-        }
-        {
-          const int minBin = getBinIndex(0.91, 0., binWidth);
-          const int maxBin = getBinIndex(0.97, 0., binWidth);
-          for (int i = minBin; i < maxBin; i++)
-          {
-            hOut->SetBinContent(i, 0.);
-            hOut->SetBinError(i, 0.);
-          }
-        }
-        {
-          const int minBin = getBinIndex(1.21, 0., binWidth);
-          const int maxBin = getBinIndex(1.27, 0., binWidth);
-          for (int i = minBin; i < maxBin; i++)
-          {
-            hOut->SetBinContent(i, 0.);
-            hOut->SetBinError(i, 0.);
-          }
-        }
+        removeResonances(hOut);
       }
 
       hOut->Write();
@@ -197,4 +152,19 @@ void divideHistogramsInBins(const TString file1, const TString h1BaseName, const
   delete f1;
   delete f2;
   delete fOut;
+}
+
+void divideHistogramsInBins(const TString file1, const TString h1BaseName, const TString file2, const TString h2BaseName, const TString fileOut, const TString hOutBaseName, TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "", const int isDR = 0, const int flagCorrectCoulomb = 0, const int isLike = 0, const bool flagRemoveResonances = true)
+{
+  // get configuration
+  auto selection = SelectionClass();
+
+  auto nrBinsMult = selection.getNrOfBinsMult();
+  auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
+  auto nrBinsKt = selection.getNrOfBinsKt();
+
+  // call for mult bins only
+  divideHistogramsInBinsGeneric(file1, h1BaseName, file2, h2BaseName, fileOut, hOutBaseName, isDR, nrBinsMult, 0, hCommonEndNameForMult, flagCorrectCoulomb, isLike, flagRemoveResonances);
+  // call for mult + kT bins
+  divideHistogramsInBinsGeneric(file1, h1BaseName, file2, h2BaseName, fileOut, hOutBaseName, isDR, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagCorrectCoulomb, isLike, flagRemoveResonances);
 }
