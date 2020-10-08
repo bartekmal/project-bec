@@ -2,8 +2,9 @@
 #include "../HBTAnalysis/SelectionClass.hpp"
 
 /*-------------- configuration -------------------*/
-Color_t binsKtColor[] = {kRed, kOrange, kGreen, kViolet, kAzure, kBlue, kMagenta, kCyan, kYellow, kGray};
-Double_t multMax = 200.;
+Double_t maxForMult = 200.;
+Double_t maxForKt = 1.0;
+const int padSize = 1200;
 
 struct FitParam
 {
@@ -38,7 +39,7 @@ const int parIdLambdaBkgScaleFactor = 8;
 
 /*-------------- enf of configuration -------------*/
 
-void printDescription(const TString dataType, const TString paramName)
+void printDescription(const TString &dataType, const TString &paramName, const TString &binsType)
 {
     Double_t commPosX = 0.20;
     Double_t commPosY = 0.80;
@@ -46,40 +47,96 @@ void printDescription(const TString dataType, const TString paramName)
     comments.SetNDC();
     comments.SetTextSize(0.035);
     comments.DrawLatex(commPosX, commPosY, dataType);
-    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs Nch");
+    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs " + binsType);
     comments.DrawLatex(commPosX, commPosY - 0.10, "relative diff wrt reference [%]");
+}
+
+// provide custom style (based on the general one)
+void setStyleLocal()
+{
+    HBT::Utils::setStyle();
+    gStyle->SetMarkerSize(1.4);
+}
+
+// add an entry to the given graph, corresponding to a parameter values obtained from fits in the given bin (checks if the fit results are valid)
+bool processSingleDiff(const TFitResult *fitResultMain, const TFitResult *fitResultRef, const FitParam &param, TGraphErrors &graph, const unsigned int &binNr, const HBT::Units::FloatType &binCentre, const HBT::Units::FloatType &binError)
+{
+    // validate fit results
+    if (!(fitResultMain && fitResultMain->IsValid()) || !(fitResultRef && fitResultRef->IsValid()))
+        return false;
+
+    if (!param.name.compare("chi2"))
+    {
+        // get individual results
+        const float chi2ndfMain = fitResultMain->Chi2() / fitResultMain->Ndf();
+        const float chi2ndfRef = fitResultRef->Chi2() / fitResultRef->Ndf();
+
+        // plot a ratio of the chi2/ndf values (just to see how it changes)
+        graph.SetPoint(binNr, binCentre, (float)(chi2ndfMain - chi2ndfRef) / chi2ndfRef * 100.0);
+        graph.SetPointError(binNr, binError, 0.);
+    }
+    else if (!param.name.compare("effective(lambda_bkg)"))
+    {
+        // get individual results
+        const float effLambdaMain = fitResultMain->Parameter(parIdLambdaBkg) * fitResultMain->Parameter(parIdLambdaBkgScaleFactor);
+        const float effLambdaRef = fitResultRef->Parameter(parIdLambdaBkg) * fitResultRef->Parameter(parIdLambdaBkgScaleFactor);
+        const float effLambdaMainError = fitResultMain->ParError(parIdLambdaBkg) * fitResultMain->Parameter(parIdLambdaBkgScaleFactor);
+        const float effLambdaRefError = fitResultRef->ParError(parIdLambdaBkg) * fitResultRef->Parameter(parIdLambdaBkgScaleFactor);
+
+        // get a difference wrt to the reference value [in %]
+        const float diffValue = (float)(effLambdaMain - effLambdaRef) / effLambdaRef * 100.0;
+        const float effLambdaRefErrorWeight = (float)effLambdaMain / effLambdaRef;
+        const float diffError = (1. / effLambdaRef) * TMath::Sqrt(pow(effLambdaMainError, 2) + pow(effLambdaRefErrorWeight * effLambdaRefError, 2)) * 100.0;
+
+        graph.SetPoint(binNr, binCentre, diffValue);
+        // scale the error of the lambda_bkg by the scaleFactor used
+        graph.SetPointError(binNr, binError, diffError);
+    }
+    else
+    {
+        // get individual results
+        const float parMainError = fitResultMain->ParError(param.id);
+        const float parRefError = fitResultRef->ParError(param.id);
+
+        // get a difference wrt to the reference value [in %]
+        const float diffValue = (float)(fitResultMain->Parameter(param.id) - fitResultRef->Parameter(param.id)) / fitResultRef->Parameter(param.id) * 100.0;
+        const float parRefErrorWeight = (float)fitResultMain->Parameter(param.id) / fitResultRef->Parameter(param.id);
+        const float diffError = (1. / fitResultRef->Parameter(param.id)) * TMath::Sqrt(pow(parMainError, 2) + pow(parRefErrorWeight * parRefError, 2)) * 100.0;
+
+        graph.SetPoint(binNr, binCentre, diffValue);
+        graph.SetPointError(binNr, binError, diffError);
+    }
+
+    return true;
 }
 
 void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
 {
+
     // get configuration
-    auto selection = SelectionClass();
-
-    auto binsMult = selection.getBinsOfMultiplicityCentres();
-    auto binsMultError = selection.getBinsOfMultiplicityErrors();
-    auto binsMultForKt = selection.getBinsOfMultiplicityForKtCentres();
-    auto binsMultForKtError = selection.getBinsOfMultiplicityForKtErrors();
-    auto binsKt = selection.getBinsOfKtCentres();
-    auto binsKtError = selection.getBinsOfKtErrors();
-
-    // set ROOT style
-    HBT::Utils::setStyle();
-
-    // prepare settings for type of binning
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
 
-    const int nrBinsKtForLoops = isMultBinsOnly ? 1 : nrBinsKt;
-    auto curBinsMult = isMultBinsOnly ? binsMult : binsMultForKt;
-    auto curBinsMultError = isMultBinsOnly ? binsMultError : binsMultForKtError;
-    const TString binsType = isMultBinsOnly ? TString("mult") : TString("kT");
-    const TString histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
+    const auto nrOfBinsInGraph = isMultBinsOnly ? nrBinsMult : nrBinsKt;
+    const auto nrOfGraphsToOverlap = isMultBinsOnly ? 1 : nrBinsMult;
+
+    const auto selection = SelectionClass();
+    const auto curBinCentres = isMultBinsOnly ? selection.getBinsOfMultiplicityCentres() : selection.getBinsOfKtCentres();
+    const auto curBinErrors = isMultBinsOnly ? selection.getBinsOfMultiplicityErrors() : selection.getBinsOfKtErrors();
+
+    const auto maxValueForBins = isMultBinsOnly ? maxForMult : maxForKt;
+    const auto binsType = isMultBinsOnly ? TString("mult") : TString("kT");
+    const auto overlappingGraphLabel = isMultBinsOnly ? TString("kT") : TString("mult");
+
+    const auto histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
+
+    // set ROOT style
+    setStyleLocal();
 
     // prepare the PDF file
-    const int padSize = 1200;
     const TString title = fNameMain + "_" + binsType + "_" + histType;
-    const TString pdfFile = title + ".pdf";
+    const TString plotFile = title + ".pdf";
     TCanvas *tc = new TCanvas(title, title, padSize, padSize);
-    tc->SaveAs(pdfFile + "[");
+    tc->SaveAs(plotFile + "[");
 
     // input file with the fit results
     TFile *fInMain = new TFile(inputFileMain, "READ");
@@ -91,93 +148,55 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
     for (const auto &param : fitParams)
     {
 
-        // prepare graphs
-        std::vector<TGraphErrors> tGraphs = std::vector<TGraphErrors>(nrBinsKtForLoops, TGraphErrors());
-        TLegend *tl = new TLegend(0.80, 0.85, 0.95, 0.95);
-        for (int i = 0; i < tGraphs.size(); ++i)
-        {
-            tGraphs[i].SetMarkerColor(binsKtColor[i]);
-            tl->AddEntry(&tGraphs[i], TString("kT bin: ") += (i + 1), "pe");
-        }
+        // prepare graphs for the given param
+        std::vector<TGraphErrors> tGraphs = std::vector<TGraphErrors>(nrOfGraphsToOverlap, TGraphErrors());
+        TLegend *tl = new TLegend(0.80, 0.75, 0.95, 0.95);
+        tl->SetHeader(overlappingGraphLabel, "C");
 
-        for (int i = 0; i < nrBinsMult; ++i)
+        for (int i = 0; i < nrOfGraphsToOverlap; ++i)
         {
-            for (int j = 0; j < nrBinsKtForLoops; ++j)
+            if (!isMultBinsOnly)
+                tl->AddEntry(&tGraphs[i], selection.getBinsOfMultiplicityForKtRangesAsStrings()[i].c_str(), "pe");
+            else
+                tl->AddEntry(&tGraphs[i], "full range", "pe");
+
+            // loop over #entries (points) in the graph
+            for (int j = 0; j < nrOfBinsInGraph; ++j)
             {
-                // get the fit result in the given bin
-                TString hNameMain = isMultBinsOnly ? HBT::Utils::getHistogramName(hNameBaseMain, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hNameBaseMain, hCommonEndName, isMultBinsOnly, i, j);
-                TString hNameRef = isMultBinsOnly ? HBT::Utils::getHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hNameBaseRef, hCommonEndName, isMultBinsOnly, i, j);
+                // get the fit results in the given bin
+                TString hNameMain = HBT::Utils::getHistogramName(hNameBaseMain, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
+                TString hNameRef = HBT::Utils::getHistogramName(hNameBaseRef, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
                 const auto fitResultMain = (TFitResult *)fInMain->Get(HBT::Utils::getFitResultName(hNameMain, fNameMain));
                 const auto fitResultRef = (TFitResult *)fInRef->Get(HBT::Utils::getFitResultName(hNameRef, fNameRef));
-                if (!(fitResultMain && fitResultMain->IsValid()) || !(fitResultRef && fitResultRef->IsValid()))
+
+                if (!processSingleDiff(fitResultMain, fitResultRef, param, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
                 {
                     std::cout << "One of the fits is not valid: \n\t" << fInMain->GetName() << "\n\t" << hNameMain << "\n\t" << fNameMain << "\n\t" << fInRef->GetName() << "\n\t" << hNameRef << "\n\t" << fNameRef << std::endl;
                     continue;
-                }
-
-                if (!param.name.compare("chi2"))
-                {
-                    // get individual results
-                    const float chi2ndfMain = fitResultMain->Chi2() / fitResultMain->Ndf();
-                    const float chi2ndfRef = fitResultRef->Chi2() / fitResultRef->Ndf();
-
-                    // plot a ratio of the chi2/ndf values (just to see how it changes)
-                    tGraphs[j].SetPoint(i, curBinsMult[i], (float)(chi2ndfMain - chi2ndfRef) / chi2ndfRef * 100.0);
-                    tGraphs[j].SetPointError(i, curBinsMultError[i], 0.);
-                }
-                else if (!param.name.compare("effective(lambda_bkg)"))
-                {
-                    // get individual results
-                    const float effLambdaMain = fitResultMain->Parameter(parIdLambdaBkg) * fitResultMain->Parameter(parIdLambdaBkgScaleFactor);
-                    const float effLambdaRef = fitResultRef->Parameter(parIdLambdaBkg) * fitResultRef->Parameter(parIdLambdaBkgScaleFactor);
-                    const float effLambdaMainError = fitResultMain->ParError(parIdLambdaBkg) * fitResultMain->Parameter(parIdLambdaBkgScaleFactor);
-                    const float effLambdaRefError = fitResultRef->ParError(parIdLambdaBkg) * fitResultRef->Parameter(parIdLambdaBkgScaleFactor);
-
-                    // get a difference wrt to the reference value [in %]
-                    const float diffValue = (float)(effLambdaMain - effLambdaRef) / effLambdaRef * 100.0;
-                    const float effLambdaRefErrorWeight = (float)effLambdaMain / effLambdaRef;
-                    const float diffError = (1. / effLambdaRef) * TMath::Sqrt(pow(effLambdaMainError, 2) + pow(effLambdaRefErrorWeight * effLambdaRefError, 2)) * 100.0;
-
-                    tGraphs[j].SetPoint(i, curBinsMult[i], diffValue);
-                    tGraphs[j].SetPointError(i, curBinsMultError[i], diffError);
-                }
-                else
-                {
-                    // get individual results
-                    const float parMainError = fitResultMain->ParError(param.id);
-                    const float parRefError = fitResultRef->ParError(param.id);
-
-                    // get a difference wrt to the reference value [in %]
-                    const float diffValue = (float)(fitResultMain->Parameter(param.id) - fitResultRef->Parameter(param.id)) / fitResultRef->Parameter(param.id) * 100.0;
-                    const float parRefErrorWeight = (float)fitResultMain->Parameter(param.id) / fitResultRef->Parameter(param.id);
-                    const float diffError = (1. / fitResultRef->Parameter(param.id)) * TMath::Sqrt(pow(parMainError, 2) + pow(parRefErrorWeight * parRefError, 2)) * 100.0;
-
-                    tGraphs[j].SetPoint(i, curBinsMult[i], diffValue);
-                    tGraphs[j].SetPointError(i, curBinsMultError[i], diffError);
                 }
             }
         }
 
         // prepare canvas for the current parameter
         tc->SetGrid();
-        tc->DrawFrame(0., param.minValue, multMax, param.maxValue);
+        tc->DrawFrame(0., param.minValue, maxValueForBins, param.maxValue);
 
         // draw the graphs
         for (auto &graph : tGraphs)
         {
-            graph.Draw("P");
+            graph.Draw("P PMC PLC");
         }
 
         // add description
         tl->Draw("SAME");
-        printDescription(dataType, param.name);
+        printDescription(dataType, param.name, binsType);
 
         // save the current plot
-        tc->SaveAs(pdfFile);
+        tc->SaveAs(plotFile);
     }
 
     // close the PDF file
-    tc->SaveAs(pdfFile + "]");
+    tc->SaveAs(plotFile + "]");
     delete tc;
 
     fInMain->Close();
@@ -189,11 +208,11 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
 void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "")
 {
     // get configuration
-    auto selection = SelectionClass();
+    const auto selection = SelectionClass();
 
-    auto nrBinsMult = selection.getNrOfBinsMult();
-    auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
-    auto nrBinsKt = selection.getNrOfBinsKt();
+    const auto nrBinsMult = selection.getNrOfBinsMult();
+    const auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
+    const auto nrBinsKt = selection.getNrOfBinsKt();
 
     // call for mult bins only
     drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
