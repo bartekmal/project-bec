@@ -88,7 +88,7 @@ TH1D *divideHistograms(TH1D *h1, TH1D *h2, const TString hOutName = "", const bo
   return hOut;
 }
 
-void divideHistogramsInBinsGeneric(const TString file1, const TString h1BaseName, const TString file2, const TString h2BaseName, const TString fileOut, const TString hOutBaseName, const int isDR, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagCorrectCoulomb, const int isLike, const bool flagRemoveResonances )
+void divideHistogramsInBinsGeneric(const TString file1, const TString h1BaseName, const TString file2, const TString h2BaseName, const TString fileOut, const TString hOutBaseName, const int isDR, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagCorrectCoulomb, const int isLike, const bool flagRemoveResonances)
 {
 
   // prepare settings for type of binning
@@ -107,9 +107,9 @@ void divideHistogramsInBinsGeneric(const TString file1, const TString h1BaseName
     for (int j = 0; j < nrBinsKtForLoops; ++j)
     {
 
-      TString h1Name = isMultBinsOnly ? HBT::Utils::getHistogramName(h1BaseName, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(h1BaseName, hCommonEndName, isMultBinsOnly, i, j);
-      TString h2Name = isMultBinsOnly ? HBT::Utils::getHistogramName(h2BaseName, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(h2BaseName, hCommonEndName, isMultBinsOnly, i, j);
-      TString hOutName = isMultBinsOnly ? HBT::Utils::getHistogramName(hOutBaseName, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hOutBaseName, hCommonEndName, isMultBinsOnly, i, j);
+      TString h1Name = HBT::Utils::getHistogramName(h1BaseName, hCommonEndName, true, !isMultBinsOnly, i, j);
+      TString h2Name = HBT::Utils::getHistogramName(h2BaseName, hCommonEndName, true, !isMultBinsOnly, i, j);
+      TString hOutName = HBT::Utils::getHistogramName(hOutBaseName, hCommonEndName, true, !isMultBinsOnly, i, j);
 
       TH1D *h1 = (TH1D *)f1->Get(h1Name);
       TH1D *h2 = (TH1D *)f2->Get(h2Name);

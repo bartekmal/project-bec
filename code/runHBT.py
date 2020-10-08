@@ -2,6 +2,63 @@
 
 import os
 
+######### configuration ############
+
+# ignore bins
+ignoreBinMultLower = {'pPb': 0, 'Pbp': 0}
+ignoreBinMultUpper = {'pPb': 15, 'Pbp': 18}
+ignoreBinMultForKtLower = {'pPb': 0, 'Pbp': 0}
+ignoreBinMultForKtUpper = {'pPb': 5, 'Pbp': 6}
+ignoreBinKtLower = {'pPb': 0, 'Pbp': 0}
+ignoreBinKtUpper = {'pPb': 9, 'Pbp': 9}
+
+# histograms to draw
+# histogram types: std / normalised / integrated
+# flagBins: 0 (no bins) / 1 (only mult) / 2 (mult & kT)
+# flagRefInput : same / custom
+histogramsToDraw = [
+    # 1D - mult, kT, Q distributions (LIKE & EVMIX)
+    {'name': 'h3002', 'refName': 'h3002', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '1D', 'type': 'std', 'flagBins': 0},
+    {'name': 'h3003', 'refName': 'h3003', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 1},
+    {'name': 'h3002', 'refName': 'h3002', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '1D', 'type': 'normalised', 'flagBins': 0},
+    {'name': 'h3003', 'refName': 'h3003', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '1D', 'type': 'normalised', 'flagBins': 1},
+    {'name': 'h3002', 'refName': 'h3002', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '1D', 'type': 'integrated', 'flagBins': 0},
+    {'name': 'h3003', 'refName': 'h3003', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '1D', 'type': 'integrated', 'flagBins': 1},
+    {'name': 'h3010', 'refName': 'h3510', 'flagRefInput': 'same', 'nameEnd': '_200',
+        'dim': '1D', 'type': 'normalised', 'flagBins': 2},
+    {'name': 'h3510', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_200',
+        'dim': '1D', 'type': 'normalised', 'flagBins': 2},
+    {'name': 'h3110', 'refName': 'h3610', 'flagRefInput': 'same', 'nameEnd': '_200',
+        'dim': '1D', 'type': 'normalised', 'flagBins': 2},
+    {'name': 'h3610', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_200',
+        'dim': '1D', 'type': 'normalised', 'flagBins': 2},
+    # 2D - mult / kT VS Q (LIKE & EVMIX)
+    {'name': 'h2000', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+    {'name': 'h2500', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+    {'name': 'h2100', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+    {'name': 'h2600', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+    {'name': 'h2001', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+    {'name': 'h2501', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+    {'name': 'h2101', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+    {'name': 'h2601', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
+        'dim': '2D', 'type': 'standard', 'flagBins': 0},
+]
+
+######### end of configuration ############
+
 #define a structure for BEC jobs
 class jobBEC:
     def __init__(self, jobName, outputPath, inputData, dataType, outputFileName = 'HBTAnalysis.root', nrOfEventsToProcess = ''):
@@ -211,6 +268,56 @@ def runMerge( outputFolderName = "merged" ):
         recreateAndChangeDir( aJob['outputFolder'] )
                 
         os.system( 'hadd -ff merged.root' + ' ' + ' '.join( aJob['filesToMerge'] ) )
+
+
+def runHistograms(outputFolderName="histograms"):
+
+    # prepare output directory
+    os.chdir(os.getenv('MYDIR') + '/output')
+    recreateAndChangeDir(outputFolderName)
+    outputDirPath = os.getenv('MYDIR') + '/output/' + outputFolderName
+
+    print("Running histograms in directory:\n{0}\n".format(outputDirPath))
+
+    # define jobs
+    for hist in histogramsToDraw:
+
+        isHist1D = (hist['dim'] == '1D')
+        flagNormalise = (hist['type'] == 'normalised')
+        flagIntegrated = (hist['type'] == 'integrated')
+        flagRefInputSame = (hist['flagRefInput'] == 'same')
+
+        jobsToRun = [
+            {
+                'fileMainPath': os.getenv('MYDIR') + "/output/merged/RD_pPb/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': (os.getenv('MYDIR') + "/output/merged/RD_pPb/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/RD_Pbp/merged.root"),
+                'hRefName': hist['refName'],
+                'dataTypeRef': "RD_pPb" if flagRefInputSame else "RD_Pbp",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "RD_pPb"
+            },
+            {
+                'fileMainPath': os.getenv('MYDIR') + "/output/merged/RD_Pbp/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': (os.getenv('MYDIR') + "/output/merged/RD_Pbp/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/RD_pPb/merged.root"),
+                'hRefName': hist['refName'],
+                'dataTypeRef': "RD_Pbp" if flagRefInputSame else "RD_pPb",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "RD_Pbp"
+            }
+        ]
+
+        # run job
+        for aJob in jobsToRun:
+            os.chdir(outputDirPath)
+            mkdirIfNotExists(aJob['outputFolder'])
+            os.chdir(aJob['outputFolder'])
+
+            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{})\''.format(
+                aJob['fileMainPath'], aJob['hMainName'], aJob['fileRefPath'], aJob['hRefName'], aJob['hMainNameEnd'], aJob['outputFolder'], aJob['dataTypeRef'], int(
+                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins']
+            ))
 
 def runDivide( outputFolderName = "correlations" ):
 
@@ -423,7 +530,13 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "false",
             'flagUseBkgScaling' : "false",
             'fBkgScalingNameMain' : "",
-            'fBkgScalingNameRef' : ""
+            'fBkgScalingNameRef' : "",
+            'ignoreBinMultLower' : ignoreBinMultLower['pPb'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['pPb'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['pPb'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['pPb'],
+            'ignoreBinKtLower' : ignoreBinKtLower['pPb'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['pPb']
         },
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
@@ -442,7 +555,14 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "false",
             'flagUseBkgScaling' : "false",
             'fBkgScalingNameMain' : "",
-            'fBkgScalingNameRef' : ""
+            'fBkgScalingNameRef' : "",
+            'ignoreBinMultLower' : ignoreBinMultLower['Pbp'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['Pbp'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['Pbp'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['Pbp'],
+            'ignoreBinKtLower' : ignoreBinKtLower['Pbp'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['Pbp']
+
         },
 
         # bkg scaling: DATA UNLIKE
@@ -463,7 +583,13 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "true",
             'flagUseBkgScaling' : "false",
             'fBkgScalingNameMain' : "",
-            'fBkgScalingNameRef' : ""
+            'fBkgScalingNameRef' : "",
+            'ignoreBinMultLower' : ignoreBinMultLower['pPb'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['pPb'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['pPb'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['pPb'],
+            'ignoreBinKtLower' : ignoreBinKtLower['pPb'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['pPb']
         },
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
@@ -482,7 +608,13 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "true",
             'flagUseBkgScaling' : "false",
             'fBkgScalingNameMain' : "",
-            'fBkgScalingNameRef' : ""
+            'fBkgScalingNameRef' : "",
+            'ignoreBinMultLower' : ignoreBinMultLower['Pbp'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['Pbp'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['Pbp'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['Pbp'],
+            'ignoreBinKtLower' : ignoreBinKtLower['Pbp'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['Pbp']
         },
 
         # bkg scaling: DATA LIKE
@@ -503,7 +635,13 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "true",
             'flagUseBkgScaling' : "false",
             'fBkgScalingNameMain' : "",
-            'fBkgScalingNameRef' : ""
+            'fBkgScalingNameRef' : "",
+            'ignoreBinMultLower' : ignoreBinMultLower['pPb'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['pPb'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['pPb'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['pPb'],
+            'ignoreBinKtLower' : ignoreBinKtLower['pPb'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['pPb']
         },
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
@@ -522,7 +660,13 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "true",
             'flagUseBkgScaling' : "false",
             'fBkgScalingNameMain' : "",
-            'fBkgScalingNameRef' : ""
+            'fBkgScalingNameRef' : "",
+            'ignoreBinMultLower' : ignoreBinMultLower['Pbp'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['Pbp'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['Pbp'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['Pbp'],
+            'ignoreBinKtLower' : ignoreBinKtLower['Pbp'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['Pbp']
         },
         
         # DATA LIKE
@@ -543,7 +687,13 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "false",
             'flagUseBkgScaling' : "true",
             'fBkgScalingNameMain' : "funcBkgScaling",
-            'fBkgScalingNameRef' : "funcMain" 
+            'fBkgScalingNameRef' : "funcMain",
+            'ignoreBinMultLower' : ignoreBinMultLower['pPb'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['pPb'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['pPb'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['pPb'],
+            'ignoreBinKtLower' : ignoreBinKtLower['pPb'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['pPb'] 
         },
         { 
             'inputFile' : os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
@@ -562,7 +712,13 @@ def runFits( outputFolderName = "fits" ):
             'flagIsBkgScaling' : "false",
             'flagUseBkgScaling' : "true",
             'fBkgScalingNameMain' : "funcBkgScaling",
-            'fBkgScalingNameRef' : "funcMain" 
+            'fBkgScalingNameRef' : "funcMain",
+            'ignoreBinMultLower' : ignoreBinMultLower['Pbp'],
+            'ignoreBinMultUpper' : ignoreBinMultUpper['Pbp'],
+            'ignoreBinMultForKtLower' : ignoreBinMultForKtLower['Pbp'],
+            'ignoreBinMultForKtUpper' : ignoreBinMultForKtUpper['Pbp'],
+            'ignoreBinKtLower' : ignoreBinKtLower['Pbp'],
+            'ignoreBinKtUpper' : ignoreBinKtUpper['Pbp'] 
         }
     ]        
 
@@ -572,8 +728,8 @@ def runFits( outputFolderName = "fits" ):
         mkdirIfNotExists( aJob['outputFolder'] )
         os.chdir( aJob['outputFolder'] )    
 
-        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}")\''.format(
-            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef']    
+        os.system( 'root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}",{},{},{},{},{},{})\''.format(
+            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef'], int(aJob['ignoreBinMultLower']), int(aJob['ignoreBinMultUpper']), int(aJob['ignoreBinMultForKtLower']), int(aJob['ignoreBinMultForKtUpper']), int(aJob['ignoreBinKtLower']), int(aJob['ignoreBinKtUpper'])    
         ) )
 
 def runTrends( outputFolderName = "trends" ):

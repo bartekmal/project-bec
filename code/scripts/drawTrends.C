@@ -2,8 +2,10 @@
 #include "../HBTAnalysis/SelectionClass.hpp"
 
 /*-------------- configuration -------------------*/
-Color_t binsKtColor[] = {kRed, kOrange, kGreen, kViolet, kAzure, kBlue, kMagenta, kCyan, kYellow, kGray};
-Double_t multMax = 200.;
+Double_t maxForMult = 200.;
+Double_t maxForKt = 1.0;
+const int padSize = 1200;
+
 struct FitParam
 {
     int id;
@@ -37,8 +39,7 @@ const int parIdLambdaBkgScaleFactor = 8;
 
 /*-------------- enf of configuration -------------*/
 
-
-void printDescription(const TString dataType, const TString paramName)
+void printDescription(const TString &dataType, const TString &paramName, const TString &binsType)
 {
     Double_t commPosX = 0.20;
     Double_t commPosY = 0.80;
@@ -46,40 +47,69 @@ void printDescription(const TString dataType, const TString paramName)
     comments.SetNDC();
     comments.SetTextSize(0.035);
     comments.DrawLatex(commPosX, commPosY, dataType);
-    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs Nch");
+    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs " + binsType);
+}
+
+// provide custom style (based on the general one)
+void setStyleLocal()
+{
+    HBT::Utils::setStyle();
+    gStyle->SetMarkerSize(1.4);
+}
+
+// add an entry to the given graph, corresponding to a parameter value obtained from a fit in the given bin (checks if the fit result is valid)
+bool processSingleResult(const TFitResult *fitResult, const FitParam &param, TGraphErrors &graph, const unsigned int &binNr, const HBT::Units::FloatType &binCentre, const HBT::Units::FloatType &binError)
+{
+    // validate fit result
+    if (!(fitResult && fitResult->IsValid()))
+        return false;
+
+    if (!param.name.compare("chi2"))
+    {
+        graph.SetPoint(binNr, binCentre, fitResult->Chi2() / fitResult->Ndf());
+        graph.SetPointError(binNr, binError, 0.);
+    }
+    else if (!param.name.compare("effective(lambda_bkg)"))
+    {
+        graph.SetPoint(binNr, binCentre, fitResult->Parameter(parIdLambdaBkg) * fitResult->Parameter(parIdLambdaBkgScaleFactor));
+        // scale the error of the lambda_bkg by the scaleFactor used
+        graph.SetPointError(binNr, binError, fitResult->ParError(parIdLambdaBkg) * fitResult->Parameter(parIdLambdaBkgScaleFactor));
+    }
+    else
+    {
+        graph.SetPoint(binNr, binCentre, fitResult->Parameter(param.id));
+        graph.SetPointError(binNr, binError, fitResult->ParError(param.id));
+    }
+
+    return true;
 }
 
 void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const TString fName, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
 {
-
     // get configuration
-    auto selection = SelectionClass();
-
-    auto binsMult = selection.getBinsOfMultiplicityCentres();
-    auto binsMultError = selection.getBinsOfMultiplicityErrors();
-    auto binsMultForKt = selection.getBinsOfMultiplicityForKtCentres();
-    auto binsMultForKtError = selection.getBinsOfMultiplicityForKtErrors();
-    auto binsKt = selection.getBinsOfKtCentres();
-    auto binsKtError = selection.getBinsOfKtErrors();
-
-    // set ROOT style
-    HBT::Utils::setStyle();
-
-    // prepare settings for type of binning
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
 
-    const int nrBinsKtForLoops = isMultBinsOnly ? 1 : nrBinsKt;
-    auto curBinsMult = isMultBinsOnly ? binsMult : binsMultForKt;
-    auto curBinsMultError = isMultBinsOnly ? binsMultError : binsMultForKtError;
-    const TString binsType = isMultBinsOnly ? TString("mult") : TString("kT");
-    const TString histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
+    const auto nrOfBinsInGraph = isMultBinsOnly ? nrBinsMult : nrBinsKt;
+    const auto nrOfGraphsToOverlap = isMultBinsOnly ? 1 : nrBinsMult;
+
+    const auto selection = SelectionClass();
+    const auto curBinCentres = isMultBinsOnly ? selection.getBinsOfMultiplicityCentres() : selection.getBinsOfKtCentres();
+    const auto curBinErrors = isMultBinsOnly ? selection.getBinsOfMultiplicityErrors() : selection.getBinsOfKtErrors();
+
+    const auto maxValueForBins = isMultBinsOnly ? maxForMult : maxForKt;
+    const auto binsType = isMultBinsOnly ? TString("mult") : TString("kT");
+    const auto overlappingGraphLabel = isMultBinsOnly ? TString("kT") : TString("mult");
+
+    const auto histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
+
+    // set ROOT style
+    setStyleLocal();
 
     // prepare the PDF file
-    const int padSize = 1200;
     const TString title = fName + "_" + binsType + "_" + histType;
-    const TString pdfFile = title + ".pdf";
+    const TString plotFile = title + ".pdf";
     TCanvas *tc = new TCanvas(title, title, padSize, padSize);
-    tc->SaveAs(pdfFile + "[");
+    tc->SaveAs(plotFile + "[");
 
     // input file with the fit results
     TFile *fIn = new TFile(inputFile, "READ");
@@ -90,67 +120,52 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
     for (const auto &param : fitParams)
     {
 
-        // prepare graphs
-        std::vector<TGraphErrors> tGraphs = std::vector<TGraphErrors>(nrBinsKtForLoops, TGraphErrors());
-        TLegend *tl = new TLegend(0.80, 0.85, 0.95, 0.95);
-        for (int i = 0; i < tGraphs.size(); ++i)
+        // prepare graphs for the given param
+        std::vector<TGraphErrors> tGraphs = std::vector<TGraphErrors>(nrOfGraphsToOverlap, TGraphErrors());
+        TLegend *tl = new TLegend(0.80, 0.75, 0.95, 0.95);
+        tl->SetHeader(overlappingGraphLabel, "C");
+        for (int i = 0; i < nrOfGraphsToOverlap; ++i)
         {
-            tGraphs[i].SetMarkerColor(binsKtColor[i]);
-            tl->AddEntry(&tGraphs[i], TString("kT bin: ") += (i + 1), "pe");
-        }
+            if (!isMultBinsOnly)
+                tl->AddEntry(&tGraphs[i], selection.getBinsOfMultiplicityForKtRangesAsStrings()[i].c_str(), "pe");
+            else
+                tl->AddEntry(&tGraphs[i], "full range", "pe");
 
-        for (int i = 0; i < nrBinsMult; ++i)
-        {
-            for (int j = 0; j < nrBinsKtForLoops; ++j)
+            // loop over #entries (points) in the graph
+            for (int j = 0; j < nrOfBinsInGraph; ++j)
             {
                 // get the fit result in the given bin
-                TString hName = isMultBinsOnly ? HBT::Utils::getHistogramName(hNameBase, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hNameBase, hCommonEndName, isMultBinsOnly, i, j);
+                TString hName =  HBT::Utils::getHistogramName(hNameBase, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
                 const auto fitResult = (TFitResult *)fIn->Get(HBT::Utils::getFitResultName(hName, fName));
-                if (!(fitResult && fitResult->IsValid()))
+
+                if (!processSingleResult(fitResult, param, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
                 {
                     std::cout << "The given fit is not valid: \n\t" << fIn->GetName() << "\n\t" << hName << "\n\t" << fName << std::endl;
                     continue;
-                }
-
-                if (!param.name.compare("chi2"))
-                {
-                    tGraphs[j].SetPoint(i, curBinsMult[i], fitResult->Chi2() / fitResult->Ndf());
-                    tGraphs[j].SetPointError(i, curBinsMultError[i], 0.);
-                }
-                else if (!param.name.compare("effective(lambda_bkg)"))
-                {
-                    tGraphs[j].SetPoint(i, curBinsMult[i], fitResult->Parameter(parIdLambdaBkg) * fitResult->Parameter(parIdLambdaBkgScaleFactor));
-                    // scale the error of the lambda_bkg by the scaleFactor used
-                    tGraphs[j].SetPointError(i, curBinsMultError[i], fitResult->ParError(parIdLambdaBkg) * fitResult->Parameter(parIdLambdaBkgScaleFactor));
-                }
-                else
-                {
-                    tGraphs[j].SetPoint(i, curBinsMult[i], fitResult->Parameter(param.id));
-                    tGraphs[j].SetPointError(i, curBinsMultError[i], fitResult->ParError(param.id));
                 }
             }
         }
 
         // prepare canvas for the current parameter
         tc->SetGrid();
-        tc->DrawFrame(0., param.minValue, multMax, param.maxValue);
+        tc->DrawFrame(0., param.minValue, maxValueForBins, param.maxValue);
 
         // draw the graphs
         for (auto &graph : tGraphs)
         {
-            graph.Draw("P");
+            graph.Draw("P PMC PLC");
         }
 
         // add description
         tl->Draw("SAME");
-        printDescription(dataType, param.name);
+        printDescription(dataType, param.name, binsType);
 
         // save the current plot
-        tc->SaveAs(pdfFile);
+        tc->SaveAs(plotFile);
     }
 
     // close the PDF file
-    tc->SaveAs(pdfFile + "]");
+    tc->SaveAs(plotFile + "]");
     delete tc;
 
     fIn->Close();
@@ -160,11 +175,11 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
 void drawTrends(const TString inputFile, const TString hNameBase, const TString fName, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "")
 {
     // get configuration
-    auto selection = SelectionClass();
+    const auto selection = SelectionClass();
 
-    auto nrBinsMult = selection.getNrOfBinsMult();
-    auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
-    auto nrBinsKt = selection.getNrOfBinsKt();
+    const auto nrBinsMult = selection.getNrOfBinsMult();
+    const auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
+    const auto nrBinsKt = selection.getNrOfBinsKt();
 
     // call for mult bins only
     drawTrendsGeneric(inputFile, hNameBase, fName, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);

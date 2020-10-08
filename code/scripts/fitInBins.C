@@ -8,6 +8,9 @@ using namespace HBT::Units;
 
 /*-------------- configuration -------------------*/
 
+const int padSize = 600;
+const HBT::Units::FloatType lineWidth = 1.0;
+
 const HBT::Units::FloatType particleMass = HBT::Units::MassPion;
 const Double_t R_eff = HBT::Coulomb::REffForPions;
 
@@ -19,7 +22,6 @@ const Double_t fitRangeMax = 2.0;
 const Int_t fitNrOfParams = 9;
 
 /*-------------- enf of configuration -------------*/
-
 
 /*-------------- define partial fit functions -------------------*/
 
@@ -80,26 +82,26 @@ TFitResultPtr doFit(TH1D *h, TF1 *f, const TString fitOpts = "S0R")
     return fitResult;
 }
 
-void printDescription(const TString dataType, const int currentMultBin, const int currentKtBin)
+void printDescription(const TString &dataType, const bool &isMultBinsOnly, const int &currentMultBin, const int &currentKtBin)
 {
+    const auto selection = SelectionClass();
+    const auto binRangesMult = isMultBinsOnly ? selection.getBinsOfMultiplicityRangesAsStrings() : selection.getBinsOfMultiplicityForKtRangesAsStrings();
+    const auto binRangesKt = selection.getBinsOfKtRangesAsStrings();
 
-    Double_t commPosX = 0.55;
-    Double_t commPosY = 0.35;
+    const HBT::Units::FloatType commPosX = 0.50;
+    const HBT::Units::FloatType commPosY = 0.35;
     TLatex comments;
     comments.SetNDC();
     comments.SetTextSize(0.035);
     comments.DrawLatex(commPosX, commPosY, dataType);
-    if (currentMultBin != 0)
-    {
-        comments.DrawLatex(commPosX, commPosY - 0.05, TString("Multiplicity bin: ") += currentMultBin);
-    }
-    if (currentKtBin != 0)
-    {
-        comments.DrawLatex(commPosX, commPosY - 0.10, TString("k_{T} bin: ") += currentKtBin);
-    }
+
+    comments.DrawLatex(commPosX, commPosY - 0.05, TString("Multiplicity : ") + binRangesMult[currentMultBin].c_str());
+
+    if (!isMultBinsOnly)
+        comments.DrawLatex(commPosX, commPosY - 0.10, TString("k_{T} [GeV]: ") + binRangesKt[currentKtBin].c_str());
 }
 
-void drawPull(TH1D *hFit, TF1 *fFit, const TString drawOpts = "BSAME")
+void drawPull(const TH1D *hFit, const TF1 *fFit, const HBT::Units::FloatType &fitRangeMin, const TString drawOpts = "BSAME")
 {
     // create a histogram with identical binning
     TH1D *hPull = (TH1D *)hFit->Clone(TString(hFit->GetName()) + "_pull");
@@ -109,12 +111,17 @@ void drawPull(TH1D *hFit, TF1 *fFit, const TString drawOpts = "BSAME")
     //make pull
     for (int i = 1; i < hFit->GetNbinsX() + 1; ++i)
     {
+        const HBT::Units::FloatType binCenter = hFit->GetBinCenter(i);
 
-        const Double_t expected = fFit->Eval(hFit->GetBinCenter(i));
-        const Double_t observed = hFit->GetBinContent(i);
-        const Double_t sigma = hFit->GetBinError(i);
+        // draw only pull across the fit range
+        if (binCenter < fitRangeMin)
+            continue;
 
-        const Double_t pullValue = (sigma != 0.) ? (observed - expected) / sigma : 0.;
+        const HBT::Units::FloatType expected = fFit->Eval(binCenter);
+        const HBT::Units::FloatType observed = hFit->GetBinContent(i);
+        const HBT::Units::FloatType sigma = hFit->GetBinError(i);
+
+        const HBT::Units::FloatType pullValue = (sigma != 0.) ? (observed - expected) / sigma : 0.;
 
         hPull->SetBinContent(i, pullValue);
     }
@@ -127,15 +134,18 @@ void drawPull(TH1D *hFit, TF1 *fFit, const TString drawOpts = "BSAME")
     hPull->GetYaxis()->SetTitleOffset(0.5);
     //hPull->SetBarWidth( 0.1 );
     hPull->SetFillColor(kBlue);
+    hPull->SetLineWidth(lineWidth);
     hPull->GetYaxis()->SetRangeUser(-6, 6);
     hPull->Draw(drawOpts);
 
     //draw lines
     TLine *lineUp = new TLine(0, 3, 2, 3);
     lineUp->SetLineColor(kRed);
+    lineUp->SetLineWidth(lineWidth);
     lineUp->Draw("SAME");
     TLine *lineDown = new TLine(0, -3, 2, -3);
     lineDown->SetLineColor(kRed);
+    lineDown->SetLineWidth(lineWidth);
     lineDown->Draw("SAME");
 }
 
@@ -146,12 +156,13 @@ void drawHistogram(TH1D *h, const int color = kBlue, const TString drawOpts = "E
     h->GetYaxis()->SetRangeUser(yMin, yMax);
     h->SetMarkerColor(color);
     h->SetLineColor(color);
+    h->SetLineWidth(lineWidth);
     h->GetYaxis()->SetTitleOffset(1.2);
 
     h->Draw(drawOpts);
 }
 
-void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const bool flagDoFit, const TString inputFileRef , const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef)
+void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const bool flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
 {
     // set ROOT style
     HBT::Utils::setStyle();
@@ -166,11 +177,12 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     const TString title = funcName + "_" + binsType + "_" + histType;
 
     // prepare canvas
-    const int padSize = 1200;
-    const int canvasSizeHeight = flagDoFit ? nrBinsMult * (padSize * 1.5) : nrBinsMult * padSize;
-    const int canvasSizeWidth = isMultBinsOnly ? padSize : nrBinsKtForLoops * padSize;
+    const HBT::Units::FloatType scaleFactorDueToMargins = 1.2;
+    const int canvasSizeHeight = flagDoFit ? padSize * 1.5 : padSize;
+    const int canvasSizeWidth = isMultBinsOnly ? padSize : nrBinsKtForLoops * padSize * scaleFactorDueToMargins;
     TCanvas *tc = new TCanvas(title, title, canvasSizeWidth, canvasSizeHeight);
-    tc->Divide(nrBinsKtForLoops, nrBinsMult);
+    const TString plotFile = title + ".pdf";
+    tc->SaveAs(plotFile + "[");
 
     // prepare I/O files
     TFile *fIn = new TFile(inputFile, "READ");
@@ -183,12 +195,23 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     // loop over all bins of mult / kT
     for (int i = 0; i < nrBinsMult; ++i)
     {
+        // check if this bin should be ignored
+        if (i < ignoreBinMultLower || i >= ignoreBinMultUpper)
+            continue;
+
+        // each mult bin is plotted on a single page, with subplot for kT bins
+        tc->Clear();
+        tc->Draw();
+        tc->Divide(nrBinsKtForLoops);
 
         for (int j = 0; j < nrBinsKtForLoops; ++j)
         {
+            // check if this bin should be ignored
+            if (j < ignoreBinKtLower || j >= ignoreBinKtUpper)
+                continue;
 
             // prepare pads
-            tc->cd((j + nrBinsKtForLoops * i) + 1);
+            tc->cd(j + 1);
 
             TLegend *tl = new TLegend(0.55, 0.50, 0.85, 0.65);
 
@@ -199,11 +222,11 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             p2->Draw();
 
             // get histograms
-            TString hMainName = isMultBinsOnly ? HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, isMultBinsOnly, i, j);
+            TString hMainName = HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
             TH1D *hMain = (TH1D *)fIn->Get(hMainName);
 
             //get the reference histogram and fit result if available
-            const auto hRefName = isMultBinsOnly ? HBT::Utils::getHistogramName(hRefNameBase, hCommonEndName, isMultBinsOnly, i) : HBT::Utils::getHistogramName(hRefNameBase, hCommonEndName, isMultBinsOnly, i, j);
+            const auto hRefName = HBT::Utils::getHistogramName(hRefNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
             TH1D *hRef = flagDrawRef ? (TH1D *)fInRef->Get(hRefName) : nullptr;
             auto fitResultRef = flagUseBkgFromRef ? (TFitResult *)fInRefFitResults->Get(HBT::Utils::getFitResultName(hRefName, "funcMain")) : nullptr;
             fOut->cd();
@@ -304,13 +327,13 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                 if ((fitResult.Get() != nullptr) && fitResult->IsValid())
                 {
                     funcMain->SetLineColor(kRed);
-                    funcMain->SetLineWidth(funcMain->GetLineWidth() * 0.5);
+                    funcMain->SetLineWidth(lineWidth);
                     funcMain->Draw("SAME");
                     tl->AddEntry(funcMain, histType + " (fit)", "l");
 
                     // draw the pull distribution
                     p2->cd();
-                    drawPull(hMain, funcMain);
+                    drawPull(hMain, funcMain, fitRangeMin);
                     p1->cd();
                 }
                 else
@@ -324,12 +347,18 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             }
 
             // add description / legend
-            printDescription(dataType, i + 1, j + 1);
+            printDescription(dataType, isMultBinsOnly, i, j);
             tl->Draw("SAME");
         }
+
+        // plot each mult bin on a different page
+        tc->Update();
+        tc->Draw();
+        tc->SaveAs(plotFile);
     }
 
-    tc->SaveAs(".pdf");
+    tc->SaveAs(plotFile + "]");
+    delete tc;
 
     // I/O close & cleanup
     fIn->Close();
@@ -350,7 +379,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     }
 }
 
-void fitInBins(const TString inputFile, const TString hMainNameBase, const bool flagIsMc = false, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "", const bool flagDoFit = true, const TString inputFileRef = "", const TString hRefNameBase = "", const TString refType = "", const bool flagDrawRef = false, const bool flagUseBkgFromRef = false, const bool flagIsBkgScaling = false, const bool flagUseBkgScaling = false, const TString funcNameBkgScalingMain = "", const TString funcNameBkgScalingRef = "")
+void fitInBins(const TString inputFile, const TString hMainNameBase, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, TString hCommonEndNameForMult, TString hCommonEndNameForKt, const bool flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinMultForKtLower, const int &ignoreBinMultForKtUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
 {
     // get configuration
     auto selection = SelectionClass();
@@ -360,7 +389,7 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const bool 
     auto nrBinsKt = selection.getNrOfBinsKt();
 
     // call for mult bins only
-    fitInBinsGeneric(inputFile, hMainNameBase, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef);
+    fitInBinsGeneric(inputFile, hMainNameBase, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef, ignoreBinMultLower, ignoreBinMultUpper, 0, 1);
     // call for mult + kT bins
-    fitInBinsGeneric(inputFile, hMainNameBase, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef);
+    fitInBinsGeneric(inputFile, hMainNameBase, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef, ignoreBinMultForKtLower, ignoreBinMultForKtUpper, ignoreBinKtLower, ignoreBinKtUpper);
 }
