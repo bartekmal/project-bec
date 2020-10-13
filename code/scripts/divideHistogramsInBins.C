@@ -51,7 +51,7 @@ TH1D *divideHistograms(TH1D *h1, TH1D *h2, const TString hOutName = "", const bo
 
   // divide
   if (!isDR)
-    hOut->Divide(h1, h2, h2->Integral(), h1->Integral());
+    hOut->Divide(h1, h2, h2->GetEntries(), h1->GetEntries());
   else
     hOut->Divide(h1, h2);
 
@@ -60,8 +60,8 @@ TH1D *divideHistograms(TH1D *h1, TH1D *h2, const TString hOutName = "", const bo
   {
 
     // get histograms normalisation
-    const float n1 = h1->Integral();
-    const float n2 = h2->Integral();
+    const float n1 = h1->GetEntries();
+    const float n2 = h2->GetEntries();
 
     for (int i = 1; i < hOut->GetNbinsX() + 1; i++)
     {
