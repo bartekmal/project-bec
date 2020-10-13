@@ -73,7 +73,7 @@ TH1D *makeNormalisedCopy(const TH1D *hSrc)
     if (h->GetSumw2N() == 0)
         h->Sumw2();
 
-    h->Scale(1. / h->Integral());
+    h->Scale(1. / h->GetEntries());
 
     return h;
 }
