@@ -135,7 +135,7 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
             for (int j = 0; j < nrOfBinsInGraph; ++j)
             {
                 // get the fit result in the given bin
-                TString hName =  HBT::Utils::getHistogramName(hNameBase, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
+                TString hName = HBT::Utils::getHistogramName(hNameBase, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
                 const auto fitResult = (TFitResult *)fIn->Get(HBT::Utils::getFitResultName(hName, fName));
 
                 if (!processSingleResult(fitResult, param, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
