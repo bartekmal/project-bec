@@ -72,5 +72,5 @@ fi
 bec_setup_env
 lb-set-platform ${MY_CMTCONFIG}
 # lb-set-workspace ${BEC_BASE_CODE}
-source $MY_ROOT_SETUP 
+source $MY_ROOT_SETUP
 bec_setup_loginInfo
