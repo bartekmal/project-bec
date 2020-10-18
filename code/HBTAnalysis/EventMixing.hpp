@@ -58,7 +58,8 @@ namespace HBT
     typedef std::vector<std::unique_ptr<EventsForMixingInZPv>> EventsForMixingInZPvAndMult;
 
   private:
-    int m_numberOfEventsForMixing;
+    unsigned int m_numberOfEventsForMixing;
+    unsigned int m_maxNrOfTriesForEachPair;
 
     //parameters for event classes
     int m_multiplicityClassMin;
@@ -83,7 +84,6 @@ namespace HBT
 
   public:
     int m_maxExpectedNumberOfSelectedPionsPerEvent;
-    int m_maxExpectedNumberOfEventMixedPairsPerParticle;
 
     //methods
     void configureEventMixing();
@@ -92,7 +92,7 @@ namespace HBT
 
     void updateListOfCandidatesForMixing(const std::vector<HBT::Particle> &particleVector);
     // provide the required type of pairs from event mixing (valid: after selection and not within the resonance range)
-    std::vector<HBT::ParticlePair> getValidPairsFromEventMixing(const HBT::Particle &currentParticle, const bool &sameSign, SelectionClass &hbtSelectionObj);
+    std::vector<HBT::ParticlePair> getValidPairsFromEventMixing(const HBT::Particle &currentParticle, const unsigned int &requiredNrOfPairs, const bool &sameSign, SelectionClass &hbtSelectionObj);
     bool isListOfCandidatesForMixingReady(const std::vector<HBT::Particle> &particleVector);
 
     EventMixing()
@@ -106,7 +106,8 @@ namespace HBT
 inline void HBT::EventMixing::configureEventMixing()
 {
 
-  m_numberOfEventsForMixing = 5;
+  m_numberOfEventsForMixing = 10;
+  m_maxNrOfTriesForEachPair = 5;
 
   //parameters for event classes
   m_multiplicityClassMin = 1;
@@ -119,8 +120,7 @@ inline void HBT::EventMixing::configureEventMixing()
   m_zPvClassWidth = 10.0;
   m_zPvClassNrOfBins = getNrOfBins(m_zPvClassMax, m_zPvClassMin, m_zPvClassWidth);
 
-  m_maxExpectedNumberOfSelectedPionsPerEvent = 150;
-  m_maxExpectedNumberOfEventMixedPairsPerParticle = m_numberOfEventsForMixing;
+  m_maxExpectedNumberOfSelectedPionsPerEvent = 200;
 
   m_randomNumberGeneratorForEvent = TRandom3();
   m_randomNumberGeneratorForParticle = TRandom3();
@@ -159,7 +159,7 @@ inline void HBT::EventMixing::printEventMixingConfiguration()
   printf("\t - multiplcity bins          : \t [ width : %d -> # bins : %d ] \n", m_multiplicityClassWidth, m_multiplicityClassNrOfBins);
   printf("\t - zPv range                 : \t [ %3.2f : %3.2f ] \n", m_zPvClassMin, m_zPvClassMax);
   printf("\t - zPv bins                  : \t [ width : %3.2f -> # bins : %d ] \n", m_zPvClassWidth, m_zPvClassNrOfBins);
-  printf("\t - #events in given class    : \t %d \n", m_numberOfEventsForMixing);
+  printf("\t - #events in given class    : \t %u \n", m_numberOfEventsForMixing);
 
   printf("<-- End of event mixing configuration\n\n");
 }
@@ -236,11 +236,10 @@ inline bool HBT::EventMixing::isListOfCandidatesForMixingReady(const std::vector
   }
 }
 
-inline std::vector<HBT::ParticlePair> HBT::EventMixing::getValidPairsFromEventMixing(const HBT::Particle &currentParticle, const bool &sameSign, SelectionClass &hbtSelectionObj)
+inline std::vector<HBT::ParticlePair> HBT::EventMixing::getValidPairsFromEventMixing(const HBT::Particle &currentParticle, const unsigned int &requiredNrOfPairs, const bool &sameSign, SelectionClass &hbtSelectionObj)
 {
-
   std::vector<HBT::ParticlePair> pairsForEventMixing;
-  pairsForEventMixing.reserve(m_maxExpectedNumberOfEventMixedPairsPerParticle);
+  pairsForEventMixing.reserve(requiredNrOfPairs);
 
   int multIndex = 0;
   int zPvIndex = 0;
@@ -252,36 +251,29 @@ inline std::vector<HBT::ParticlePair> HBT::EventMixing::getValidPairsFromEventMi
   const int signDueToCharge = sameSign ? 1. : -1.;
   const int requiredChargeIndex = currentParticle.m_charge * signDueToCharge > 0 ? 0 : 1;
 
-  // mix particles with each of the last m_numberOfEventsForMixing events
-  for (auto const &currentEvent : *m_eventsForMixing[multIndex]->at(zPvIndex))
+  const auto &eventsContainer = m_eventsForMixing[multIndex]->at(zPvIndex).get();
+
+  // try to get requiredNrOfPairs pairs using particles from m_numberOfEventsForMixing events (try maxNrOfTimes)
+  for (unsigned int i = 0; (pairsForEventMixing.size() < requiredNrOfPairs) && (i < requiredNrOfPairs * m_maxNrOfTriesForEachPair); ++i)
   {
-    const auto eventSize = currentEvent.at(requiredChargeIndex)->size();
+    // choose a random event (container with the proper sign)
+    const auto &currentEvent = eventsContainer->at(m_randomNumberGeneratorForEvent.Integer(eventsContainer->size())).at(requiredChargeIndex);
+
     //check if event is empty to avoid out of range calls
-    if (eventSize != 0)
+    if (!currentEvent->empty())
     {
-      // try to create a pair that will pass the selection N times
-      const unsigned int maxNrOfTries = 2 * eventSize;
-      for (unsigned int i = 0; i < maxNrOfTries; ++i)
+      // make a pair with a random particle
+      const auto tmpPair = HBT::ParticlePair(currentParticle, currentEvent->at(m_randomNumberGeneratorForParticle.Integer(currentEvent->size())));
+
+      if (hbtSelectionObj.passPairSelection(tmpPair))
       {
-        const auto particleIndex = m_randomNumberGeneratorForParticle.Integer(eventSize);
-        const auto tmpPair = HBT::ParticlePair(currentParticle, currentEvent.at(requiredChargeIndex)->at(particleIndex));
-
-        const auto passesSelection = hbtSelectionObj.passPairSelection(tmpPair);
-
-        if (passesSelection)
-        {
-          pairsForEventMixing.push_back(std::move(tmpPair));
-          break;
-        }
-        else
-        {
-          // if that was the last try
-          if (i == maxNrOfTries - 1)
-            ++m_counterErrorType3;
-        }
+        pairsForEventMixing.push_back(std::move(tmpPair));
       }
     }
   }
+
+  // increase info on the number of pairs that failed to be provided
+  m_counterErrorType3 += (requiredNrOfPairs - pairsForEventMixing.size());
 
   return pairsForEventMixing;
 }
