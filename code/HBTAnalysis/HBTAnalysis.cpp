@@ -148,6 +148,20 @@ int main(int argc, char **argv)
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000NoBins, currentPair, MC);
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+
+          // try to get a reference pair (or pairs) for each LIKE one
+          if (isEventMixingReady)
+          {
+            const auto pairsFromEventMixingLike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, 1, true, hbtSelection);
+
+            for (const auto &pairFromEventMixing : pairsFromEventMixingLike)
+            {
+              HBT::Histograms::FillHistogramSeries2000(histogramSet2500, pairFromEventMixing);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500NoBins, pairFromEventMixing, MC);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+            }
+          }
         }
         else if (hbtSelection.isUnlikePair(currentPair))
         {
@@ -155,33 +169,20 @@ int main(int argc, char **argv)
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100NoBins, currentPair, MC);
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
-        }
-      }
 
-      //event-mixing
-      if (isEventMixingReady)
-      {
+          // try to get a reference pair (or pairs) for each UNLIKE one
+          if (isEventMixingReady)
+          {
+            const auto pairsFromEventMixingUnlike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, 1, false, hbtSelection);
 
-        // EVMIX LIKE pairs
-        const auto pairsFromEventMixingLike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, true, hbtSelection);
-
-        for (const auto &pairFromEventMixing : pairsFromEventMixingLike)
-        {
-          HBT::Histograms::FillHistogramSeries2000(histogramSet2500, pairFromEventMixing);
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500NoBins, pairFromEventMixing, MC);
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
-        }
-
-        // EVMIX UNLIKE pairs
-        const auto pairsFromEventMixingUnlike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, false, hbtSelection);
-
-        for (const auto &pairFromEventMixing : pairsFromEventMixingUnlike)
-        {
-          HBT::Histograms::FillHistogramSeries2000(histogramSet2600, pairFromEventMixing);
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600NoBins, pairFromEventMixing, MC);
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+            for (const auto &pairFromEventMixing : pairsFromEventMixingUnlike)
+            {
+              HBT::Histograms::FillHistogramSeries2000(histogramSet2600, pairFromEventMixing);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600NoBins, pairFromEventMixing, MC);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+            }
+          }
         }
       }
     }
