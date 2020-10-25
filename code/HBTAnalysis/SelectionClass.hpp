@@ -108,8 +108,8 @@ inline void SelectionClass::initializeSelectionCuts()
 
     // bin ranges are given as [min,max) values
     this->m_binsOfMultiplicity = {0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 80, 90, 100, 115, 140, 180};
-    this->m_binsOfMultiplicityForKt = {0, 15, 35, 50, 80, 100, 140};
-    this->m_binsOfKt = {0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+    this->m_binsOfMultiplicityForKt = {0, 25, 35, 45, 55, 65, 80, 110, 160};
+    this->m_binsOfKt = {0., 0.15, 0.3, 0.4, 0.5, 0.65, 0.95};
 
     // sanitize input (bins)
     assert(m_binsOfMultiplicity.size() >= 2);
