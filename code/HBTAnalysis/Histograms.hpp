@@ -124,7 +124,7 @@ inline void HBT::Histograms::FillHistogramSeries3000InBins(std::vector<std::vect
 
   //useful consts (assume valid bins definition - it is checked at histogram series creation)
   const auto nrOfMultiplicityBins = binsOfMultiplicity.empty() ? 0 : binsOfMultiplicity.size() - 1;
-  const auto pairMultiplicity = pair.m_chargedParticleMultiplicity;
+  const auto pairMultiplicity = pair.m_zPv;
 
   //fill histograms
   for (unsigned int iMultiplicityBins = 0; iMultiplicityBins < nrOfMultiplicityBins; iMultiplicityBins++)
@@ -149,7 +149,7 @@ inline void HBT::Histograms::FillHistogramSeries3000InBins(std::vector<std::vect
   const auto nrOfMultiplicityBins = binsOfMultiplicity.empty() ? 0 : binsOfMultiplicity.size() - 1;
   const auto nrOfKtBins = binsOfKt.empty() ? 0 : binsOfKt.size() - 1;
 
-  const auto pairMultiplicity = pair.m_chargedParticleMultiplicity;
+  const auto pairMultiplicity = pair.m_zPv;
   const auto pairKt = pair.m_kt;
 
   //fill histograms
@@ -496,6 +496,7 @@ inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSer
 
   const HBT::Units::FloatType chargedParticleMultiplicityMax = 200.0;
   const HBT::Units::FloatType averagePairTransverseMomentumMax = 2.0;
+  const unsigned int chargedParticleMultiplicityBinning = chargedParticleMultiplicityMax / 2;
 
   const auto tmpPairType = std::string(" ( " + pairType + " )");
   const auto strMultiplicity = std::to_string(currentMultiplicityBin);
@@ -506,7 +507,7 @@ inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSer
   //h3x00 - h3x09
   //general pair variables (kT, pair MCID, invariant mass)
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "00" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("pair invariant mass" + tmpPairType + ";m_{inv} [GeV]; dN/d(m_{inv})").c_str(), qBinning * 2, qRangeMin, qRangeMax * 2));
-  hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "02" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("pair charged particle multiplicity" + tmpPairType + ";N_{ch}; dN/d(N_{ch})").c_str(), chargedParticleMultiplicityMax, 0.0, chargedParticleMultiplicityMax));
+  hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "02" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("pair charged particle multiplicity" + tmpPairType + ";N_{ch}; dN/d(N_{ch})").c_str(), chargedParticleMultiplicityBinning, 0.0, chargedParticleMultiplicityMax));
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "03" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("average pair transverse momentum" + tmpPairType + ";k_{T} [GeV]; dN/d(k_{T})").c_str(), 100, 0.0, averagePairTransverseMomentumMax));
 
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "04" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("z_{PV}" + tmpPairType + ";z_{PV} [mm]; dN/d(z_{PV})").c_str(), 100, -200.0, 200.0));

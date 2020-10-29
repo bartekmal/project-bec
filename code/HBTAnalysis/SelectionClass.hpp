@@ -112,7 +112,7 @@ inline void SelectionClass::initializeSelectionCuts()
     // ! bin ranges are given as [min,max) values (keep in mind for errors/centres/strings logics)
     // ! centres are defined differently for continuous/integer values
     // ! errors work only for uniform bins (symmetric errors)
-    this->m_binsOfMultiplicity = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 80, 90, 100, 115, 140, 180};
+    this->m_binsOfMultiplicity = {-200, -190, -180, -170, -160, -150, -140, -130, -120, -110, -100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200};
     this->m_binsOfMultiplicityForKt = {0, 25, 35, 45, 55, 65, 80, 110, 160};
     this->m_binsOfKt = {0., 0.15, 0.3, 0.4, 0.5, 0.65, 0.95};
     this->m_averageKtForMultBins = {0.4846}; // use some const for kT (average value in the pPb sample : 0.4846 GeV)
