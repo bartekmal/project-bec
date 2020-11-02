@@ -43,7 +43,9 @@ int main(int argc, char **argv)
 
   //define histograms
   auto histogramSet100 = HBT::Histograms::CreateHistogramSeries100("10");
+  auto histogramSet200 = HBT::Histograms::CreateHistogramSeries200("20");
   auto histogramSet1000 = HBT::Histograms::CreateHistogramSeries1000("10");
+  auto histogram2DSet1000 = HBT::Histograms::Create2DHistogramSeries1000("10");
   //auto histogramSet1100 = HBT::Histograms::CreateHistogramSeries1000( "11" );
   auto histogramSet1200 = HBT::Histograms::CreateHistogramSeries1000("12");
 
@@ -99,6 +101,7 @@ int main(int argc, char **argv)
 
     //fill histograms
     HBT::Histograms::FillHistogramSetWithEventLevelInfo(histogramSet100);
+    HBT::Histograms::FillHistogramSeries200(histogramSet200);
 
     //prepare particle / pair containers for the event
     std::vector<HBT::Particle> selectedPions;
@@ -110,6 +113,7 @@ int main(int argc, char **argv)
 
       //fill histograms
       HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1000, i);
+      HBT::Histograms::Fill2DHistogramSeries1000(histogram2DSet1000, i);
 
       if (!hbtSelection.passTrackSelection(i))
         continue;
