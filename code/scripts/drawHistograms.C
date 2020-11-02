@@ -97,7 +97,7 @@ TH1D *makeIntegratedCopy(const TH1D *hSrc)
     return h;
 }
 
-void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBase, const TString &inputFileRef, const TString &hRefNameBase, const TString &hMainNameEnd, const int &nrBinsMult, const int &nrBinsKt, const TString &dataTypeMain, const TString &dataTypeRef, const bool &isHist1D, const bool &flagNormalisation, const bool &flagIntegration)
+void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBase, const TString &inputFileRef, const TString &hRefNameBase, const TString &hMainNameEnd, const int &nrBinsMult, const int &nrBinsKt, const TString &dataTypeMain, const TString &dataTypeRef, const bool &isHist1D, const bool &flagNormalisation, const bool &flagIntegration, const bool &isHistFullName)
 {
     // set ROOT style
     setStyleLocal();
@@ -142,7 +142,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             tc->cd(j + 1);
             gPad->Draw();
 
-            TString hMainName = HBT::Utils::getHistogramName(hMainNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j);
+            TString hMainName = isHistFullName ? hMainNameBase : HBT::Utils::getHistogramName(hMainNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j);
 
             if (isHist1D)
             {
@@ -156,7 +156,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                 // draw the ref hist if available (and add proper descriptions)
                 if (fInRef)
                 {
-                    auto *hRef = (TH1D *)fInRef->Get(HBT::Utils::getHistogramName(hRefNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j));
+                    auto *hRef = (TH1D *)fInRef->Get(isHistFullName ? hRefNameBase : HBT::Utils::getHistogramName(hRefNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j));
 
                     // process the histogram if required
                     hRef = flagNormalisation ? makeNormalisedCopy(hRef) : flagIntegration ? makeIntegratedCopy(hRef) : hRef;
@@ -207,7 +207,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
     }
 }
 
-void drawHistograms(const TString inputFile, const TString hMainNameBase, const TString inputFileRef, const TString hRefNameBase, TString hMainNameEnd, const TString dataTypeMain, const TString dataTypeRef, const bool isHist1D, const bool flagNormalisation, const bool flagIntegration, const int flagBins)
+void drawHistograms(const TString inputFile, const TString hMainNameBase, const TString inputFileRef, const TString hRefNameBase, TString hMainNameEnd, const TString dataTypeMain, const TString dataTypeRef, const bool isHist1D, const bool flagNormalisation, const bool flagIntegration, const int flagBins, const bool isHistFullName)
 {
     // sanitise the flag for bins
     assert(flagBins >= 0 && flagBins <= 2);
@@ -221,11 +221,11 @@ void drawHistograms(const TString inputFile, const TString hMainNameBase, const 
 
     // call for no bins
     if (flagBins >= 0)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, 0, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration);
+        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, 0, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
     // call for mult bins only
     if (flagBins >= 1)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration);
+        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
     // call for mult + kT bins
     if (flagBins >= 2)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration);
+        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
 }

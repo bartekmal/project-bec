@@ -115,8 +115,8 @@ inline void HBT::EventMixing::configureEventMixing()
   m_multiplicityClassWidth = 3;
   m_multiplicityClassNrOfBins = getNrOfBins(m_multiplicityClassMax, m_multiplicityClassMin, m_multiplicityClassWidth);
 
-  m_zPvClassMin = -200.0;
-  m_zPvClassMax = 200.0;
+  m_zPvClassMin = -160.0;
+  m_zPvClassMax = 60.0;
   m_zPvClassWidth = 10.0;
   m_zPvClassNrOfBins = getNrOfBins(m_zPvClassMax, m_zPvClassMin, m_zPvClassWidth);
 

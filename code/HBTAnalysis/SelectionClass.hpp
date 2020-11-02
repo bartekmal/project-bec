@@ -89,8 +89,8 @@ public:
 inline void SelectionClass::initializeSelectionCuts()
 {
 
-    this->m_zPvMin = -500.;
-    this->m_zPvMax = 500.;
+    this->m_zPvMin = -160.;
+    this->m_zPvMax = 60.;
 
     this->m_trackChi2Cut = 2.0f;
     this->m_ipCut = 0.4f;
@@ -219,6 +219,12 @@ inline bool SelectionClass::passPairSelection(const HBT::ParticlePair &pair)
         printf("\nERROR: Different charges of particles in a pair (should be checked).\n");
         passStatus = false;
     }
+
+    // // dijets
+    // if (!(pair.m_deltaPhi_LAB < 0.5 * HBT::Units::Pi))
+    // {
+    //     passStatus = false;
+    // }
 
     //opening angle
     if ((pair.m_slopeDiffX < m_openingAngleCut) && (pair.m_slopeDiffY < m_openingAngleCut))

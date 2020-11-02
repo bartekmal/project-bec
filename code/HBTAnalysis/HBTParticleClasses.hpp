@@ -121,6 +121,7 @@ namespace HBT
     HBT::Units::FloatType m_kt;
     HBT::Units::FloatType m_slopeDiffX;
     HBT::Units::FloatType m_slopeDiffY;
+    HBT::Units::FloatType m_zPv;
 
     HBT::Units::FloatType m_Q_LAB;
     HBT::Units::FloatType m_deltaPhi_LAB;
@@ -156,8 +157,8 @@ namespace HBT
                                                                            m_chargedParticleMultiplicity(part1.m_chargedParticleMultiplicity),
                                                                            m_kt(calculateAveragePairTransverseMomentum(part1, part2)),
                                                                            m_slopeDiffX(getSlopeDifferenceX(part1, part2)),
-                                                                           m_slopeDiffY(getSlopeDifferenceY(part1, part2))
-
+                                                                           m_slopeDiffY(getSlopeDifferenceY(part1, part2)),
+                                                                           m_zPv(part1.m_zBestPV)
     {
       buildLAB(part1, part2);
       buildLCMS(part1, part2);
