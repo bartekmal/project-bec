@@ -1,41 +1,12 @@
 #include "../HBTAnalysis/Utils.hpp"
 #include "../HBTAnalysis/SelectionClass.hpp"
 
+#include "fitModel.C"
+
 /*-------------- configuration -------------------*/
 Double_t maxForMult = 200.;
 Double_t maxForKt = 1.0;
 const int padSize = 1200;
-
-struct FitParam
-{
-    int id;
-    std::string name;
-    float minValue;
-    float maxValue;
-
-    FitParam() : id(0), name(""), minValue(0.), maxValue(0.){};
-    FitParam(int iId, std::string iName, float iMinValue, float iMaxValue) : id(iId), name(iName), minValue(iMinValue), maxValue(iMaxValue){};
-};
-
-std::vector<FitParam> initFitParams()
-{
-    std::vector<FitParam> fitParams{
-        FitParam(0, "N", -60., 60.),
-        FitParam(1, "lambda", -40., 40.),
-        FitParam(2, "R", -40., 40.),
-        // FitParam(3, "R_eff [fm]", -100., 100.),
-        FitParam(4, "delta", -100., 100.),
-        FitParam(5, "lambda_bkg", -40., 40.),
-        FitParam(6, "R_bkg", -40., 40.),
-        // FitParam(7, "alpha_bkg", -100., 100.),
-        FitParam(8, "scaleFactor(lambda_bkg)", -40., 40.),
-        FitParam(9, "effective(lambda_bkg)", -40., 40.),
-        FitParam(10, "chi2", -60., 60.)};
-    return fitParams;
-};
-
-const int parIdLambdaBkg = 5;
-const int parIdLambdaBkgScaleFactor = 8;
 
 /*-------------- enf of configuration -------------*/
 
@@ -59,49 +30,56 @@ void setStyleLocal()
 }
 
 // add an entry to the given graph, corresponding to a parameter values obtained from fits in the given bin (checks if the fit results are valid)
-bool processSingleDiff(const TFitResult *fitResultMain, const TFitResult *fitResultRef, const FitParam &param, TGraphErrors &graph, const unsigned int &binNr, const HBT::Units::FloatType &binCentre, const HBT::Units::FloatType &binError)
+bool processSingleDiff(const TFitResult *fitResultMain, const TFitResult *fitResultRef, const std::pair<std::string, FitParam> &paramEntry, TGraphErrors &graph, const unsigned int &binNr, const HBT::Units::FloatType &binCentre, const HBT::Units::FloatType &binError)
 {
     // validate fit results
     if (!(fitResultMain && fitResultMain->IsValid()) || !(fitResultRef && fitResultRef->IsValid()))
         return false;
 
-    if (!param.name.compare("chi2"))
+    const auto &key = paramEntry.first;
+    const auto &param = paramEntry.second;
+
+    if (!key.compare("MinFcn"))
     {
         // get individual results
-        const float chi2ndfMain = fitResultMain->Chi2() / fitResultMain->Ndf();
-        const float chi2ndfRef = fitResultRef->Chi2() / fitResultRef->Ndf();
+        const float minFncNdfMain = fitResultMain->MinFcnValue() / fitResultMain->Ndf();
+        const float minFncNdfRef = fitResultRef->MinFcnValue() / fitResultRef->Ndf();
 
-        // plot a ratio of the chi2/ndf values (just to see how it changes)
-        graph.SetPoint(binNr, binCentre, (float)(chi2ndfMain - chi2ndfRef) / chi2ndfRef * 100.0);
+        // plot a ratio of the minFnc/ndf values (just to see how it changes)
+        graph.SetPoint(binNr, binCentre, (float)(minFncNdfMain - minFncNdfRef) / minFncNdfRef * 100.0);
         graph.SetPointError(binNr, binError, 0.);
     }
-    else if (!param.name.compare("effective(lambda_bkg)"))
+    else if (!key.compare("amplBkgScaled"))
     {
+        const auto fitParams = prepareFitParamsForTrends(); // not ideal
+        const auto parIdAmplitudeBkg = fitParams.at("amplBkg").id();
+        const auto parIdAmplitudeBkgScaleFactor = fitParams.at("scaleZ").id();
+
         // get individual results
-        const float effLambdaMain = fitResultMain->Parameter(parIdLambdaBkg) * fitResultMain->Parameter(parIdLambdaBkgScaleFactor);
-        const float effLambdaRef = fitResultRef->Parameter(parIdLambdaBkg) * fitResultRef->Parameter(parIdLambdaBkgScaleFactor);
-        const float effLambdaMainError = fitResultMain->ParError(parIdLambdaBkg) * fitResultMain->Parameter(parIdLambdaBkgScaleFactor);
-        const float effLambdaRefError = fitResultRef->ParError(parIdLambdaBkg) * fitResultRef->Parameter(parIdLambdaBkgScaleFactor);
+        const float effAmplitudeMain = fitResultMain->Parameter(parIdAmplitudeBkg) * fitResultMain->Parameter(parIdAmplitudeBkgScaleFactor);
+        const float effAmplitudeRef = fitResultRef->Parameter(parIdAmplitudeBkg) * fitResultRef->Parameter(parIdAmplitudeBkgScaleFactor);
+        const float effAmplitudeMainError = fitResultMain->ParError(parIdAmplitudeBkg) * fitResultMain->Parameter(parIdAmplitudeBkgScaleFactor);
+        const float effAmplitudeRefError = fitResultRef->ParError(parIdAmplitudeBkg) * fitResultRef->Parameter(parIdAmplitudeBkgScaleFactor);
 
         // get a difference wrt to the reference value [in %]
-        const float diffValue = (float)(effLambdaMain - effLambdaRef) / effLambdaRef * 100.0;
-        const float effLambdaRefErrorWeight = (float)effLambdaMain / effLambdaRef;
-        const float diffError = (1. / effLambdaRef) * TMath::Sqrt(pow(effLambdaMainError, 2) + pow(effLambdaRefErrorWeight * effLambdaRefError, 2)) * 100.0;
+        const float diffValue = (float)(effAmplitudeMain - effAmplitudeRef) / effAmplitudeRef * 100.0;
+        const float effAmplitudeRefErrorWeight = (float)effAmplitudeMain / effAmplitudeRef;
+        const float diffError = (1. / effAmplitudeRef) * TMath::Sqrt(pow(effAmplitudeMainError, 2) + pow(effAmplitudeRefErrorWeight * effAmplitudeRefError, 2)) * 100.0;
 
         graph.SetPoint(binNr, binCentre, diffValue);
-        // scale the error of the lambda_bkg by the scaleFactor used
+        // scale the error of the A_bkg by the scaleFactor used
         graph.SetPointError(binNr, binError, diffError);
     }
     else
     {
         // get individual results
-        const float parMainError = fitResultMain->ParError(param.id);
-        const float parRefError = fitResultRef->ParError(param.id);
+        const float parMainError = fitResultMain->ParError(param.id());
+        const float parRefError = fitResultRef->ParError(param.id());
 
         // get a difference wrt to the reference value [in %]
-        const float diffValue = (float)(fitResultMain->Parameter(param.id) - fitResultRef->Parameter(param.id)) / fitResultRef->Parameter(param.id) * 100.0;
-        const float parRefErrorWeight = (float)fitResultMain->Parameter(param.id) / fitResultRef->Parameter(param.id);
-        const float diffError = (1. / fitResultRef->Parameter(param.id)) * TMath::Sqrt(pow(parMainError, 2) + pow(parRefErrorWeight * parRefError, 2)) * 100.0;
+        const float diffValue = (float)(fitResultMain->Parameter(param.id()) - fitResultRef->Parameter(param.id())) / fitResultRef->Parameter(param.id()) * 100.0;
+        const float parRefErrorWeight = (float)fitResultMain->Parameter(param.id()) / fitResultRef->Parameter(param.id());
+        const float diffError = (1. / fitResultRef->Parameter(param.id())) * TMath::Sqrt(pow(parMainError, 2) + pow(parRefErrorWeight * parRefError, 2)) * 100.0;
 
         graph.SetPoint(binNr, binCentre, diffValue);
         graph.SetPointError(binNr, binError, diffError);
@@ -142,11 +120,26 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
     TFile *fInMain = new TFile(inputFileMain, "READ");
     TFile *fInRef = new TFile(inputFileRef, "READ");
 
-    // initialise a list of the fit params
-    const auto fitParams = initFitParams();
+    // process all fit parameters
+    const auto fitParams = prepareFitParamsForTrends();
+    const auto fitParamKeys = prepareKeyListForTrends();
 
-    for (const auto &param : fitParams)
+    for (const auto &curKey : fitParamKeys)
     {
+        // check if the key exists (and get iterator)
+        const auto el = fitParams.find(curKey);
+        if (el == fitParams.end())
+        {
+            continue;
+        }
+
+        const auto &param = fitParams.at(curKey);
+
+        // do not draw the fixed params
+        if (param.isFixed())
+        {
+            continue;
+        }
 
         // prepare graphs for the given param
         std::vector<TGraphErrors> tGraphs = std::vector<TGraphErrors>(nrOfGraphsToOverlap, TGraphErrors());
@@ -169,7 +162,7 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
                 const auto fitResultMain = (TFitResult *)fInMain->Get(HBT::Utils::getFitResultName(hNameMain, fNameMain));
                 const auto fitResultRef = (TFitResult *)fInRef->Get(HBT::Utils::getFitResultName(hNameRef, fNameRef));
 
-                if (!processSingleDiff(fitResultMain, fitResultRef, param, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
+                if (!processSingleDiff(fitResultMain, fitResultRef, *el, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
                 {
                     std::cout << "One of the fits is not valid: \n\t" << fInMain->GetName() << "\n\t" << hNameMain << "\n\t" << fNameMain << "\n\t" << fInRef->GetName() << "\n\t" << hNameRef << "\n\t" << fNameRef << std::endl;
                     continue;
@@ -179,7 +172,7 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
 
         // prepare canvas for the current parameter
         tc->SetGrid();
-        tc->DrawFrame(0., param.minValue, maxValueForBins, param.maxValue);
+        tc->DrawFrame(0., param.rangeDiffsMin(), maxValueForBins, param.rangeDiffsMax());
 
         // draw the graphs
         for (auto &graph : tGraphs)
@@ -189,7 +182,7 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
 
         // add description
         tl->Draw("SAME");
-        printDescription(dataType, param.name, binsType);
+        printDescription(dataType, param.name(), binsType);
 
         // save the current plot
         tc->SaveAs(plotFile);
