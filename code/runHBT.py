@@ -728,6 +728,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hMainNameBase': "h4110",
+            'hMainNameBase_1': "h3110",
+            'hMainNameBase_2': "h3610",
             'isMC': "false",
             'isUnlike': "true",
             'outputFolder': "RD_pPb",
@@ -753,6 +755,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hMainNameBase': "h4110",
+            'hMainNameBase_1': "h3110",
+            'hMainNameBase_2': "h3610",
             'isMC': "false",
             'isUnlike': "true",
             'outputFolder': "RD_Pbp",
@@ -781,6 +785,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hMainNameBase': "h4110",
+            'hMainNameBase_1': "h3110",
+            'hMainNameBase_2': "h3610",
             'isMC': "false",
             'isUnlike': "true",
             'outputFolder': "RD_pPb",
@@ -806,6 +812,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hMainNameBase': "h4110",
+            'hMainNameBase_1': "h3110",
+            'hMainNameBase_2': "h3610",
             'isMC': "false",
             'isUnlike': "true",
             'outputFolder': "RD_Pbp",
@@ -833,6 +841,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hMainNameBase': "h4010",
+            'hMainNameBase_1': "h3010",
+            'hMainNameBase_2': "h3510",
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_pPb",
@@ -858,6 +868,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hMainNameBase': "h4010",
+            'hMainNameBase_1': "h3010",
+            'hMainNameBase_2': "h3510",
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_Pbp",
@@ -885,6 +897,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hMainNameBase': "h4010",
+            'hMainNameBase_1': "h3010",
+            'hMainNameBase_2': "h3510",
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_pPb",
@@ -910,6 +924,8 @@ def runFits(outputFolderName="fits"):
         {
             'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hMainNameBase': "h4010",
+            'hMainNameBase_1': "h3010",
+            'hMainNameBase_2': "h3510",
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_Pbp",
@@ -940,8 +956,8 @@ def runFits(outputFolderName="fits"):
         mkdirIfNotExists(aJob['outputFolder'])
         os.chdir(aJob['outputFolder'])
 
-        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}",{},{},{},{},{},{})\' >> fit.log'.format(
-            aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob[
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}","{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}",{},{},{},{},{},{})\' >> fit.log'.format(
+            aJob['inputFile'], aJob['hMainNameBase'], aJob['hMainNameBase_1'], aJob['hMainNameBase_2'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob[
                 'flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef'], int(aJob['ignoreBinMultLower']), int(aJob['ignoreBinMultUpper']), int(aJob['ignoreBinMultForKtLower']), int(aJob['ignoreBinMultForKtUpper']), int(aJob['ignoreBinKtLower']), int(aJob['ignoreBinKtUpper'])
         ))
 

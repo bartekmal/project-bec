@@ -1,41 +1,12 @@
 #include "../HBTAnalysis/Utils.hpp"
 #include "../HBTAnalysis/SelectionClass.hpp"
 
+#include "fitModel.C"
+
 /*-------------- configuration -------------------*/
 Double_t maxForMult = 200.;
 Double_t maxForKt = 1.0;
 const int padSize = 1200;
-
-struct FitParam
-{
-    int id;
-    std::string name;
-    float minValue;
-    float maxValue;
-
-    FitParam() : id(0), name(""), minValue(0.), maxValue(0.){};
-    FitParam(int iId, std::string iName, float iMinValue, float iMaxValue) : id(iId), name(iName), minValue(iMinValue), maxValue(iMaxValue){};
-};
-
-std::vector<FitParam> initFitParams()
-{
-    std::vector<FitParam> fitParams{
-        FitParam(0, "N", 0., 1.),
-        FitParam(1, "lambda", 0., 1.),
-        FitParam(2, "R", 0., 30.),
-        // FitParam(3, "R_eff [fm]", 0., 5.),
-        FitParam(4, "delta", 0., 1.),
-        FitParam(5, "lambda_bkg", 0., 1.),
-        FitParam(6, "R_bkg", 0., 3.),
-        // FitParam(7, "alpha_bkg", 0., 3.),
-        FitParam(8, "scaleFactor(lambda_bkg)", 0., 2.),
-        FitParam(9, "effective(lambda_bkg)", 0., 0.5),
-        FitParam(10, "chi2", 0., 7.)};
-    return fitParams;
-};
-
-const int parIdLambdaBkg = 5;
-const int parIdLambdaBkgScaleFactor = 8;
 
 /*-------------- enf of configuration -------------*/
 
@@ -58,27 +29,34 @@ void setStyleLocal()
 }
 
 // add an entry to the given graph, corresponding to a parameter value obtained from a fit in the given bin (checks if the fit result is valid)
-bool processSingleResult(const TFitResult *fitResult, const FitParam &param, TGraphErrors &graph, const unsigned int &binNr, const HBT::Units::FloatType &binCentre, const HBT::Units::FloatType &binError)
+bool processSingleResult(const TFitResult *fitResult, const std::pair<std::string, FitParam> &paramEntry, TGraphErrors &graph, const unsigned int &binNr, const HBT::Units::FloatType &binCentre, const HBT::Units::FloatType &binError)
 {
     // validate fit result
     if (!(fitResult && fitResult->IsValid()))
         return false;
 
-    if (!param.name.compare("chi2"))
+    const auto &key = paramEntry.first;
+    const auto &param = paramEntry.second;
+
+    if (!key.compare("MinFcn"))
     {
-        graph.SetPoint(binNr, binCentre, fitResult->Chi2() / fitResult->Ndf());
+        graph.SetPoint(binNr, binCentre, fitResult->MinFcnValue() / fitResult->Ndf());
         graph.SetPointError(binNr, binError, 0.);
     }
-    else if (!param.name.compare("effective(lambda_bkg)"))
+    else if (!key.compare("amplBkgScaled"))
     {
-        graph.SetPoint(binNr, binCentre, fitResult->Parameter(parIdLambdaBkg) * fitResult->Parameter(parIdLambdaBkgScaleFactor));
-        // scale the error of the lambda_bkg by the scaleFactor used
-        graph.SetPointError(binNr, binError, fitResult->ParError(parIdLambdaBkg) * fitResult->Parameter(parIdLambdaBkgScaleFactor));
+        const auto fitParams = prepareFitParamsForTrends(); // not ideal
+        const auto parIdAmplitudeBkg = fitParams.at("amplBkg").id();
+        const auto parIdAmplitudeBkgScaleFactor = fitParams.at("scaleZ").id();
+
+        graph.SetPoint(binNr, binCentre, fitResult->Parameter(parIdAmplitudeBkg) * fitResult->Parameter(parIdAmplitudeBkgScaleFactor));
+        // scale the error of the A_bkg by the scaleFactor used
+        graph.SetPointError(binNr, binError, fitResult->ParError(parIdAmplitudeBkg) * fitResult->Parameter(parIdAmplitudeBkgScaleFactor));
     }
     else
     {
-        graph.SetPoint(binNr, binCentre, fitResult->Parameter(param.id));
-        graph.SetPointError(binNr, binError, fitResult->ParError(param.id));
+        graph.SetPoint(binNr, binCentre, fitResult->Parameter(param.id()));
+        graph.SetPointError(binNr, binError, fitResult->ParError(param.id()));
     }
 
     return true;
@@ -114,11 +92,26 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
     // input file with the fit results
     TFile *fIn = new TFile(inputFile, "READ");
 
-    // initialise a list of the fit params
-    const auto fitParams = initFitParams();
+    // process all fit parameters
+    const auto fitParams = prepareFitParamsForTrends();
+    const auto fitParamKeys = prepareKeyListForTrends();
 
-    for (const auto &param : fitParams)
+    for (const auto &curKey : fitParamKeys)
     {
+        // check if the key exists (and get iterator)
+        const auto el = fitParams.find(curKey);
+        if (el == fitParams.end())
+        {
+            continue;
+        }
+
+        const auto &param = fitParams.at(curKey);
+
+        // do not draw the fixed params
+        if (param.isFixed())
+        {
+            continue;
+        }
 
         // prepare graphs for the given param
         std::vector<TGraphErrors> tGraphs = std::vector<TGraphErrors>(nrOfGraphsToOverlap, TGraphErrors());
@@ -138,7 +131,7 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
                 TString hName = HBT::Utils::getHistogramName(hNameBase, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
                 const auto fitResult = (TFitResult *)fIn->Get(HBT::Utils::getFitResultName(hName, fName));
 
-                if (!processSingleResult(fitResult, param, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
+                if (!processSingleResult(fitResult, *el, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
                 {
                     std::cout << "The given fit is not valid: \n\t" << fIn->GetName() << "\n\t" << hName << "\n\t" << fName << std::endl;
                     continue;
@@ -148,7 +141,7 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
 
         // prepare canvas for the current parameter
         tc->SetGrid();
-        tc->DrawFrame(0., param.minValue, maxValueForBins, param.maxValue);
+        tc->DrawFrame(0., param.rangeTrendsMin(), maxValueForBins, param.rangeTrendsMax());
 
         // draw the graphs
         for (auto &graph : tGraphs)
@@ -158,7 +151,7 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
 
         // add description
         tl->Draw("SAME");
-        printDescription(dataType, param.name, binsType);
+        printDescription(dataType, param.name(), binsType);
 
         // save the current plot
         tc->SaveAs(plotFile);

@@ -20,7 +20,8 @@ namespace HBT
         // get a full histogram name in the given bin
         inline TString getHistogramName(const TString &baseNameBegin, const TString &baseNameEnd, const bool &flagMultBins, const bool &flagMultAndKtBins, const int &binNrMult = 0, const int &binNrKt = 0)
         {
-            return !flagMultBins ? baseNameBegin + "_0_0" + baseNameEnd : !flagMultAndKtBins ? TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_0") + baseNameEnd : TString(TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_") += (binNrKt + 1)) + baseNameEnd;
+            return !flagMultBins ? baseNameBegin + "_0_0" + baseNameEnd : !flagMultAndKtBins ? TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_0") + baseNameEnd
+                                                                                             : TString(TString(TString(TString(baseNameBegin + "_") += (binNrMult + 1)) + "_") += (binNrKt + 1)) + baseNameEnd;
         }
 
         // get the fit result name
@@ -52,7 +53,7 @@ inline void HBT::Utils::setStyle()
     // gStyle->SetStatStyle(1001);      // Stat box fill style
     // gStyle->SetStatTextColor(1);     // Stat text color (1)
     gStyle->SetOptStat(0);           // No statistics (0) (1000001110)
-    gStyle->SetOptFit(111);          // No fit box (0) (111)
+    gStyle->SetOptFit(11);           // No fit box (pcev) (set v=2 to show fixed params)
     gStyle->SetFrameBorderMode(0);   // No red box
     gStyle->SetHistFillColor(0);     // Histogram fill color (0) (18)
     gStyle->SetHistFillStyle(1001);  // Histogram fill style (1001) (0)
