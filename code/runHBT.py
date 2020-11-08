@@ -246,7 +246,7 @@ def runHBTJobs(outputFolderName="HBTAnalysis"):
         runFilePath = createRunScriptForJob(aJob, outputDirForCurrentJob)
 
         os.system(os.getenv('BEC_BATCH_SYSTEM_COMMAND') + " " + runFilePath)
-        #os.system( '${CODE_EXEC} ' + aJob.inputData + ' ' + aJob.dataType + ' ' + aJob.outputFileName + ' ' + aJob.nrOfEventsToProcess + ' > HBTAnalysis.log')
+        # os.system( '${CODE_EXEC} ' + aJob.inputData + ' ' + aJob.dataType + ' ' + aJob.outputFileName + ' ' + aJob.nrOfEventsToProcess + ' > HBTAnalysis.log')
 
 
 def runMerge(outputFolderName="merged"):
@@ -311,7 +311,7 @@ def runMerge(outputFolderName="merged"):
         recreateAndChangeDir(aJob['outputFolder'])
 
         os.system('hadd -ff merged.root' + ' ' +
-                  ' '.join(aJob['filesToMerge']))
+                  ' '.join(aJob['filesToMerge']) + ' >> merge.log')
 
 
 def runHistograms(outputFolderName="histograms"):
@@ -358,7 +358,7 @@ def runHistograms(outputFolderName="histograms"):
             mkdirIfNotExists(aJob['outputFolder'])
             os.chdir(aJob['outputFolder'])
 
-            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{})\''.format(
+            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{})\' >> histograms.log'.format(
                 aJob['fileMainPath'], aJob['hMainName'], aJob['fileRefPath'], aJob['hRefName'], aJob['hMainNameEnd'], aJob['outputFolder'], aJob['dataTypeRef'], int(
                     isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins']
             ))
@@ -474,11 +474,11 @@ def runDivide(outputFolderName="correlations"):
         outputFile = os.getenv('MYDIR') + "/output/correlations/" + \
             aJob['outputFolder'] + "/correlations.root"
 
-        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}",{8},{9},{10})\''.format(
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}",{8},{9},{10})\' >> divide.log'.format(
             aJob['file1Path'], aJob['h1NameLike'], aJob['file2Path'], aJob['h2NameLike'], outputFile, aJob['hOutNameLike'], aJob[
                 'hNameCommonEndForMult'], aJob['hNameCommonEndForKt'], int(aJob['isDR']), int(aJob['flagCorrectCoulomb']), int(True)
         ))
-        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}",{8},{9},{10})\''.format(
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/divideHistogramsInBins.C("{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}",{8},{9},{10})\' >> divide.log'.format(
             aJob['file1Path'], aJob['h1NameUnlike'], aJob['file2Path'], aJob['h2NameUnlike'], outputFile, aJob['hOutNameUnlike'], aJob[
                 'hNameCommonEndForMult'], aJob['hNameCommonEndForKt'], int(aJob['isDR']), int(aJob['flagCorrectCoulomb']), int(False)
         ))
@@ -778,7 +778,7 @@ def runFits(outputFolderName="fits"):
         mkdirIfNotExists(aJob['outputFolder'])
         os.chdir(aJob['outputFolder'])
 
-        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}",{},{},{},{},{},{})\''.format(
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}",{},{},{},{},{},{})\' >> fit.log'.format(
             aJob['inputFile'], aJob['hMainNameBase'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], aJob['flagDoFit'], aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob[
                 'flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef'], int(aJob['ignoreBinMultLower']), int(aJob['ignoreBinMultUpper']), int(aJob['ignoreBinMultForKtLower']), int(aJob['ignoreBinMultForKtUpper']), int(aJob['ignoreBinKtLower']), int(aJob['ignoreBinKtUpper'])
         ))
@@ -917,7 +917,7 @@ def runTrends(outputFolderName="trends"):
         mkdirIfNotExists(aJob['outputFolder'])
         os.chdir(aJob['outputFolder'])
 
-        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}","{}","{}")\''.format(
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}","{}","{}")\' >> trends.log'.format(
             aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob[
                 'outputFolder'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt']
         ))
@@ -1044,10 +1044,38 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
         mkdirIfNotExists(aJob['outputFolder'])
         os.chdir(aJob['outputFolder'])
 
-        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}","{}","{}")\''.format(
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}","{}","{}")\' >> diffs.log'.format(
             aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'], aJob['fileNameRef'], aJob['hBaseNameRef'], aJob[
                 'fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt']
         ))
+
+
+####################################################
+# poor make init
+
+def runTrendsAndDiffs():
+    runTrends()
+    runDiffs()
+
+
+def runFitsDownstream():
+    runFits()
+    runTrendsAndDiffs()
+
+
+def runDivideDownstream():
+    runDivide()
+    runFitsDownstream()
+
+
+def runMergeDownstream():
+    runMerge()
+    runDivideDownstream()
+
+
+def runAll():
+    runMergeDownstream()
+    runHistograms()
 
 ####################################################
 

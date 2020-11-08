@@ -27,6 +27,7 @@ function bec_setup_env() {
     alias bec-cd-prod='cd ${BEC_BASE_PROD}'
     alias bec-cd-analysis='cd ${BEC_BASE_ANALYSIS}'
 
+    alias bec-make='ipython -i runHBT.py'
 }
 
 function bec_setup_loginInfo() {
