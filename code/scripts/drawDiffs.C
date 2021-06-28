@@ -3,14 +3,19 @@
 
 #include "fitModel.C"
 
+#include "TStyle.h"
+#include "TGraphErrors.h"
+
+#include <memory>
+
 /*-------------- configuration -------------------*/
-Double_t maxForMult = 200.;
+Double_t maxForMult = 180.;
 Double_t maxForKt = 1.0;
 const int padSize = 1200;
 
 /*-------------- enf of configuration -------------*/
 
-void printDescription(const TString &dataType, const TString &paramName, const TString &binsType)
+void printDescription(const TString &dataType, const TString &paramName, const TString &trendType)
 {
     Double_t commPosX = 0.20;
     Double_t commPosY = 0.80;
@@ -18,7 +23,7 @@ void printDescription(const TString &dataType, const TString &paramName, const T
     comments.SetNDC();
     comments.SetTextSize(0.035);
     comments.DrawLatex(commPosX, commPosY, dataType);
-    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs " + binsType);
+    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs " + trendType);
     comments.DrawLatex(commPosX, commPosY - 0.10, "relative diff wrt reference [%]");
 }
 
@@ -88,22 +93,24 @@ bool processSingleDiff(const TFitResult *fitResultMain, const TFitResult *fitRes
     return true;
 }
 
-void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
+void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool doTrendMult, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
 {
 
     // get configuration
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
 
-    const auto nrOfBinsInGraph = isMultBinsOnly ? nrBinsMult : nrBinsKt;
-    const auto nrOfGraphsToOverlap = isMultBinsOnly ? 1 : nrBinsMult;
+    const auto nrOfBinsInGraph = doTrendMult ? nrBinsMult : nrBinsKt;
+    const auto nrOfGraphsToOverlap = doTrendMult ? (isMultBinsOnly ? 1 : nrBinsKt) : nrBinsMult;
 
     const auto selection = SelectionClass();
-    const auto curBinCentres = isMultBinsOnly ? selection.getBinsOfMultiplicityCentres() : selection.getBinsOfKtCentres();
-    const auto curBinErrors = isMultBinsOnly ? selection.getBinsOfMultiplicityErrors() : selection.getBinsOfKtErrors();
+    const auto curBinCentres = doTrendMult ? (isMultBinsOnly ? selection.getBinsOfMultiplicityCentres() : selection.getBinsOfMultiplicityForKtCentres()) : selection.getBinsOfKtCentres();
+    const auto curBinErrors = doTrendMult ? (isMultBinsOnly ? selection.getBinsOfMultiplicityErrors() : selection.getBinsOfMultiplicityForKtErrors()) : selection.getBinsOfKtErrors();
 
-    const auto maxValueForBins = isMultBinsOnly ? maxForMult : maxForKt;
+    const auto maxValueForBins = doTrendMult ? maxForMult : maxForKt;
     const auto binsType = isMultBinsOnly ? TString("mult") : TString("kT");
-    const auto overlappingGraphLabel = isMultBinsOnly ? TString("kT") : TString("mult");
+    const auto trendType = doTrendMult ? TString("mult") : TString("kT");
+    const auto overlappingGraphLabel = doTrendMult ? TString("kT") : TString("mult");
+    const auto binStringsForLabels = doTrendMult ? (isMultBinsOnly ? std::vector<std::string>(1, "full range") : selection.getBinsOfKtRangesAsStrings()) : selection.getBinsOfMultiplicityForKtRangesAsStrings();
 
     const auto histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
 
@@ -111,14 +118,14 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
     setStyleLocal();
 
     // prepare the PDF file
-    const TString title = fNameMain + "_" + binsType + "_" + histType;
+    const TString title = fNameMain + "_" + binsType + "_VS" + trendType + "_" + histType;
     const TString plotFile = title + ".pdf";
-    TCanvas *tc = new TCanvas(title, title, padSize, padSize);
+    auto tc = std::make_unique<TCanvas>(title, title, padSize, padSize);
     tc->SaveAs(plotFile + "[");
 
     // input file with the fit results
-    TFile *fInMain = new TFile(inputFileMain, "READ");
-    TFile *fInRef = new TFile(inputFileRef, "READ");
+    auto fInMain = std::make_unique<TFile>(inputFileMain, "READ");
+    auto fInRef = std::make_unique<TFile>(inputFileRef, "READ");
 
     // process all fit parameters
     const auto fitParams = prepareFitParamsForTrends();
@@ -148,17 +155,14 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
 
         for (int i = 0; i < nrOfGraphsToOverlap; ++i)
         {
-            if (!isMultBinsOnly)
-                tl->AddEntry(&tGraphs[i], selection.getBinsOfMultiplicityForKtRangesAsStrings()[i].c_str(), "pe");
-            else
-                tl->AddEntry(&tGraphs[i], "full range", "pe");
+            tl->AddEntry(&tGraphs[i], binStringsForLabels[i].c_str(), "pe");
 
             // loop over #entries (points) in the graph
             for (int j = 0; j < nrOfBinsInGraph; ++j)
             {
                 // get the fit results in the given bin
-                TString hNameMain = HBT::Utils::getHistogramName(hNameBaseMain, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
-                TString hNameRef = HBT::Utils::getHistogramName(hNameBaseRef, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
+                TString hNameMain = HBT::Utils::getHistogramName(hNameBaseMain, hCommonEndName, true, !isMultBinsOnly, doTrendMult ? j : i, doTrendMult ? i : j);
+                TString hNameRef = HBT::Utils::getHistogramName(hNameBaseRef, hCommonEndName, true, !isMultBinsOnly, doTrendMult ? j : i, doTrendMult ? i : j);
                 const auto fitResultMain = (TFitResult *)fInMain->Get(HBT::Utils::getFitResultName(hNameMain, fNameMain));
                 const auto fitResultRef = (TFitResult *)fInRef->Get(HBT::Utils::getFitResultName(hNameRef, fNameRef));
 
@@ -182,7 +186,7 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
 
         // add description
         tl->Draw("SAME");
-        printDescription(dataType, param.name(), binsType);
+        printDescription(dataType, param.name(), trendType);
 
         // save the current plot
         tc->SaveAs(plotFile);
@@ -190,12 +194,9 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
 
     // close the PDF file
     tc->SaveAs(plotFile + "]");
-    delete tc;
 
     fInMain->Close();
-    delete fInMain;
     fInRef->Close();
-    delete fInRef;
 }
 
 void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const TString fNameMain, const TString inputFileRef, const TString hNameBaseRef, const TString fNameRef, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "")
@@ -207,8 +208,10 @@ void drawDiffs(const TString inputFileMain, const TString hNameBaseMain, const T
     const auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
     const auto nrBinsKt = selection.getNrOfBinsKt();
 
-    // call for mult bins only
-    drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
-    // call for mult + kT bins
-    drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
+    // call trend in mult (mult bins only)
+    drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, true, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
+    // call trend in mult (mult + kT bins)
+    drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, true, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
+    // call trend in kT (mult + kT bins)
+    drawDiffsGeneric(inputFileMain, hNameBaseMain, fNameMain, inputFileRef, hNameBaseRef, fNameRef, false, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
 }

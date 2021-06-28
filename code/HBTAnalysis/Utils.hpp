@@ -4,7 +4,8 @@
 #include "Units.hpp"
 
 #include <TString.h>
-
+#include <TStyle.h>
+#include <TROOT.h>
 namespace HBT
 {
 
@@ -28,6 +29,12 @@ namespace HBT
         inline TString getFitResultName(const TString &hName, const TString &fName)
         {
             return hName + TString("_") + fName;
+        }
+
+        // get name of bkg scaling function
+        inline TString getBkgScalingFuncName(const TString &fName, const bool &isMultBinsOnly, const unsigned int &binNrKt = 0)
+        {
+            return fName + "_0_" + (isMultBinsOnly ? 0 : binNrKt + 1);
         }
 
         // unified method to compare floats
