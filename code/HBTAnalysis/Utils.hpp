@@ -30,6 +30,12 @@ namespace HBT
             return hName + TString("_") + fName;
         }
 
+        // unified method to compare floats
+        inline bool compareFloats(const float &a, const float &b, const float &epsilon = 0.001f)
+        {
+            return (fabs(a - b) < epsilon);
+        }
+
         // set the ROOT style
         inline void setStyle();
 

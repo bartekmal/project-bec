@@ -5,6 +5,9 @@
 
 #include "fitModel.C"
 
+#include "TF1.h"
+#include "TF3.h"
+
 #include "Fit/BinData.h"
 #include "Fit/FitConfig.h"
 #include "Fit/DataOptions.h"
@@ -14,8 +17,17 @@
 #include "Math/WrappedMultiTF1.h"
 #include "Math/MinimizerOptions.h"
 
+#include <memory>
+
 // use consts from Units
 using namespace HBT::Units;
+
+// define types for data structure
+using DataStructureKt = std::vector<std::shared_ptr<ROOT::Fit::BinData>>;
+using DataStructure = std::vector<DataStructureKt>;
+
+using FuncStructureKt = std::vector<std::shared_ptr<TF3>>;
+using FuncStructure = std::vector<FuncStructureKt>;
 
 /*-------------- configuration -------------------*/
 
@@ -32,13 +44,14 @@ const Double_t fitRangeMax = 2.0;
 
 /*-------------- define fitter helper functions  -----------------*/
 
-Double_t minimserFuncPartial(Double_t &a, Double_t &b, Double_t &c)
+Double_t minimserFuncPartial(const Double_t &a, const Double_t &b, const Double_t &c)
 {
     return a * log(((1 + c) * a) / (c * (a + b + 2))) + (b + 2) * log(((1 + c) * (b + 2)) / (a + b + 2));
 }
+
 struct funcLogLikelihood
 {
-    funcLogLikelihood(const ROOT::Fit::BinData *dataSet1, const ROOT::Fit::BinData *dataSet2, TF1 *fitFunc, const unsigned int nrOfDataPoints) : m_dataSet1(dataSet1), m_dataSet2(dataSet2), m_fitFunc(fitFunc), m_nrOfDataPoints(nrOfDataPoints) {}
+    funcLogLikelihood(const ROOT::Fit::BinData *dataSet1, const ROOT::Fit::BinData *dataSet2, TF3 *fitFunc) : m_dataSet1(dataSet1), m_dataSet2(dataSet2), m_fitFunc(fitFunc) {}
 
     double operator()(const double *par) const
     {
@@ -48,17 +61,17 @@ struct funcLogLikelihood
         // prepare a tmp variable for the negative log-likelihood value
         Double_t tmp{0.};
 
-        for (unsigned int i = 0; i < m_nrOfDataPoints; ++i)
+        for (unsigned int i = 0; i < m_dataSet1->NPoints(); ++i)
         {
             // get values
-            Double_t val1 = m_dataSet1->Value(i);
-            Double_t val2 = m_dataSet2->Value(i);
+            const auto binCenter = m_dataSet1->Coords(i);
+            const auto val1 = m_dataSet1->Value(i);
+            const auto val2 = m_dataSet2->Value(i);
 
-            auto binCenter = *(m_dataSet1->Coords(i));
-            Double_t funcVal = m_fitFunc->Eval(binCenter);
+            const auto funcVal = m_fitFunc->Eval(binCenter[0], binCenter[1], binCenter[2]);
 
             // leave for debugging
-            // std::cout << "Hello there! \t" << i << "\t" << binCenter << "\t" << val1 << "\t" << val2 << "\t" << val1 / val2 << "\t" << funcVal << "\t" << std::endl;
+            // std::cout << "Hello there! \t" << i << "\t" << binCenter[0] << "\t" << binCenter[1] << "\t" << binCenter[2] << "\t" << val1 << "\t" << val2 << "\t" << val1 / val2 << "\t" << funcVal << "\t" << std::endl;
 
             tmp += minimserFuncPartial(val1, val2, funcVal);
         }
@@ -69,35 +82,95 @@ struct funcLogLikelihood
 
     const ROOT::Fit::BinData *m_dataSet1;
     const ROOT::Fit::BinData *m_dataSet2;
-    TF1 *m_fitFunc;
-    const unsigned int m_nrOfDataPoints;
+    TF3 *m_fitFunc;
+};
+
+struct minimiserGlobal
+{
+    using MinimiserStructure = std::vector<funcLogLikelihood>;
+
+    minimiserGlobal(const DataStructure &dataSet1, const DataStructure &dataSet2, FuncStructure &funcSet, const unsigned int &nParamsCommon, const unsigned int &nParamsIndividual) : m_nParamsCommon(nParamsCommon), m_nParamsIndividual(nParamsIndividual), m_nParamsSingle(nParamsCommon + nParamsIndividual)
+    {
+        // checked in the main code that all of the data/func structures are of equal size
+        const unsigned int nrBinsMult = dataSet1.size();
+        const unsigned int nrBinsKt = dataSet1.front().size();
+
+        for (unsigned int i = 0; i < nrBinsMult; ++i)
+        {
+            for (unsigned int j = 0; j < nrBinsKt; ++j)
+            {
+                m_minimiserFuncs.emplace_back(dataSet1[i][j].get(), dataSet2[i][j].get(), funcSet[i][j].get());
+            }
+        }
+    }
+
+    double operator()(const double *par) const
+    {
+        // prepare a tmp variable for the minimiser value
+        Double_t tmp{0.};
+
+        for (unsigned int i = 0; i < m_minimiserFuncs.size(); ++i)
+        {
+            // offset/map parameters accordingly
+            double curPars[m_nParamsSingle];
+            for (unsigned int iCommon = 0; iCommon < m_nParamsCommon; ++iCommon)
+            {
+                curPars[iCommon] = par[iCommon];
+            }
+            for (unsigned int iInd = m_nParamsCommon; iInd < m_nParamsSingle; ++iInd)
+            {
+                curPars[iInd] = par[iInd + i * m_nParamsIndividual];
+            }
+            tmp += m_minimiserFuncs[i](curPars);
+        }
+
+        return tmp;
+    }
+
+public:
+    inline unsigned int getNIndividualFits() const { return m_minimiserFuncs.size(); }
+
+private:
+    MinimiserStructure m_minimiserFuncs{};
+    const unsigned int m_nParamsCommon{};
+    const unsigned int m_nParamsIndividual{};
+    const unsigned int m_nParamsSingle{};
 };
 
 /*-------------- end of fitter helper functions -----------------*/
 
-Double_t getBkgScalingFactor(const TFitResult *fitResultMain, const TFitResult *fitResultRef, const int &parameterId)
+TFitResultPtr doGlobalFit(const DataStructure &dataSet, const DataStructure &dataSet1, const DataStructure &dataSet2, FuncStructure &funcSet, ROOT::Fit::Fitter &fitter, const unsigned int &nParamsCommon, const unsigned int &nParamsIndividual, const unsigned int &nParamsGlobal, const unsigned int &nDataPoints, const TString &resultName)
 {
-    return float(fitResultMain->Parameter(parameterId)) / fitResultRef->Parameter(parameterId);
+    // use a custom function to minimise
+    auto funcToMinimise = minimiserGlobal(dataSet1, dataSet2, funcSet, nParamsCommon, nParamsIndividual);
+
+    std::cout << std::endl
+              << "Performing a global fit (nIndividualFits nParamsCommon nParamsIndividual nParamsGlobal nDataPointsGlobal):\t" << funcToMinimise.getNIndividualFits() << "\t" << nParamsCommon << "\t" << nParamsIndividual << "\t" << nParamsGlobal << "\t" << nDataPoints << std::endl
+              << std::endl;
+
+    fitter.FitFCN(nParamsGlobal, funcToMinimise, 0, nDataPoints, false); // 0 means to use the fit config defined before
+
+    TFitResultPtr fitResult = new TFitResult(fitter.Result());
+
+    // sanitize TFitResultPtr
+    if (fitResult.Get() == nullptr)
+        return TFitResultPtr();
+
+    fitResult->Write(resultName);
+
+    return fitResult;
 }
 
-TFitResultPtr doFit(const ROOT::Fit::BinData *dataSet, const ROOT::Fit::BinData *dataSet1, const ROOT::Fit::BinData *dataSet2, TF1 *fitFunc, ROOT::Fit::Fitter &fitter, const TString &histName, const TString &funcName)
+TFitResultPtr doFit(const ROOT::Fit::BinData *dataSet, const ROOT::Fit::BinData *dataSet1, const ROOT::Fit::BinData *dataSet2, TF3 *fitFunc, ROOT::Fit::Fitter &fitter, const TString &histName, const TString &funcName)
 {
-    // sanitise input
     const unsigned int nrOfDataPoints = dataSet1->NPoints();
-    if (dataSet2->NPoints() != nrOfDataPoints)
-    {
-        std::cout << "Different number of bins in the histograms. Check input." << std::endl
-                  << "\t" << histName << std::endl
-                  << std::endl;
-        return TFitResultPtr();
-    }
 
     // 'regular' fitter usage
     // fitter.Fit(*dataSet); // LeastSquareFit (identical results as with the standard TF1 to TH1 fit)
     // fitter.LikelihoodFit(*dataSet); // LikelihoodFit (not suitable in general; huge errors)
 
     // use a custom function to minimise
-    auto funcToMinimise = funcLogLikelihood(dataSet1, dataSet2, fitFunc, nrOfDataPoints);
+    auto funcToMinimise = funcLogLikelihood(dataSet1, dataSet2, fitFunc);
     fitter.FitFCN(fitFunc->GetNpar(), funcToMinimise, 0, nrOfDataPoints, false); // 0 means to use the fit config defined before
 
     TFitResultPtr fitResult = new TFitResult(fitter.Result());
@@ -183,11 +256,11 @@ void drawPull(const TH1D *hFit, const TF1 *fFit, const HBT::Units::FloatType &fi
     hPull->Draw(drawOpts);
 
     //draw lines
-    TLine *lineUp = new TLine(0, 3, 2, 3);
+    auto lineUp = new TLine(0, 3, 2, 3);
     lineUp->SetLineColor(kRed);
     lineUp->SetLineWidth(lineWidth);
     lineUp->Draw("SAME");
-    TLine *lineDown = new TLine(0, -3, 2, -3);
+    auto lineDown = new TLine(0, -3, 2, -3);
     lineDown->SetLineColor(kRed);
     lineDown->SetLineWidth(lineWidth);
     lineDown->Draw("SAME");
@@ -206,7 +279,107 @@ void drawHistogram(TH1D *h, const int color = kBlue, const TString drawOpts = "E
     h->Draw(drawOpts);
 }
 
-void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const bool flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
+void fillData(ROOT::Fit::BinData &data, const TH1D &hist, const float &multValue, const float &kTValue)
+{
+    for (unsigned int pointId = 1; pointId < hist.GetNbinsX() + 1; ++pointId)
+    {
+        const auto binCenter = hist.GetBinCenter(pointId);
+        const auto binContent = hist.GetBinContent(pointId);
+
+        // use only non-empty bins
+        if (HBT::Utils::compareFloats(binContent, 0.))
+        {
+            continue;
+        }
+
+        // take data range into account (could be improved using the dedicated DataRange config)
+        const auto range = data.Range().Ranges(0).at(0);
+        if ((binCenter < range.first) || (binCenter > range.second))
+        {
+            continue;
+        }
+
+        double dataPoint[3];
+        dataPoint[0] = binCenter;
+        dataPoint[1] = multValue;
+        dataPoint[2] = kTValue;
+        data.Add(dataPoint, binContent, hist.GetBinError(pointId));
+    }
+
+    // for debugging
+    // std::cout << "Hello there! (new)\t" << data.Size() << "\t" << data.Range().Ranges(0).at(0).first << std::endl;
+}
+
+template <class DataStruct2D>
+bool checkDataStruct(DataStruct2D data, const unsigned int &sizeDim1, const unsigned int &sizeDim2)
+{
+    bool isOk = true;
+
+    if (data.size() == sizeDim1)
+    {
+        for (const auto &el : data)
+        {
+            if (el.size() != sizeDim2)
+            {
+                isOk = false;
+                break;
+            }
+
+            // check also if the stored pointers are valid
+            for (const auto &ptr : el)
+            {
+                if (!ptr)
+                {
+                    isOk = false;
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        isOk = false;
+    }
+
+    return isOk;
+}
+
+bool checkBinDataSet(const DataStructure &binDataSet, const unsigned int &nPoints)
+{
+    for (const auto &elDim1 : binDataSet)
+    {
+        for (const auto &elDim2 : elDim1)
+        {
+            if (elDim2->NPoints() != nPoints)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+std::string getBinCombinations(const DataStructure &binDataSet)
+{
+    std::stringstream ss;
+
+    for (const auto &elDim1 : binDataSet)
+    {
+        // tab in new line
+        ss << "\t";
+        for (const auto &elDim2 : elDim1)
+        {
+            const auto coords = elDim2->Coords(0); // get coords of the first element in BinData (all mult/kT are the same)
+            ss << coords[1] << " / " << coords[2] << "\t";
+        }
+        // each mult bin in new line
+        ss << std::endl;
+    }
+
+    return ss.str();
+}
+
+void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
 {
     // set ROOT style
     HBT::Utils::setStyle();
@@ -215,38 +388,215 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
     const int nrBinsKtForLoops = isMultBinsOnly ? 1 : nrBinsKt;
 
+    const bool doFitIndividual = (flagDoFit == 1);
+    const bool doFitGlobal = (flagDoFit == 2);
+
     const TString binsType = isMultBinsOnly ? TString("mult") : TString("kT");
     const TString histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
     const TString funcName = flagIsBkgScaling ? TString("funcBkgScaling") : TString("funcMain");
     const TString title = funcName + "_" + binsType + "_" + histType;
+    const TString resName = binsType + "_globalFit";
 
     // get info on analysis bins
     const auto selection = SelectionClass();
     const auto curMultValues = isMultBinsOnly ? selection.getBinsOfMultiplicityCentres() : selection.getBinsOfMultiplicityForKtCentres();
-    const auto curKtValues = selection.getBinsOfKtCentres();
+    const auto curKtValues = isMultBinsOnly ? selection.getAverageKtForMultBins() : selection.getBinsOfKtCentres();
+    const auto maxMultValue = curMultValues.back();
+    const auto maxKtValue = curKtValues.back();
 
     // prepare canvas
     const HBT::Units::FloatType scaleFactorDueToMargins = 1.2;
     const int canvasSizeHeight = flagDoFit ? padSize * 1.5 : padSize;
     const int canvasSizeWidth = isMultBinsOnly ? padSize : nrBinsKtForLoops * padSize * scaleFactorDueToMargins;
-    TCanvas *tc = new TCanvas(title, title, canvasSizeWidth, canvasSizeHeight);
+    auto tc = std::make_unique<TCanvas>(title, title, canvasSizeWidth, canvasSizeHeight);
     const TString plotFile = title + ".pdf";
     tc->SaveAs(plotFile + "[");
 
     // prepare I/O files
-    TFile *fIn = new TFile(inputFile, "READ");
-    TFile *fOut = new TFile("fitResults.root", "UPDATE");
+    auto fIn = std::make_unique<TFile>(inputFile, "READ");
+    auto fOut = std::make_unique<TFile>("fitResults.root", "UPDATE");
 
     // optional file with reference histograms / fits
-    TFile *fInRef = flagDrawRef ? new TFile(inputFileRef, "READ") : nullptr;
-    TFile *fInRefFitResults = flagUseBkgFromRef ? new TFile(TString(inputFileRef).ReplaceAll("correlations.root", "fitResults.root").ReplaceAll("correlations", "fits"), "READ") : nullptr;
+    auto fInRef = flagDrawRef ? std::make_unique<TFile>(inputFileRef, "READ") : nullptr;
+    auto fInRefFitResults = flagUseBkgFromRef ? std::make_unique<TFile>(TString(inputFileRef).ReplaceAll("correlations.root", "fitResults.root").ReplaceAll("correlations", "fits"), "READ") : nullptr;
+
+    // prepare a generic fit function (for the given histogram type)
+    const auto fitParams = flagIsUnlike ? prepareParamsUnlike(isMultBinsOnly) : prepareParamsFull(isMultBinsOnly); // pass isMultBinsOnly to make kT terms neutral for mult bins
+    const auto fitRangeMin = flagIsBkgScaling ? fitRangeBkgScaleMin : flagIsMc   ? fitRangeMcMin
+                                                                  : flagIsUnlike ? fitRangeUnlikeMin
+                                                                                 : fitRangeLikeMin;
+    auto funcMain = std::make_unique<TF3>(funcName, flagIsUnlike ? funcFullUnlike : funcFullLike, fitRangeMin, fitRangeMax, 0, maxMultValue, 0, maxKtValue, fitParams.size());
+
+    // create data structures
+    ROOT::Fit::DataOptions dataOpts;
+    ROOT::Fit::DataRange dataRange(funcMain->GetXmin(), funcMain->GetXmax(), funcMain->GetYmin(), funcMain->GetYmax(), funcMain->GetZmin(), funcMain->GetZmax());
+
+    // init & fill
+    DataStructure dataMain{};
+    DataStructure dataMain_1{};
+    DataStructure dataMain_2{};
+
+    for (int i = 0; i < nrBinsMult; ++i)
+    {
+        // check if this bin should be ignored
+        if (i < ignoreBinMultLower || i >= ignoreBinMultUpper)
+            continue;
+
+        dataMain.emplace_back();
+        dataMain_1.emplace_back();
+        dataMain_2.emplace_back();
+
+        auto &curDataMainMult = dataMain.back();
+        auto &curDataMainMult_1 = dataMain_1.back();
+        auto &curDataMainMult_2 = dataMain_2.back();
+
+        for (int j = 0; j < nrBinsKtForLoops; ++j)
+        {
+            // check if this bin should be ignored
+            if (j < ignoreBinKtLower || j >= ignoreBinKtUpper)
+                continue;
+
+            // get histograms
+            TString hMainName = HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
+            TH1D *hMain = (TH1D *)fIn->Get(hMainName);
+            TH1D *hMain_1 = (TH1D *)fIn->Get(HBT::Utils::getHistogramName(hMainNameBase_1, hCommonEndName, true, !isMultBinsOnly, i, j));
+            TH1D *hMain_2 = (TH1D *)fIn->Get(HBT::Utils::getHistogramName(hMainNameBase_2, hCommonEndName, true, !isMultBinsOnly, i, j));
+
+            const unsigned int nDataPointsMax = hMain->GetNbinsX();
+
+            // create & fill data
+            auto dataSmart = std::make_shared<ROOT::Fit::BinData>(dataOpts, dataRange, nDataPointsMax, 3);
+            auto dataSmart_1 = std::make_shared<ROOT::Fit::BinData>(dataOpts, dataRange, nDataPointsMax, 3);
+            auto dataSmart_2 = std::make_shared<ROOT::Fit::BinData>(dataOpts, dataRange, nDataPointsMax, 3);
+
+            curDataMainMult.push_back(dataSmart);
+            curDataMainMult_1.push_back(dataSmart_1);
+            curDataMainMult_2.push_back(dataSmart_2);
+
+            auto &curDataMainKt = curDataMainMult.back();
+            auto &curDataMainKt_1 = curDataMainMult_1.back();
+            auto &curDataMainKt_2 = curDataMainMult_2.back();
+
+            fillData(*curDataMainKt, *hMain, curMultValues[i], curKtValues[j]);
+            fillData(*curDataMainKt_1, *hMain_1, curMultValues[i], curKtValues[j]);
+            fillData(*curDataMainKt_2, *hMain_2, curMultValues[i], curKtValues[j]);
+        }
+    }
+
+    // prepare functions structure
+    FuncStructure funcFit{};
+
+    for (const auto &elMult : dataMain)
+    {
+        funcFit.emplace_back();
+        auto &curFuncFitMult = funcFit.back();
+
+        for (const auto &elKt : elMult)
+        {
+            auto funcSmart = std::make_shared<TF3>(*funcMain);
+            curFuncFitMult.push_back(funcSmart);
+        }
+    }
+
+    // sanitise data/func structure
+    {
+        // expected size (same for all data structures)
+        const unsigned int nBinsMult = dataMain.size();
+        const unsigned int nBinsKt = dataMain.front().size();
+
+        // check if all structures are of the same size and have valid pointers
+        assert(checkDataStruct(dataMain, nBinsMult, nBinsKt));
+        assert(checkDataStruct(dataMain_1, nBinsMult, nBinsKt));
+        assert(checkDataStruct(dataMain_2, nBinsMult, nBinsKt));
+        assert(checkDataStruct(funcFit, nBinsMult, nBinsKt));
+
+        // check if the BinData are filled properly
+        const unsigned int nDataPoints = dataMain.front().front()->NPoints();
+        assert(checkBinDataSet(dataMain, nDataPoints));
+        assert(checkBinDataSet(dataMain_1, nDataPoints));
+        assert(checkBinDataSet(dataMain_2, nDataPoints));
+
+        std::cout << std::endl
+                  << "Loaded valid data/func structures (nMult nKt nDataPoints):\t" << nBinsMult << "\t" << nBinsKt << "\t" << nDataPoints << "\t" << std::endl;
+        std::cout << "Mult/kT mean values used in the fits are the following:" << std::endl
+                  << getBinCombinations(dataMain) << std::endl
+                  << std::endl;
+    }
+
+    // perform a global fit
+    TFitResultPtr globalFitResult{};
+    const auto paramsCommon = getListOfParams(fitParams, listOfParamsCommon());
+    const auto paramsIndividual = getListOfParams(fitParams, listOfParamsIndividual());
+    if (doFitGlobal)
+    {
+        // useful vars
+        const unsigned int fitBinsMult = dataMain.size();
+        const unsigned int fitBinsKt = dataMain.front().size();
+
+        // const unsigned int nParamsSingle = fitParams.size();
+        const unsigned int nParamsCommon = paramsCommon.size();
+        const unsigned int nParamsIndividual = paramsIndividual.size();
+        const unsigned int nParamsGlobal = nParamsCommon + nParamsIndividual * fitBinsMult * fitBinsKt;
+
+        const unsigned int iParamsCommon = 0;
+        const unsigned int iParamsIndividual = nParamsCommon;
+
+        const unsigned int nDataPointsSingle = dataMain.front().front()->NPoints();
+        const unsigned int nDataPointsGlobal = nDataPointsSingle * fitBinsMult * fitBinsKt;
+
+        // prepare fitter
+        ROOT::Fit::Fitter fitterMain;
+
+        // init all params (global)
+        fitterMain.Config().SetParamsSettings(nParamsGlobal, {});
+
+        // fill common params
+        configFromParamsListGlobal(paramsCommon, fitterMain, iParamsCommon);
+
+        // configure params from each bin
+        for (unsigned int i = 0; i < fitBinsMult; ++i)
+        {
+            for (unsigned int j = 0; j < fitBinsKt; ++j)
+            {
+                configFromParamsListGlobal(paramsIndividual, fitterMain, iParamsIndividual + (i * fitBinsKt + j) * nParamsIndividual, nParamsCommon);
+            }
+        }
+
+        // single fit config
+        std::cout << "Basic fit configuration (id name init fixed limits):" << std::endl;
+        for (const auto &el : fitParams)
+        {
+            std::cout << "\t" << el.second << std::endl;
+        }
+        std::cout << std::endl;
+
+        // minimiser configuration
+        // fitterMain.Config().SetMinimizer("Minuit2", "Migrad");
+        // fitterMain.Config().SetMinosErrors();
+        // fitterMain.Config().MinimizerOptions().SetTolerance(0.001);       // default: 0.01
+        // fitterMain.Config().MinimizerOptions().SetMaxIterations(1000000); // some fail up to ~50000
+        fitterMain.Config().MinimizerOptions().SetPrintLevel(0);
+        fitterMain.Config().MinimizerOptions().Print();
+
+        // do a fit
+        globalFitResult = doGlobalFit(dataMain, dataMain_1, dataMain_2, funcFit, fitterMain, nParamsCommon, nParamsIndividual, nParamsGlobal, nDataPointsGlobal, resName);
+        fitterMain.Result().Print(std::cout, false); // true to show the correlation matrix etc
+    }
 
     // loop over all bins of mult / kT
     for (int i = 0; i < nrBinsMult; ++i)
     {
         // check if this bin should be ignored
         if (i < ignoreBinMultLower || i >= ignoreBinMultUpper)
+        {
             continue;
+        }
+
+        const unsigned int iFit = i - ignoreBinMultLower;
+        if (!(iFit < dataMain.size()))
+        {
+            break;
+        }
 
         // each mult bin is plotted on a single page, with subplot for kT bins
         tc->Clear();
@@ -257,7 +607,15 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
         {
             // check if this bin should be ignored
             if (j < ignoreBinKtLower || j >= ignoreBinKtUpper)
+            {
                 continue;
+            }
+
+            const unsigned int jFit = j - ignoreBinKtLower;
+            if (!(jFit < dataMain.front().size()))
+            {
+                break;
+            }
 
             // prepare pads
             tc->cd(j + 1);
@@ -279,7 +637,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             //get the reference histogram and fit result if available
             const auto hRefName = HBT::Utils::getHistogramName(hRefNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
             TH1D *hRef = flagDrawRef ? (TH1D *)fInRef->Get(hRefName) : nullptr;
-            auto fitResultRef = flagUseBkgFromRef ? (TFitResult *)fInRefFitResults->Get(HBT::Utils::getFitResultName(hRefName, "funcMain")) : nullptr;
+            auto fitResultRef = flagUseBkgFromRef ? (TFitResult *)fInRefFitResults->Get(resName) : nullptr;
             fOut->cd();
 
             // draw histograms
@@ -294,77 +652,15 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                 tl->AddEntry(hRef, refType, "pe");
             }
 
-            // perform a fit if required
-            if (flagDoFit)
+            // perform a fit in individual bins if required
+            TFitResultPtr fitResult{};
+            auto curFitParams = fitParams;
+            if (doFitIndividual)
             {
-                // get fit configuration
-                auto fitParams = prepareFitParams();
-
-                // create a function relevant for the histogram type (from a generic form)
-                const auto fitRangeMin = flagIsBkgScaling ? fitRangeBkgScaleMin : flagIsMc   ? fitRangeMcMin
-                                                                              : flagIsUnlike ? fitRangeUnlikeMin
-                                                                                             : fitRangeLikeMin;
-                TF1 *funcMain = new TF1(funcName, flagIsUnlike ? funcFullUnlike : funcFullLike, fitRangeMin, fitRangeMax, fitParams.size());
-                setParNames(funcMain, fitParams);
-
-                // prepare data
-                ROOT::Fit::DataOptions dataOpts;
-                ROOT::Fit::DataRange dataRange(funcMain->GetXmin(), funcMain->GetXmax());
-                ROOT::Fit::BinData dataMain(dataOpts, dataRange);
-                ROOT::Fit::BinData dataMain_1(dataOpts, dataRange);
-                ROOT::Fit::BinData dataMain_2(dataOpts, dataRange);
-                ROOT::Fit::FillData(dataMain, hMain);
-                ROOT::Fit::FillData(dataMain_1, hMain_1);
-                ROOT::Fit::FillData(dataMain_2, hMain_2);
-
                 // prepare fitter
                 ROOT::Fit::Fitter fitterMain;
-                ROOT::Math::WrappedMultiTF1 fitFuncMain(*funcMain, funcMain->GetNdim());
+                ROOT::Math::WrappedMultiTF1 fitFuncMain(*funcFit[iFit][jFit], funcFit[iFit][jFit]->GetNdim());
                 fitterMain.SetFunction(fitFuncMain, false); // false to not pass the derivatives (to be calculated by the minimisation algorithm)
-
-                // settings common for all histogram types
-                setInitValues(fitterMain, fitParams);
-                setLimits(fitterMain, fitParams);
-                setFixed(fitterMain, fitParams, funcMain);
-                setBinCentres(fitterMain, fitParams, curMultValues[i], curKtValues[j], isMultBinsOnly);
-
-                // settings for the specific histogram types (keep an eye on 'priority': bkgScaling -> MC -> UNLIKE -> LIKE)
-                // set the unused (fixed) parameters to some neutral value (e.g. 0)
-                if (flagIsBkgScaling)
-                {
-                    fitterMain.Config().ParSettings(1).SetValue(0);
-                    fitterMain.Config().ParSettings(1).Fix();
-                    fitterMain.Config().ParSettings(2).SetValue(0);
-                    fitterMain.Config().ParSettings(2).Fix();
-                    fitterMain.Config().ParSettings(3).SetValue(0);
-                    fitterMain.Config().ParSettings(3).Fix();
-                }
-                else if (flagIsMc)
-                {
-                    fitterMain.Config().ParSettings(1).SetValue(0);
-                    fitterMain.Config().ParSettings(1).Fix();
-                    fitterMain.Config().ParSettings(2).SetValue(0);
-                    fitterMain.Config().ParSettings(2).Fix();
-                    fitterMain.Config().ParSettings(3).SetValue(0);
-                    fitterMain.Config().ParSettings(3).Fix();
-                }
-                else if (flagIsUnlike)
-                {
-                    const auto idScaleZ = fitParams.at("scaleZ").id();
-                    fitterMain.Config().ParSettings(idScaleZ).Fix();
-                    fitterMain.Config().ParSettings(idScaleZ).SetValue(1);
-                    funcMain->FixParameter(idScaleZ, 1);
-
-                    const auto idLambda = fitParams.at("lambda").id();
-                    fitterMain.Config().ParSettings(idLambda).Fix();
-                    fitterMain.Config().ParSettings(idLambda).SetValue(0);
-                    funcMain->FixParameter(idLambda, 0);
-
-                    const auto idRadius = fitParams.at("radius").id();
-                    fitterMain.Config().ParSettings(idRadius).Fix();
-                    fitterMain.Config().ParSettings(idRadius).SetValue(0);
-                    funcMain->FixParameter(idRadius, 0);
-                }
 
                 // use the bkg parametrisation from a reference fit
                 if (flagUseBkgFromRef)
@@ -372,80 +668,108 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                     // use the fit only if it was valid
                     if (fitResultRef && fitResultRef->IsValid())
                     {
-                        // use the bkg sigma from the reference fit
-                        const std::vector<std::string> listForSigma{"sigmaBkgMult", "sigmaBkgKt", "sigmaBkgSig0", "sigmaBkgSig1", "sigmaBkgMult0", "sigmaBkgExpKt"};
-                        for (const auto &paramName : listForSigma)
+                        // use the common bkg params from the reference fit
+                        for (const auto &paramName : listOfParamsCommon())
                         {
-                            const auto paramId = fitParams.at(paramName).id();
-                            fitterMain.Config().ParSettings(paramId).Fix();
-                            fitterMain.Config().ParSettings(paramId).SetValue(fitResultRef->Parameter(paramId));
-                            funcMain->FixParameter(paramId, fitResultRef->Parameter(paramId));
-                        }
-
-                        // use bkg amplitude from the reference fit
-                        const std::vector<std::string> listForAmpl{"amplBkgMult", "amplBkgKt", "amplBkgAmpl0", "amplBkgKt0", "amplBkgExpMult"};
-                        for (const auto &paramName : listForAmpl)
-                        {
-                            const auto paramId = fitParams.at(paramName).id();
-                            fitterMain.Config().ParSettings(paramId).Fix();
-                            fitterMain.Config().ParSettings(paramId).SetValue(fitResultRef->Parameter(paramId));
-                            funcMain->FixParameter(paramId, fitResultRef->Parameter(paramId));
+                            auto &curParam = curFitParams.at(paramName);
+                            curParam.fixToValue(fitResultRef->Parameter(curParam.id()));
                         }
 
                         // scale the bkg amplitude if needed
                         if (flagUseBkgScaling)
                         {
                             // use a free z parameter for now (do not do anything)
-
-                            // auto fitResultBkgScalingMain = (TFitResult *)fInRefFitResults->Get(HBT::Utils::getFitResultName(hMainName, funcNameBkgScalingMain));
-                            // auto fitResultBkgScalingRef = (TFitResult *)fInRefFitResults->Get(HBT::Utils::getFitResultName(hRefName, funcNameBkgScalingRef));
-
-                            // if (fitResultBkgScalingMain->IsValid() && fitResultBkgScalingRef->IsValid())
-                            // {
-                            //     // set z param
-                            //     fitterMain.Config().ParSettings(fitParams.at("scaleZ").id()).SetValue(getBkgScalingFactor(fitResultBkgScalingMain, fitResultBkgScalingRef, fitParams.at("scaleZ").id()));
-                            //     fitterMain.Config().ParSettings(fitParams.at("scaleZ").id()).Fix();
-                            // }
-                            // else
-                            // {
-                            //     std::cout << "One of fits for the bkg parameters scaling is not valid: \n\t" << fitResultBkgScalingMain << "\n\t" << fitResultBkgScalingRef << std::endl;
-                            // }
                         }
                     }
                     else
                     {
-                        std::cout << "Fit with the bkg parameters is not valid: \n\t" << hMain << "\n\t" << funcMain << std::endl;
+                        std::cout << "Fit with the bkg parameters is not valid: \n\t" << hMain << "\n\t" << funcFit[iFit][jFit] << std::endl;
                     }
 
                     fOut->cd();
                 }
 
-                // minimiser configuration
-                fitterMain.Config().MinimizerOptions().SetPrintLevel(0);
-                // fitterMain.Config().SetMinimizer("Minuit2", "Migrad");
+                // configure the fitter
+                configFromParamsListGlobal(curFitParams, fitterMain);
 
-                ROOT::Math::MinimizerOptions minimiserOpts;
-                minimiserOpts.Print();
+                // minimiser configuration
+                // fitterMain.Config().SetMinimizer("Minuit2", "Migrad");
+                // fitterMain.Config().SetMinosErrors();
+                // fitterMain.Config().MinimizerOptions().SetTolerance(0.001);       // default: 0.01
+                // fitterMain.Config().MinimizerOptions().SetMaxIterations(1000000); // some fail up to ~50000
+                // fitterMain.Config().MinimizerOptions().SetPrintLevel(0);
+                // fitterMain.Config().MinimizerOptions().Print();
 
                 // do a fit and draw if it is valid
-                const auto fitResult = doFit(&dataMain, &dataMain_1, &dataMain_2, funcMain, fitterMain, hMain->GetName(), funcMain->GetName());
-                fitterMain.Result().Print(std::cout, true);
+                fitResult = doFit(dataMain[iFit][jFit].get(), dataMain_1[iFit][jFit].get(), dataMain_2[iFit][jFit].get(), funcFit[iFit][jFit].get(), fitterMain, hMain->GetName(), funcFit[iFit][jFit]->GetName());
+                fitterMain.Result().Print(std::cout, false); // true to show the correlation matrix etc
+            }
 
-                if ((fitResult.Get() != nullptr) && fitResult->IsValid())
+            // show results of the fit
+            if (flagDoFit)
+            {
+                const auto &curFitResult = (doFitGlobal) ? globalFitResult : fitResult;
+
+                if ((curFitResult.Get() != nullptr) && curFitResult->IsValid())
                 {
-                    funcMain->SetFitResult(*fitResult);
-                    funcMain->SetLineColor(kRed);
-                    funcMain->SetLineWidth(lineWidth);
 
-                    hMain->GetListOfFunctions()->Add(funcMain);
-                    funcMain->Draw("SAME");
-                    tl->AddEntry(funcMain, histType + " (fit)", "l");
+                    // cast to a 1D function to show results
+                    const auto &curFuncFit = *funcFit[iFit][jFit];
+                    const auto &curMult = curMultValues[i];
+                    const auto &curKt = curKtValues[j];
+
+                    auto f = new TF1(
+                        "f", [&](double *x, double *p)
+                        { return curFuncFit.Eval(x[0], curMult, curKt); },
+                        curFuncFit.GetXmin(), curFuncFit.GetXmax(), curFuncFit.GetNpar());
+                    for (const auto &el : curFitParams)
+                    {
+                        const auto &param = el.second;
+                        f->SetParName(param.id(), param.name().c_str());
+                        if (param.isFixed())
+                        {
+                            f->FixParameter(param.id(), param.initValue());
+                        }
+                    }
+
+                    // map the parameters from the global fitter if needed
+                    if (doFitGlobal)
+                    {
+                        // useful vars
+                        const int fitBinsKt = dataMain.front().size();
+                        const int nParamsCommon = paramsCommon.size();
+                        const int nParamsIndividual = paramsIndividual.size();
+                        const int nParamsSingle = nParamsCommon + nParamsIndividual;
+
+                        int paramIdsInGlobalFit[nParamsSingle];
+                        for (int iCommon = 0; iCommon < nParamsCommon; ++iCommon)
+                        {
+                            paramIdsInGlobalFit[iCommon] = iCommon;
+                        }
+                        for (int iInd = nParamsCommon; iInd < nParamsSingle; ++iInd)
+                        {
+                            paramIdsInGlobalFit[iInd] = iInd + (iFit * fitBinsKt + jFit) * nParamsIndividual;
+                        }
+
+                        f->SetFitResult(*curFitResult, paramIdsInGlobalFit);
+                    }
+                    else
+                    {
+                        f->SetFitResult(*curFitResult);
+                    }
+
+                    f->SetLineColor(kRed);
+                    f->SetLineWidth(lineWidth);
+
+                    hMain->GetListOfFunctions()->Add(f);
+                    f->Draw("SAME");
+                    tl->AddEntry(f, histType + " (fit)", "l");
 
                     // draw/print the fit info
-                    printFitInfo(fitResult);
+                    printFitInfo(curFitResult);
 
                     p2->cd();
-                    drawPull(hMain, funcMain, fitRangeMin);
+                    drawPull(hMain, f, fitRangeMin);
                     p1->cd();
                 }
                 else
@@ -454,7 +778,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                     gStyle->SetOptFit(0);
                     hMain->UseCurrentStyle();
                     gStyle->SetOptFit(curStyle);
-                    std::cout << "Fit is not valid: \n\t" << hMain << "\n\t" << funcMain << std::endl;
+                    std::cout << "Fit is not valid: \n\t" << hMain << "\n\t" << funcFit[iFit][jFit] << std::endl;
                 }
             }
 
@@ -470,28 +794,23 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     }
 
     tc->SaveAs(plotFile + "]");
-    delete tc;
 
     // I/O close & cleanup
     fIn->Close();
-    delete fIn;
 
     fOut->Close();
-    delete fOut;
 
     if (fInRef != nullptr)
     {
         fInRef->Close();
-        delete fInRef;
     }
     if (fInRefFitResults != nullptr)
     {
         fInRefFitResults->Close();
-        delete fInRefFitResults;
     }
 }
 
-void fitInBins(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, TString hCommonEndNameForMult, TString hCommonEndNameForKt, const bool flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinMultForKtLower, const int &ignoreBinMultForKtUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
+void fitInBins(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, TString hCommonEndNameForMult, TString hCommonEndNameForKt, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinMultForKtLower, const int &ignoreBinMultForKtUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
 {
     // get configuration
     auto selection = SelectionClass();
