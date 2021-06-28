@@ -3,14 +3,20 @@
 
 #include "fitModel.C"
 
+#include "TF1.h"
+#include "TStyle.h"
+#include "TGraphErrors.h"
+
+#include <memory>
+
 /*-------------- configuration -------------------*/
-Double_t maxForMult = 200.;
+Double_t maxForMult = 180.;
 Double_t maxForKt = 1.0;
 const int padSize = 1200;
 
 /*-------------- enf of configuration -------------*/
 
-void printDescription(const TString &dataType, const TString &paramName, const TString &binsType)
+void printDescription(const TString &dataType, const TString &paramName, const TString &trendType)
 {
     Double_t commPosX = 0.20;
     Double_t commPosY = 0.80;
@@ -18,7 +24,7 @@ void printDescription(const TString &dataType, const TString &paramName, const T
     comments.SetNDC();
     comments.SetTextSize(0.035);
     comments.DrawLatex(commPosX, commPosY, dataType);
-    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs " + binsType);
+    comments.DrawLatex(commPosX, commPosY - 0.05, paramName + " vs " + trendType);
 }
 
 // provide custom style (based on the general one)
@@ -26,6 +32,9 @@ void setStyleLocal()
 {
     HBT::Utils::setStyle();
     gStyle->SetMarkerSize(1.4);
+    gStyle->SetOptFit(0);
+    gStyle->SetStatX(0.875);
+    gStyle->SetStatY(0.3);
 }
 
 // add an entry to the given graph, corresponding to a parameter value obtained from a fit in the given bin (checks if the fit result is valid)
@@ -62,35 +71,39 @@ bool processSingleResult(const TFitResult *fitResult, const std::pair<std::strin
     return true;
 }
 
-void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const TString fName, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
+void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const TString fName, const bool doTrendMult, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName)
 {
     // get configuration
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
 
-    const auto nrOfBinsInGraph = isMultBinsOnly ? nrBinsMult : nrBinsKt;
-    const auto nrOfGraphsToOverlap = isMultBinsOnly ? 1 : nrBinsMult;
+    const auto nrOfBinsInGraph = doTrendMult ? nrBinsMult : nrBinsKt;
+    const auto nrOfGraphsToOverlap = doTrendMult ? (isMultBinsOnly ? 1 : nrBinsKt) : nrBinsMult;
 
     const auto selection = SelectionClass();
-    const auto curBinCentres = isMultBinsOnly ? selection.getBinsOfMultiplicityCentres() : selection.getBinsOfKtCentres();
-    const auto curBinErrors = isMultBinsOnly ? selection.getBinsOfMultiplicityErrors() : selection.getBinsOfKtErrors();
+    const auto curBinCentres = doTrendMult ? (isMultBinsOnly ? selection.getBinsOfMultiplicityCentres() : selection.getBinsOfMultiplicityForKtCentres()) : selection.getBinsOfKtCentres();
+    const auto curBinErrors = doTrendMult ? (isMultBinsOnly ? selection.getBinsOfMultiplicityErrors() : selection.getBinsOfMultiplicityForKtErrors()) : selection.getBinsOfKtErrors();
 
-    const auto maxValueForBins = isMultBinsOnly ? maxForMult : maxForKt;
+    const auto maxValueForBins = doTrendMult ? maxForMult : maxForKt;
     const auto binsType = isMultBinsOnly ? TString("mult") : TString("kT");
-    const auto overlappingGraphLabel = isMultBinsOnly ? TString("kT") : TString("mult");
+    const auto trendType = doTrendMult ? TString("mult") : TString("kT");
+    const auto overlappingGraphLabel = doTrendMult ? TString("kT") : TString("mult");
+    const auto binStringsForLabels = doTrendMult ? (isMultBinsOnly ? std::vector<std::string>(1, "full range") : selection.getBinsOfKtRangesAsStrings()) : selection.getBinsOfMultiplicityForKtRangesAsStrings();
 
     const auto histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
+    const TString funcScaleZName = TString("funcScaleZ");
 
     // set ROOT style
     setStyleLocal();
 
     // prepare the PDF file
-    const TString title = fName + "_" + binsType + "_" + histType;
+    const TString title = fName + "_" + binsType + "_VS" + trendType + "_" + histType;
     const TString plotFile = title + ".pdf";
-    TCanvas *tc = new TCanvas(title, title, padSize, padSize);
+    auto tc = std::make_unique<TCanvas>(title, title, padSize, padSize);
     tc->SaveAs(plotFile + "[");
 
-    // input file with the fit results
-    TFile *fIn = new TFile(inputFile, "READ");
+    // prepare I/O files
+    auto fIn = std::make_unique<TFile>(inputFile, "READ");
+    auto fOut = std::make_unique<TFile>("trends.root", "UPDATE");
 
     // process all fit parameters
     const auto fitParams = prepareFitParamsForTrends();
@@ -119,22 +132,54 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
         tl->SetHeader(overlappingGraphLabel, "C");
         for (int i = 0; i < nrOfGraphsToOverlap; ++i)
         {
-            if (!isMultBinsOnly)
-                tl->AddEntry(&tGraphs[i], selection.getBinsOfMultiplicityForKtRangesAsStrings()[i].c_str(), "pe");
-            else
-                tl->AddEntry(&tGraphs[i], "full range", "pe");
+            tl->AddEntry(&tGraphs[i], binStringsForLabels[i].c_str(), "pe");
 
             // loop over #entries (points) in the graph
             for (int j = 0; j < nrOfBinsInGraph; ++j)
             {
                 // get the fit result in the given bin
-                TString hName = HBT::Utils::getHistogramName(hNameBase, hCommonEndName, true, !isMultBinsOnly, isMultBinsOnly ? j : i, isMultBinsOnly ? i : j);
+                TString hName = HBT::Utils::getHistogramName(hNameBase, hCommonEndName, true, !isMultBinsOnly, doTrendMult ? j : i, doTrendMult ? i : j);
                 const auto fitResult = (TFitResult *)fIn->Get(HBT::Utils::getFitResultName(hName, fName));
 
                 if (!processSingleResult(fitResult, *el, tGraphs[i], j, curBinCentres[j], curBinErrors[j]))
                 {
                     std::cout << "The given fit is not valid: \n\t" << fIn->GetName() << "\n\t" << hName << "\n\t" << fName << std::endl;
                     continue;
+                }
+            }
+
+            // make fit for bkg scaling
+            if ((!curKey.compare("scaleZ") && doTrendMult && !flagIsUnlike))
+            {
+                auto &curGraph = tGraphs[i];
+
+                // configure fit
+                auto fTrend = std::make_unique<TF1>(funcScaleZName, "([0] * x + [1]) / (1 + [0] * x + [1])", 1., maxForMult); // make sure not to take points at 0,0 (they should be not there in principle)
+                fTrend->SetParNames("a", "b");
+                fTrend->SetParameters(0.5, 0.5);
+                fTrend->SetParLimits(0, 0, 10);
+                fTrend->SetParLimits(1, 0, 10);
+                // fTrend->SetLineColor(gStyle->GetColorPalette(i));
+
+                // do fit and save if valid
+                const TFitResultPtr fitResult = curGraph.Fit(fTrend.get(), "SREX0");
+                if ((fitResult.Get() != nullptr) && fitResult->IsValid())
+                {
+                    fTrend->Write(HBT::Utils::getBkgScalingFuncName(funcScaleZName, isMultBinsOnly, i));
+
+                    // plot results only for the mult bins only
+                    if (isMultBinsOnly)
+                    {
+                        const auto curStyle = gStyle->GetOptFit();
+                        gStyle->SetOptFit(111);
+                        curGraph.UseCurrentStyle();
+                        gStyle->SetOptFit(curStyle);
+                    }
+                }
+                else
+                {
+                    curGraph.GetListOfFunctions()->Remove(fTrend.get());
+                    std::cout << "Fit (scaleZ) is not valid: \n\t" << &curGraph << "\n\t" << fTrend.get() << std::endl;
                 }
             }
         }
@@ -151,7 +196,7 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
 
         // add description
         tl->Draw("SAME");
-        printDescription(dataType, param.name(), binsType);
+        printDescription(dataType, param.name(), trendType);
 
         // save the current plot
         tc->SaveAs(plotFile);
@@ -159,10 +204,9 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
 
     // close the PDF file
     tc->SaveAs(plotFile + "]");
-    delete tc;
 
     fIn->Close();
-    delete fIn;
+    fOut->Close();
 }
 
 void drawTrends(const TString inputFile, const TString hNameBase, const TString fName, const bool flagIsUnlike = false, const TString dataType = "", TString hCommonEndNameForMult = "", TString hCommonEndNameForKt = "")
@@ -174,8 +218,10 @@ void drawTrends(const TString inputFile, const TString hNameBase, const TString 
     const auto nrBinsMultForKt = selection.getNrOfBinsMultForKt();
     const auto nrBinsKt = selection.getNrOfBinsKt();
 
-    // call for mult bins only
-    drawTrendsGeneric(inputFile, hNameBase, fName, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
-    // call for mult + kT bins
-    drawTrendsGeneric(inputFile, hNameBase, fName, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
+    // call trend in mult (mult bins only)
+    drawTrendsGeneric(inputFile, hNameBase, fName, true, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
+    // call trend in mult (mult + kT bins)
+    drawTrendsGeneric(inputFile, hNameBase, fName, true, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
+    // call trend in kT (mult + kT bins)
+    drawTrendsGeneric(inputFile, hNameBase, fName, false, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
 }

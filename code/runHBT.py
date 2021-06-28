@@ -671,7 +671,6 @@ def runFits(outputFolderName="fits"):
         #     'refType' : "",
         #     'flagDrawRef' : "false",
         #     'flagUseBkgFromRef' : "false",
-        #     'flagIsBkgScaling' : "false"
         # },
         # {
         #     'inputFile' : os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
@@ -687,7 +686,6 @@ def runFits(outputFolderName="fits"):
         #     'refType' : "",
         #     'flagDrawRef' : "false",
         #     'flagUseBkgFromRef' : "false",
-        #     'flagIsBkgScaling' : "false"
         # },
 
         # MC LIKE
@@ -705,7 +703,6 @@ def runFits(outputFolderName="fits"):
         #     'refType' : "MC_pPb - UNLIKE",
         #     'flagDrawRef' : "true",
         #     'flagUseBkgFromRef' : "false",
-        #     'flagIsBkgScaling' : "false"
         # },
         # {
         #     'inputFile' : os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
@@ -721,7 +718,6 @@ def runFits(outputFolderName="fits"):
         #     'refType' : "MC_Pbp - UNLIKE",
         #     'flagDrawRef' : "true",
         #     'flagUseBkgFromRef' : "false",
-        #     'flagIsBkgScaling' : "false"
         # },
 
         # DATA UNLIKE
@@ -741,10 +737,7 @@ def runFits(outputFolderName="fits"):
             'refType': "MC_pPb - UNLIKE",
             'flagDrawRef': "false",
             'flagUseBkgFromRef': "false",
-            'flagIsBkgScaling': "false",
             'flagUseBkgScaling': "false",
-            'fBkgScalingNameMain': "",
-            'fBkgScalingNameRef': "",
             'ignoreBinMultLower': ignoreBinMultLower['pPb'],
             'ignoreBinMultUpper': ignoreBinMultUpper['pPb'],
             'ignoreBinMultForKtLower': ignoreBinMultForKtLower['pPb'],
@@ -768,10 +761,7 @@ def runFits(outputFolderName="fits"):
             'refType': "MC_Pbp - UNLIKE",
             'flagDrawRef': "false",
             'flagUseBkgFromRef': "false",
-            'flagIsBkgScaling': "false",
             'flagUseBkgScaling': "false",
-            'fBkgScalingNameMain': "",
-            'fBkgScalingNameRef': "",
             'ignoreBinMultLower': ignoreBinMultLower['Pbp'],
             'ignoreBinMultUpper': ignoreBinMultUpper['Pbp'],
             'ignoreBinMultForKtLower': ignoreBinMultForKtLower['Pbp'],
@@ -780,118 +770,6 @@ def runFits(outputFolderName="fits"):
             'ignoreBinKtUpper': ignoreBinKtUpper['Pbp']
 
         },
-
-        # # bkg scaling: DATA UNLIKE
-        # {
-        #     'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-        #     'hMainNameBase': "h4110",
-        #     'hMainNameBase_1': "h3110",
-        #     'hMainNameBase_2': "h3610",
-        #     'isMC': "false",
-        #     'isUnlike': "true",
-        #     'outputFolder': "RD_pPb",
-        #     'hCommonEndNameForMult': "_400",
-        #     'hCommonEndNameForKt': "_400",
-        #     'flagDoFit' : 1,
-        #     'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-        #     'hRefNameBase': "h4110",
-        #     'refType': "MC_pPb - UNLIKE",
-        #     'flagDrawRef': "false",
-        #     'flagUseBkgFromRef': "true",
-        #     'flagIsBkgScaling': "true",
-        #     'flagUseBkgScaling': "false",
-        #     'fBkgScalingNameMain': "",
-        #     'fBkgScalingNameRef': "",
-        #     'ignoreBinMultLower': ignoreBinMultLower['pPb'],
-        #     'ignoreBinMultUpper': ignoreBinMultUpper['pPb'],
-        #     'ignoreBinMultForKtLower': ignoreBinMultForKtLower['pPb'],
-        #     'ignoreBinMultForKtUpper': ignoreBinMultForKtUpper['pPb'],
-        #     'ignoreBinKtLower': ignoreBinKtLower['pPb'],
-        #     'ignoreBinKtUpper': ignoreBinKtUpper['pPb']
-        # },
-        # {
-        #     'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-        #     'hMainNameBase': "h4110",
-        #     'hMainNameBase_1': "h3110",
-        #     'hMainNameBase_2': "h3610",
-        #     'isMC': "false",
-        #     'isUnlike': "true",
-        #     'outputFolder': "RD_Pbp",
-        #     'hCommonEndNameForMult': "_400",
-        #     'hCommonEndNameForKt': "_400",
-        #     'flagDoFit' : 1,
-        #     'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-        #     'hRefNameBase': "h4110",
-        #     'refType': "MC_Pbp - UNLIKE",
-        #     'flagDrawRef': "false",
-        #     'flagUseBkgFromRef': "true",
-        #     'flagIsBkgScaling': "true",
-        #     'flagUseBkgScaling': "false",
-        #     'fBkgScalingNameMain': "",
-        #     'fBkgScalingNameRef': "",
-        #     'ignoreBinMultLower': ignoreBinMultLower['Pbp'],
-        #     'ignoreBinMultUpper': ignoreBinMultUpper['Pbp'],
-        #     'ignoreBinMultForKtLower': ignoreBinMultForKtLower['Pbp'],
-        #     'ignoreBinMultForKtUpper': ignoreBinMultForKtUpper['Pbp'],
-        #     'ignoreBinKtLower': ignoreBinKtLower['Pbp'],
-        #     'ignoreBinKtUpper': ignoreBinKtUpper['Pbp']
-        # },
-
-        # # bkg scaling: DATA LIKE
-        # {
-        #     'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-        #     'hMainNameBase': "h4010",
-        #     'hMainNameBase_1': "h3010",
-        #     'hMainNameBase_2': "h3510",
-        #     'isMC': "false",
-        #     'isUnlike': "false",
-        #     'outputFolder': "RD_pPb",
-        #     'hCommonEndNameForMult': "_400",
-        #     'hCommonEndNameForKt': "_400",
-        #     'flagDoFit' : 1,
-        #     'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
-        #     'hRefNameBase': "h4110",
-        #     'refType': "RD_pPb - UNLIKE",
-        #     'flagDrawRef': "true",
-        #     'flagUseBkgFromRef': "true",
-        #     'flagIsBkgScaling': "true",
-        #     'flagUseBkgScaling': "false",
-        #     'fBkgScalingNameMain': "",
-        #     'fBkgScalingNameRef': "",
-        #     'ignoreBinMultLower': ignoreBinMultLower['pPb'],
-        #     'ignoreBinMultUpper': ignoreBinMultUpper['pPb'],
-        #     'ignoreBinMultForKtLower': ignoreBinMultForKtLower['pPb'],
-        #     'ignoreBinMultForKtUpper': ignoreBinMultForKtUpper['pPb'],
-        #     'ignoreBinKtLower': ignoreBinKtLower['pPb'],
-        #     'ignoreBinKtUpper': ignoreBinKtUpper['pPb']
-        # },
-        # {
-        #     'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-        #     'hMainNameBase': "h4010",
-        #     'hMainNameBase_1': "h3010",
-        #     'hMainNameBase_2': "h3510",
-        #     'isMC': "false",
-        #     'isUnlike': "false",
-        #     'outputFolder': "RD_Pbp",
-        #     'hCommonEndNameForMult': "_400",
-        #     'hCommonEndNameForKt': "_400",
-        #     'flagDoFit' : 1,
-        #     'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
-        #     'hRefNameBase': "h4110",
-        #     'refType': "RD_Pbp - UNLIKE",
-        #     'flagDrawRef': "true",
-        #     'flagUseBkgFromRef': "true",
-        #     'flagIsBkgScaling': "true",
-        #     'flagUseBkgScaling': "false",
-        #     'fBkgScalingNameMain': "",
-        #     'fBkgScalingNameRef': "",
-        #     'ignoreBinMultLower': ignoreBinMultLower['Pbp'],
-        #     'ignoreBinMultUpper': ignoreBinMultUpper['Pbp'],
-        #     'ignoreBinMultForKtLower': ignoreBinMultForKtLower['Pbp'],
-        #     'ignoreBinMultForKtUpper': ignoreBinMultForKtUpper['Pbp'],
-        #     'ignoreBinKtLower': ignoreBinKtLower['Pbp'],
-        #     'ignoreBinKtUpper': ignoreBinKtUpper['Pbp']
-        # },
 
         # DATA LIKE
         {
@@ -910,10 +788,7 @@ def runFits(outputFolderName="fits"):
             'refType': "RD_pPb - UNLIKE",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
-            'flagIsBkgScaling': "false",
-            'flagUseBkgScaling': "true",
-            'fBkgScalingNameMain': "funcBkgScaling",
-            'fBkgScalingNameRef': "funcMain",
+            'flagUseBkgScaling': "false",
             'ignoreBinMultLower': ignoreBinMultLower['pPb'],
             'ignoreBinMultUpper': ignoreBinMultUpper['pPb'],
             'ignoreBinMultForKtLower': ignoreBinMultForKtLower['pPb'],
@@ -937,10 +812,7 @@ def runFits(outputFolderName="fits"):
             'refType': "RD_Pbp - UNLIKE",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
-            'flagIsBkgScaling': "false",
-            'flagUseBkgScaling': "true",
-            'fBkgScalingNameMain': "funcBkgScaling",
-            'fBkgScalingNameRef': "funcMain",
+            'flagUseBkgScaling': "false",
             'ignoreBinMultLower': ignoreBinMultLower['Pbp'],
             'ignoreBinMultUpper': ignoreBinMultUpper['Pbp'],
             'ignoreBinMultForKtLower': ignoreBinMultForKtLower['Pbp'],
@@ -956,9 +828,9 @@ def runFits(outputFolderName="fits"):
         mkdirIfNotExists(aJob['outputFolder'])
         os.chdir(aJob['outputFolder'])
 
-        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}","{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},"{}","{}",{},{},{},{},{},{})\' >> fit.log'.format(
-            aJob['inputFile'], aJob['hMainNameBase'], aJob['hMainNameBase_1'], aJob['hMainNameBase_2'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], int(aJob['flagDoFit']), aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob[
-                'flagIsBkgScaling'], aJob['flagUseBkgScaling'], aJob['fBkgScalingNameMain'], aJob['fBkgScalingNameRef'], int(aJob['ignoreBinMultLower']), int(aJob['ignoreBinMultUpper']), int(aJob['ignoreBinMultForKtLower']), int(aJob['ignoreBinMultForKtUpper']), int(aJob['ignoreBinKtLower']), int(aJob['ignoreBinKtUpper'])
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}","{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},{},{},{},{},{})\' >> fit.log'.format(
+            aJob['inputFile'], aJob['hMainNameBase'], aJob['hMainNameBase_1'], aJob['hMainNameBase_2'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], int(
+                aJob['flagDoFit']), aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagUseBkgScaling'], int(aJob['ignoreBinMultLower']), int(aJob['ignoreBinMultUpper']), int(aJob['ignoreBinMultForKtLower']), int(aJob['ignoreBinMultForKtUpper']), int(aJob['ignoreBinKtLower']), int(aJob['ignoreBinKtUpper'])
         ))
 
 
@@ -1028,46 +900,6 @@ def runTrends(outputFolderName="trends"):
         #     'hNameCommonEndForKt': "_400"
         # },
 
-        # bkg scaling: DATA UNLIKE
-        # {
-        #     'fileName': os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-        #     'hBaseName': "h4110",
-        #     'fName': "funcBkgScaling",
-        #     'flagIsUnlike': "true",
-        #     'outputFolder': "RD_pPb",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-        # {
-        #     'fileName': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-        #     'hBaseName': "h4110",
-        #     'fName': "funcBkgScaling",
-        #     'flagIsUnlike': "true",
-        #     'outputFolder': "RD_Pbp",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-
-        # # bkg scaling: DATA LIKE
-        # {
-        #     'fileName': os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-        #     'hBaseName': "h4010",
-        #     'fName': "funcBkgScaling",
-        #     'flagIsUnlike': "false",
-        #     'outputFolder': "RD_pPb",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-        # {
-        #     'fileName': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-        #     'hBaseName': "h4010",
-        #     'fName': "funcBkgScaling",
-        #     'flagIsUnlike': "false",
-        #     'outputFolder': "RD_Pbp",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-
         # DATA LIKE
         {
             'fileName': os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
@@ -1111,7 +943,7 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
 
     # define jobs
     jobsToRun = [
-        # DATA UNLIKE
+        # # DATA UNLIKE
         # {
         #     'fileNameMain': os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
         #     'hBaseNameMain': "h4110",
@@ -1132,58 +964,6 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
         #     'hBaseNameRef': "h4110",
         #     'fNameRef': "funcMain",
         #     'flagIsUnlike': "true",
-        #     'outputFolder': "RD_Pbp",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-
-        # # bkg scaling: DATA UNLIKE
-        # {
-        #     'fileNameMain': os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-        #     'hBaseNameMain': "h4110",
-        #     'fNameMain': "funcBkgScaling",
-        #     'fileNameRef': referencePath + "/RD_pPb/fitResults.root",
-        #     'hBaseNameRef': "h4110",
-        #     'fNameRef': "funcBkgScaling",
-        #     'flagIsUnlike': "true",
-        #     'outputFolder': "RD_pPb",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-        # {
-        #     'fileNameMain': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-        #     'hBaseNameMain': "h4110",
-        #     'fNameMain': "funcBkgScaling",
-        #     'fileNameRef': referencePath + "/RD_Pbp/fitResults.root",
-        #     'hBaseNameRef': "h4110",
-        #     'fNameRef': "funcBkgScaling",
-        #     'flagIsUnlike': "true",
-        #     'outputFolder': "RD_Pbp",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-
-        # # bkg scaling: DATA LIKE
-        # {
-        #     'fileNameMain': os.getenv('MYDIR') + "/output/fits/RD_pPb/fitResults.root",
-        #     'hBaseNameMain': "h4010",
-        #     'fNameMain': "funcBkgScaling",
-        #     'fileNameRef': referencePath + "/RD_pPb/fitResults.root",
-        #     'hBaseNameRef': "h4010",
-        #     'fNameRef': "funcBkgScaling",
-        #     'flagIsUnlike': "false",
-        #     'outputFolder': "RD_pPb",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
-        # },
-        # {
-        #     'fileNameMain': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
-        #     'hBaseNameMain': "h4010",
-        #     'fNameMain': "funcBkgScaling",
-        #     'fileNameRef': referencePath + "/RD_Pbp/fitResults.root",
-        #     'hBaseNameRef': "h4010",
-        #     'fNameRef': "funcBkgScaling",
-        #     'flagIsUnlike': "false",
         #     'outputFolder': "RD_Pbp",
         #     'hNameCommonEndForMult': "_400",
         #     'hNameCommonEndForKt': "_400"
@@ -1228,17 +1008,194 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
         ))
 
 
+def runFitsScaledBkg(outputFolderName="fits_scaledBkg"):
+
+    # prepare output directory
+    outputDirPath = prepareFolder(
+        os.getenv('MYDIR') + '/output', outputFolderName)
+
+    print("Running plots in directory:\n{0}\n".format(outputDirPath))
+
+    # define jobs
+    jobsToRun = [
+
+        # DATA LIKE
+        {
+            'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
+            'hMainNameBase': "h4010",
+            'hMainNameBase_1': "h3010",
+            'hMainNameBase_2': "h3510",
+            'isMC': "false",
+            'isUnlike': "false",
+            'outputFolder': "RD_pPb",
+            'hCommonEndNameForMult': "_400",
+            'hCommonEndNameForKt': "_400",
+            'flagDoFit': 1,
+            'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
+            'hRefNameBase': "h4110",
+            'refType': "RD_pPb - UNLIKE",
+            'flagDrawRef': "true",
+            'flagUseBkgFromRef': "true",
+            'flagUseBkgScaling': "true",
+            'ignoreBinMultLower': ignoreBinMultLower['pPb'],
+            'ignoreBinMultUpper': ignoreBinMultUpper['pPb'],
+            'ignoreBinMultForKtLower': ignoreBinMultForKtLower['pPb'],
+            'ignoreBinMultForKtUpper': ignoreBinMultForKtUpper['pPb'],
+            'ignoreBinKtLower': ignoreBinKtLower['pPb'],
+            'ignoreBinKtUpper': ignoreBinKtUpper['pPb']
+        },
+        {
+            'inputFile': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
+            'hMainNameBase': "h4010",
+            'hMainNameBase_1': "h3010",
+            'hMainNameBase_2': "h3510",
+            'isMC': "false",
+            'isUnlike': "false",
+            'outputFolder': "RD_Pbp",
+            'hCommonEndNameForMult': "_400",
+            'hCommonEndNameForKt': "_400",
+            'flagDoFit': 1,
+            'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
+            'hRefNameBase': "h4110",
+            'refType': "RD_Pbp - UNLIKE",
+            'flagDrawRef': "true",
+            'flagUseBkgFromRef': "true",
+            'flagUseBkgScaling': "true",
+            'ignoreBinMultLower': ignoreBinMultLower['Pbp'],
+            'ignoreBinMultUpper': ignoreBinMultUpper['Pbp'],
+            'ignoreBinMultForKtLower': ignoreBinMultForKtLower['Pbp'],
+            'ignoreBinMultForKtUpper': ignoreBinMultForKtUpper['Pbp'],
+            'ignoreBinKtLower': ignoreBinKtLower['Pbp'],
+            'ignoreBinKtUpper': ignoreBinKtUpper['Pbp']
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        mkdirIfNotExists(aJob['outputFolder'])
+        os.chdir(aJob['outputFolder'])
+
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitInBins.C("{}","{}","{}","{}",{},{},"{}","{}","{}",{},"{}","{}","{}",{},{},{},{},{},{},{},{},{})\' >> fit.log'.format(
+            aJob['inputFile'], aJob['hMainNameBase'], aJob['hMainNameBase_1'], aJob['hMainNameBase_2'], aJob['isMC'], aJob['isUnlike'], aJob['outputFolder'], aJob['hCommonEndNameForMult'],  aJob['hCommonEndNameForKt'], int(
+                aJob['flagDoFit']), aJob['inputFileRef'], aJob['hRefNameBase'], aJob['refType'], aJob['flagDrawRef'], aJob['flagUseBkgFromRef'], aJob['flagUseBkgScaling'], int(aJob['ignoreBinMultLower']), int(aJob['ignoreBinMultUpper']), int(aJob['ignoreBinMultForKtLower']), int(aJob['ignoreBinMultForKtUpper']), int(aJob['ignoreBinKtLower']), int(aJob['ignoreBinKtUpper'])
+        ))
+
+
+def runTrendsScaledBkg(outputFolderName="trends_scaledBkg"):
+
+    # prepare output directory
+    outputDirPath = prepareFolder(
+        os.getenv('MYDIR') + '/output', outputFolderName)
+
+    print("Running trends in directory:\n{0}\n".format(outputDirPath))
+
+    # define jobs
+    jobsToRun = [
+        # DATA LIKE
+        {
+            'fileName': os.getenv('MYDIR') + "/output/fits_scaledBkg/RD_pPb/fitResults.root",
+            'hBaseName': "h4010",
+            'fName': "funcMain",
+            'flagIsUnlike': "false",
+            'outputFolder': "RD_pPb",
+            'hNameCommonEndForMult': "_400",
+            'hNameCommonEndForKt': "_400"
+        },
+        {
+            'fileName': os.getenv('MYDIR') + "/output/fits_scaledBkg/RD_Pbp/fitResults.root",
+            'hBaseName': "h4010",
+            'fName': "funcMain",
+            'flagIsUnlike': "false",
+            'outputFolder': "RD_Pbp",
+            'hNameCommonEndForMult': "_400",
+            'hNameCommonEndForKt': "_400"
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        mkdirIfNotExists(aJob['outputFolder'])
+        os.chdir(aJob['outputFolder'])
+
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawTrends.C("{}","{}","{}",{},"{}","{}","{}")\' >> trends.log'.format(
+            aJob['fileName'], aJob['hBaseName'], aJob['fName'], aJob['flagIsUnlike'], aJob[
+                'outputFolder'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt']
+        ))
+
+
+def runDiffsScaledBkg(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits_scaledBkg", outputFolderName="diffs_scaledBkg"):
+
+    # prepare output directory
+    outputDirPath = prepareFolder(
+        os.getenv('MYDIR') + '/output', outputFolderName)
+
+    print("Running trends in directory:\n{0}\n".format(outputDirPath))
+
+    # define jobs
+    jobsToRun = [
+        # DATA LIKE
+        {
+            'fileNameMain': os.getenv('MYDIR') + "/output/fits_scaledBkg/RD_pPb/fitResults.root",
+            'hBaseNameMain': "h4010",
+            'fNameMain': "funcMain",
+            'fileNameRef': referencePath + "/RD_pPb/fitResults.root",
+            'hBaseNameRef': "h4010",
+            'fNameRef': "funcMain",
+            'flagIsUnlike': "false",
+            'outputFolder': "RD_pPb",
+            'hNameCommonEndForMult': "_400",
+            'hNameCommonEndForKt': "_400"
+        },
+        {
+            'fileNameMain': os.getenv('MYDIR') + "/output/fits_scaledBkg/RD_Pbp/fitResults.root",
+            'hBaseNameMain': "h4010",
+            'fNameMain': "funcMain",
+            'fileNameRef': referencePath + "/RD_Pbp/fitResults.root",
+            'hBaseNameRef': "h4010",
+            'fNameRef': "funcMain",
+            'flagIsUnlike': "false",
+            'outputFolder': "RD_Pbp",
+            'hNameCommonEndForMult': "_400",
+            'hNameCommonEndForKt': "_400"
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        mkdirIfNotExists(aJob['outputFolder'])
+        os.chdir(aJob['outputFolder'])
+
+        os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawDiffs.C("{}","{}","{}","{}","{}","{}",{},"{}","{}","{}")\' >> diffs.log'.format(
+            aJob['fileNameMain'], aJob['hBaseNameMain'], aJob['fNameMain'], aJob['fileNameRef'], aJob['hBaseNameRef'], aJob[
+                'fNameRef'], aJob['flagIsUnlike'], aJob['outputFolder'], aJob['hNameCommonEndForMult'], aJob['hNameCommonEndForKt']
+        ))
+
+
 ####################################################
 # poor make init
 
-def runTrendsAndDiffs():
+def runTrendsScaledBkgDownstream():
+    runTrendsScaledBkg()
+    runDiffsScaledBkg()
+
+
+def runFitsScaledBkgDownstream():
+    runFitsScaledBkg()
+    runTrendsScaledBkgDownstream()
+
+
+def runTrendsDownstream():
     runTrends()
     runDiffs()
+    runFitsScaledBkgDownstream()
 
 
 def runFitsDownstream():
     runFits()
-    runTrendsAndDiffs()
+    runTrendsDownstream()
 
 
 def runDivideDownstream():

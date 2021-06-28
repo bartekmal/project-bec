@@ -5,8 +5,17 @@
 
 #include "fitModel.C"
 
+#include "TFile.h"
+#include "TH1D.h"
 #include "TF1.h"
 #include "TF3.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
+#include "TLatex.h"
+#include "TLine.h"
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TLegend.h"
 
 #include "Fit/BinData.h"
 #include "Fit/FitConfig.h"
@@ -18,6 +27,8 @@
 #include "Math/MinimizerOptions.h"
 
 #include <memory>
+#include <iostream>
+#include <vector>
 
 // use consts from Units
 using namespace HBT::Units;
@@ -37,7 +48,6 @@ const HBT::Units::FloatType lineWidth = 1.0;
 const Double_t fitRangeLikeMin = 0.05;
 const Double_t fitRangeUnlikeMin = 0.25;
 const Double_t fitRangeMcMin = 0.25;
-const Double_t fitRangeBkgScaleMin = 0.4;
 const Double_t fitRangeMax = 2.0;
 
 /*-------------- enf of configuration -------------*/
@@ -379,7 +389,7 @@ std::string getBinCombinations(const DataStructure &binDataSet)
     return ss.str();
 }
 
-void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
+void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagUseBkgScaling, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
 {
     // set ROOT style
     HBT::Utils::setStyle();
@@ -393,9 +403,10 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
 
     const TString binsType = isMultBinsOnly ? TString("mult") : TString("kT");
     const TString histType = flagIsUnlike ? TString("UNLIKE") : TString("LIKE");
-    const TString funcName = flagIsBkgScaling ? TString("funcBkgScaling") : TString("funcMain");
+    const TString funcName = TString("funcMain");
     const TString title = funcName + "_" + binsType + "_" + histType;
     const TString resName = binsType + "_globalFit";
+    const TString funcBkgScalingName = "funcScaleZ";
 
     // get info on analysis bins
     const auto selection = SelectionClass();
@@ -419,12 +430,13 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     // optional file with reference histograms / fits
     auto fInRef = flagDrawRef ? std::make_unique<TFile>(inputFileRef, "READ") : nullptr;
     auto fInRefFitResults = flagUseBkgFromRef ? std::make_unique<TFile>(TString(inputFileRef).ReplaceAll("correlations.root", "fitResults.root").ReplaceAll("correlations", "fits"), "READ") : nullptr;
+    auto fInRefBkgScaling = flagUseBkgScaling ? std::make_unique<TFile>(TString(inputFileRef).ReplaceAll("correlations.root", "trends.root").ReplaceAll("correlations", "trends"), "READ") : nullptr;
 
     // prepare a generic fit function (for the given histogram type)
     const auto fitParams = flagIsUnlike ? prepareParamsUnlike(isMultBinsOnly) : prepareParamsFull(isMultBinsOnly); // pass isMultBinsOnly to make kT terms neutral for mult bins
-    const auto fitRangeMin = flagIsBkgScaling ? fitRangeBkgScaleMin : flagIsMc   ? fitRangeMcMin
-                                                                  : flagIsUnlike ? fitRangeUnlikeMin
-                                                                                 : fitRangeLikeMin;
+    const auto fitRangeMin = flagIsMc       ? fitRangeMcMin
+                             : flagIsUnlike ? fitRangeUnlikeMin
+                                            : fitRangeLikeMin;
     auto funcMain = std::make_unique<TF3>(funcName, flagIsUnlike ? funcFullUnlike : funcFullLike, fitRangeMin, fitRangeMax, 0, maxMultValue, 0, maxKtValue, fitParams.size());
 
     // create data structures
@@ -620,10 +632,10 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             // prepare pads
             tc->cd(j + 1);
 
-            TLegend *tl = new TLegend(0.30, 0.70, 0.60, 0.85);
+            auto tl = new TLegend(0.30, 0.70, 0.60, 0.85);
 
-            TPad *p1 = new TPad("p1", "p1", 0., 0.33, 1., 1.);
-            TPad *p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
+            auto p1 = new TPad("p1", "p1", 0., 0.33, 1., 1.);
+            auto p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
             p2->SetBottomMargin(0.15);
             p1->Draw();
             p2->Draw();
@@ -678,12 +690,22 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                         // scale the bkg amplitude if needed
                         if (flagUseBkgScaling)
                         {
-                            // use a free z parameter for now (do not do anything)
+                            // use the scaling obtained from trends of the free z parameter
+                            auto fBkgScale = (TF1 *)fInRefBkgScaling->Get(HBT::Utils::getBkgScalingFuncName(funcBkgScalingName, isMultBinsOnly, j));
+
+                            if (!fBkgScale)
+                            {
+                                std::cout << "Fit (for bkg scaling) is not valid: \n\t" << hMain << "\n\t" << funcFit[iFit][jFit] << std::endl;
+                                continue;
+                            }
+
+                            curFitParams.at("scaleZ").fixToValue(fBkgScale->Eval(curMultValues[i]));
                         }
                     }
                     else
                     {
                         std::cout << "Fit with the bkg parameters is not valid: \n\t" << hMain << "\n\t" << funcFit[iFit][jFit] << std::endl;
+                        continue;
                     }
 
                     fOut->cd();
@@ -808,9 +830,13 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     {
         fInRefFitResults->Close();
     }
+    if (fInRefBkgScaling != nullptr)
+    {
+        fInRefBkgScaling->Close();
+    }
 }
 
-void fitInBins(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, TString hCommonEndNameForMult, TString hCommonEndNameForKt, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagIsBkgScaling, const bool flagUseBkgScaling, const TString funcNameBkgScalingMain, const TString funcNameBkgScalingRef, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinMultForKtLower, const int &ignoreBinMultForKtUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
+void fitInBins(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, TString hCommonEndNameForMult, TString hCommonEndNameForKt, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagUseBkgScaling, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinMultForKtLower, const int &ignoreBinMultForKtUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
 {
     // get configuration
     auto selection = SelectionClass();
@@ -820,7 +846,7 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const TStri
     auto nrBinsKt = selection.getNrOfBinsKt();
 
     // call for mult bins only
-    fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef, ignoreBinMultLower, ignoreBinMultUpper, 0, 1);
+    fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultLower, ignoreBinMultUpper, 0, 1);
     // call for mult + kT bins
-    fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagIsBkgScaling, flagUseBkgScaling, funcNameBkgScalingMain, funcNameBkgScalingRef, ignoreBinMultForKtLower, ignoreBinMultForKtUpper, ignoreBinKtLower, ignoreBinKtUpper);
+    fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultForKtLower, ignoreBinMultForKtUpper, ignoreBinKtLower, ignoreBinKtUpper);
 }
