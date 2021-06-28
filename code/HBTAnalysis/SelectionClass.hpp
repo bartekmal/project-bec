@@ -39,6 +39,7 @@ private:
     std::vector<HBT::Units::FloatType> m_binsOfMultiplicity;
     std::vector<HBT::Units::FloatType> m_binsOfMultiplicityForKt;
     std::vector<HBT::Units::FloatType> m_binsOfKt;
+    std::vector<HBT::Units::FloatType> m_averageKtForMultBins;
 
     // utility functions
     inline std::vector<HBT::Units::FloatType> getBinErrors(const std::vector<HBT::Units::FloatType> &bins) const;
@@ -80,6 +81,8 @@ public:
     inline std::vector<std::string> getBinsOfMultiplicityForKtRangesAsStrings() const { return getBinRangesAsStrings(m_binsOfMultiplicityForKt, true); }
     inline std::vector<std::string> getBinsOfKtRangesAsStrings() const { return getBinRangesAsStrings(m_binsOfKt, false); }
 
+    inline std::vector<HBT::Units::FloatType> getAverageKtForMultBins() const { return m_averageKtForMultBins; }
+
     SelectionClass()
     {
         initializeSelectionCuts();
@@ -110,6 +113,7 @@ inline void SelectionClass::initializeSelectionCuts()
     this->m_binsOfMultiplicity = {0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 80, 90, 100, 115, 140, 180};
     this->m_binsOfMultiplicityForKt = {0, 25, 35, 45, 55, 65, 80, 110, 160};
     this->m_binsOfKt = {0., 0.15, 0.3, 0.4, 0.5, 0.65, 0.95};
+    this->m_averageKtForMultBins = {0.4846}; // use some const for kT (average value in the pPb sample : 0.4846 GeV)
 
     // sanitize input (bins)
     assert(m_binsOfMultiplicity.size() >= 2);

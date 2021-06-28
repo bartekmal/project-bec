@@ -2,6 +2,7 @@
 #define UNITS_H
 
 #include <unordered_map>
+#include <limits>
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -24,6 +25,7 @@ namespace HBT
     const FloatType Pi = TMath::Pi();
     const FloatType TwoPi = 2 * TMath::Pi();
     const FloatType RadToDeg = 180.0 / TMath::Pi();
+    const float Infinity = std::numeric_limits<float>::max();
 
     //define consts (physics)
     const FloatType MassPion = 0.140;
