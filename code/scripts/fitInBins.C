@@ -848,5 +848,5 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const TStri
     // call for mult bins only
     fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultLower, ignoreBinMultUpper, 0, 1);
     // call for mult + kT bins
-    fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultForKtLower, ignoreBinMultForKtUpper, ignoreBinKtLower, ignoreBinKtUpper);
+    // fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultForKtLower, ignoreBinMultForKtUpper, ignoreBinKtLower, ignoreBinKtUpper);
 }

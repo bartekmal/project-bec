@@ -226,6 +226,6 @@ void drawHistograms(const TString inputFile, const TString hMainNameBase, const 
     if (flagBins >= 1)
         drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
     // call for mult + kT bins
-    if (flagBins >= 2)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
+    // if (flagBins >= 2)
+    //     drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
 }
