@@ -221,7 +221,7 @@ void drawTrends(const TString inputFile, const TString hNameBase, const TString 
     // call trend in mult (mult bins only)
     drawTrendsGeneric(inputFile, hNameBase, fName, true, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult);
     // call trend in mult (mult + kT bins)
-    drawTrendsGeneric(inputFile, hNameBase, fName, true, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
+    // drawTrendsGeneric(inputFile, hNameBase, fName, true, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
     // call trend in kT (mult + kT bins)
-    drawTrendsGeneric(inputFile, hNameBase, fName, false, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
+    // drawTrendsGeneric(inputFile, hNameBase, fName, false, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt);
 }

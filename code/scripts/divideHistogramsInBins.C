@@ -174,5 +174,5 @@ void divideHistogramsInBins(const TString file1, const TString h1BaseName, const
   // call for mult bins only
   divideHistogramsInBinsGeneric(file1, h1BaseName, file2, h2BaseName, fileOut, hOutBaseName, isDR, nrBinsMult, 0, hCommonEndNameForMult, flagCorrectCoulomb, isLike, flagRemoveResonances);
   // call for mult + kT bins
-  divideHistogramsInBinsGeneric(file1, h1BaseName, file2, h2BaseName, fileOut, hOutBaseName, isDR, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagCorrectCoulomb, isLike, flagRemoveResonances);
+  // divideHistogramsInBinsGeneric(file1, h1BaseName, file2, h2BaseName, fileOut, hOutBaseName, isDR, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagCorrectCoulomb, isLike, flagRemoveResonances);
 }
