@@ -485,13 +485,14 @@ inline std::vector<HBT::Units::TH2FloatType> HBT::Histograms::CreateHistogramSer
 
 inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSeries3000(const std::string &setHeader, const std::string &pairType, const int &currentMultiplicityBin, const int &currentKtBin)
 {
+  const HBT::Units::FloatType factorForMaxRange = 1.25;
 
   //helpful constants
   const HBT::Units::FloatType qRangeMin = 0.0;
-  const HBT::Units::FloatType qRangeMax = 2.0;
+  const HBT::Units::FloatType qRangeMax = 2.0 * factorForMaxRange;
   const HBT::Units::FloatType qExtendedRangeMax = 5.0;
   // const HBT::Units::FloatType qLCMSRangeMax = 1.0;
-  const int qBinning = 400;
+  const int qBinning = 400 * factorForMaxRange;
   const int qExtendedBinning = qBinning / 2 * (qExtendedRangeMax / qRangeMax);
 
   const HBT::Units::FloatType chargedParticleMultiplicityMax = 200.0;
