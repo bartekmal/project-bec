@@ -712,7 +712,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                                 continue;
                             }
 
-                            curFitParams.at("scaleZ").fixToValue(fBkgScale->Eval(curMultValues[i]));
+                            curFitParams.at("scaleZ").fixToValue(fBkgScale->Eval(curMultValues[i]) + 0.15f);
                         }
                     }
                     else
