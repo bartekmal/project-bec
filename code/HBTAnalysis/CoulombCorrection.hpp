@@ -12,7 +12,7 @@ namespace HBT
   {
 
     // assumed source radius used for Coulomb correction
-    const HBT::Units::FloatType REffForPions = 2.;
+    const HBT::Units::FloatType REffForPions = 0.5;
 
     inline HBT::Units::FloatType Gamov(const HBT::Units::FloatType &Q, const bool &sameSign, const HBT::Units::FloatType &particleMass)
     {
