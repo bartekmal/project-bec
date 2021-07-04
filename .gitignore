@@ -1,3 +1,8 @@
+# analysis files
+analysis/
+
+#editor files
+.vscode/
 
 #
 *.exe
