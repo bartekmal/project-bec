@@ -43,10 +43,10 @@ using FuncStructure = std::vector<FuncStructureKt>;
 
 /*-------------- configuration -------------------*/
 
-const Double_t fitRangeLikeMin = 0.05;
+const Double_t fitRangeLikeMin = 0.04;
 const Double_t fitRangeUnlikeMin = 0.25;
 const Double_t fitRangeMcMin = 0.25;
-const Double_t fitRangeMax = 2.2;
+const Double_t fitRangeMax = 2.0;
 
 const HBT::Units::FloatType descriptionPosX = 0.425;
 const HBT::Units::FloatType descriptionPosY = 0.25;

@@ -106,7 +106,7 @@ inline void SelectionClass::initializeSelectionCuts()
     this->m_kNNCut = 0.5f;
     this->m_pNNCut = 0.5f;
 
-    this->m_qCut = 0.05f;
+    this->m_qCut = 0.04f;
     this->m_openingAngleCut = 0.0003f; //rad
 
     // ! bin ranges are given as [min,max) values (keep in mind for errors/centres/strings logics)
