@@ -43,6 +43,8 @@ namespace HBT
     {
       return 0.197f * sizeInGevInv;
     }
+    
+    const FloatType signForWidthChange = -1.0;
 
     // resonances info
     struct Resonance
@@ -63,10 +65,10 @@ namespace HBT
 
     // widths are related to the resonance width or the detector resolution; ranges in Q are set to match the edges of the Q bins (avoid 'half-empty' bins)
     std::unordered_map<std::string, Resonance> Resonances{
-        {"rho0(770)", Resonance(0.770, 0.150, 0.55 - 0.033, 0.88 + 0.033)},
-        {"K0s", Resonance(0.497, 0.020, 0.38 - 0.006, 0.44 + 0.006)},
-        {"f0(980)", Resonance(0.980, 0.0, 0.91 - 0.006, 0.97 + 0.006)},
-        {"f2(1270)", Resonance(1.270, 0.0, 1.21 - 0.006, 1.27 + 0.006)}};
+        {"rho0(770)", Resonance(0.770, 0.150, 0.55 - signForWidthChange * 0.033, 0.88 + signForWidthChange * 0.033)},
+        {"K0s", Resonance(0.497, 0.020, 0.38 - signForWidthChange * 0.006, 0.44 + signForWidthChange * 0.006)},
+        {"f0(980)", Resonance(0.980, 0.0, 0.91 - signForWidthChange * 0.006, 0.97 + signForWidthChange * 0.006)},
+        {"f2(1270)", Resonance(1.270, 0.0, 1.21 - signForWidthChange * 0.006, 1.27 + signForWidthChange * 0.006)}};
 
   } // namespace Units
 
