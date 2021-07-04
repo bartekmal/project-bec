@@ -106,7 +106,7 @@ namespace HBT
 inline void HBT::EventMixing::configureEventMixing()
 {
 
-  m_numberOfEventsForMixing = 20;
+  m_numberOfEventsForMixing = 50;
   m_maxNrOfTriesForEachPair = 5;
 
   //parameters for event classes
