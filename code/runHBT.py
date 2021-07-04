@@ -75,13 +75,13 @@ histogramsToDraw = [
      'dim': '1D', 'type': 'integrated', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h3003', 'refName': 'h3003', 'flagRefInput': 'custom', 'nameEnd': '',
      'dim': '1D', 'type': 'integrated', 'flagBins': 1, 'isHistFullName': False},
-    # {'name': 'h3010', 'refName': 'h3510', 'flagRefInput': 'same', 'nameEnd': '_400',
+    # {'name': 'h3010', 'refName': 'h3510', 'flagRefInput': 'same', 'nameEnd': '_200',
     #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
-    # {'name': 'h3510', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_400',
+    # {'name': 'h3510', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_200',
     #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
-    # {'name': 'h3110', 'refName': 'h3610', 'flagRefInput': 'same', 'nameEnd': '_400',
+    # {'name': 'h3110', 'refName': 'h3610', 'flagRefInput': 'same', 'nameEnd': '_200',
     #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
-    # {'name': 'h3610', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_400',
+    # {'name': 'h3610', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_200',
     #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
 
     # 2D - mult / kT VS Q (LIKE & EVMIX)
@@ -610,8 +610,8 @@ def runDivide(outputFolderName="correlations"):
             'hOutNameLike': "h4010",
             'hOutNameUnlike': "h4110",
             'isDR': False,
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400",
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200",
             'flagCorrectCoulomb': False
         },
         {
@@ -625,8 +625,8 @@ def runDivide(outputFolderName="correlations"):
             'hOutNameLike': "h4010",
             'hOutNameUnlike': "h4110",
             'isDR': False,
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400",
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200",
             'flagCorrectCoulomb': False
         },
         {
@@ -640,8 +640,8 @@ def runDivide(outputFolderName="correlations"):
             'hOutNameLike': "h4010",
             'hOutNameUnlike': "h4110",
             'isDR': False,
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400",
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200",
             'flagCorrectCoulomb': False
         },
         {
@@ -655,8 +655,8 @@ def runDivide(outputFolderName="correlations"):
             'hOutNameLike': "h4010",
             'hOutNameUnlike': "h4110",
             'isDR': False,
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400",
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200",
             'flagCorrectCoulomb': False
         },
         {
@@ -670,8 +670,8 @@ def runDivide(outputFolderName="correlations"):
             'hOutNameLike': "h5010",
             'hOutNameUnlike': "h5110",
             'isDR': True,
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400",
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200",
             'flagCorrectCoulomb': False
         },
         {
@@ -685,8 +685,8 @@ def runDivide(outputFolderName="correlations"):
             'hOutNameLike': "h5010",
             'hOutNameUnlike': "h5110",
             'isDR': True,
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400",
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200",
             'flagCorrectCoulomb': False
         },
 
@@ -726,8 +726,8 @@ def runFits(outputFolderName="fits"):
         #     'isMC' : "true",
         #     'isUnlike' : "true",
         #     'outputFolder' : "MC_pPb",
-        #     'hCommonEndNameForMult' : "_400",
-        #     'hCommonEndNameForKt' : "_400",
+        #     'hCommonEndNameForMult' : "_200",
+        #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : 1,
         #     'inputFileRef' : "",
         #     'hRefNameBase' : "",
@@ -741,8 +741,8 @@ def runFits(outputFolderName="fits"):
         #     'isMC' : "true",
         #     'isUnlike' : "true",
         #     'outputFolder' : "MC_Pbp",
-        #     'hCommonEndNameForMult' : "_400",
-        #     'hCommonEndNameForKt' : "_400",
+        #     'hCommonEndNameForMult' : "_200",
+        #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : 1,
         #     'inputFileRef' : "",
         #     'hRefNameBase' : "",
@@ -758,8 +758,8 @@ def runFits(outputFolderName="fits"):
         #     'isMC' : "true",
         #     'isUnlike' : "false",
         #     'outputFolder' : "MC_pPb",
-        #     'hCommonEndNameForMult' : "_400",
-        #     'hCommonEndNameForKt' : "_400",
+        #     'hCommonEndNameForMult' : "_200",
+        #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : 1,
         #     'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
         #     'hRefNameBase' : "h4110",
@@ -773,8 +773,8 @@ def runFits(outputFolderName="fits"):
         #     'isMC' : "true",
         #     'isUnlike' : "false",
         #     'outputFolder' : "MC_Pbp",
-        #     'hCommonEndNameForMult' : "_400",
-        #     'hCommonEndNameForKt' : "_400",
+        #     'hCommonEndNameForMult' : "_200",
+        #     'hCommonEndNameForKt' : "_200",
         #     'flagDoFit' : 1,
         #     'inputFileRef' : os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
         #     'hRefNameBase' : "h4110",
@@ -792,8 +792,8 @@ def runFits(outputFolderName="fits"):
             'isMC': "false",
             'isUnlike': "true",
             'outputFolder': "RD_pPb",
-            'hCommonEndNameForMult': "_400",
-            'hCommonEndNameForKt': "_400",
+            'hCommonEndNameForMult': "_200",
+            'hCommonEndNameForKt': "_200",
             'flagDoFit': 2,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
             'hRefNameBase': "h4110",
@@ -816,8 +816,8 @@ def runFits(outputFolderName="fits"):
             'isMC': "false",
             'isUnlike': "true",
             'outputFolder': "RD_Pbp",
-            'hCommonEndNameForMult': "_400",
-            'hCommonEndNameForKt': "_400",
+            'hCommonEndNameForMult': "_200",
+            'hCommonEndNameForKt': "_200",
             'flagDoFit': 2,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
             'hRefNameBase': "h4110",
@@ -843,8 +843,8 @@ def runFits(outputFolderName="fits"):
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_pPb",
-            'hCommonEndNameForMult': "_400",
-            'hCommonEndNameForKt': "_400",
+            'hCommonEndNameForMult': "_200",
+            'hCommonEndNameForKt': "_200",
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hRefNameBase': "h4110",
@@ -867,8 +867,8 @@ def runFits(outputFolderName="fits"):
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_Pbp",
-            'hCommonEndNameForMult': "_400",
-            'hCommonEndNameForKt': "_400",
+            'hCommonEndNameForMult': "_200",
+            'hCommonEndNameForKt': "_200",
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hRefNameBase': "h4110",
@@ -913,16 +913,16 @@ def runTrends(outputFolderName="trends"):
         #     'hBaseName' : "h4110",
         #     'flagIsUnlike' : "true",
         #     'outputFolder' : "MC_pPb",
-        #     'hNameCommonEndForMult' : "_400",
-        #     'hNameCommonEndForKt' : "_400"
+        #     'hNameCommonEndForMult' : "_200",
+        #     'hNameCommonEndForKt' : "_200"
         # },
         # {
         #     'fileName' : os.getenv('MYDIR') + "/output/fits/MC_Pbp/fitResults.root",
         #     'hBaseName' : "h4110",
         #     'flagIsUnlike' : "true",
         #     'outputFolder' : "MC_Pbp",
-        #     'hNameCommonEndForMult' : "_400",
-        #     'hNameCommonEndForKt' : "_400"
+        #     'hNameCommonEndForMult' : "_200",
+        #     'hNameCommonEndForKt' : "_200"
         # },
 
         # MC LIKE
@@ -931,16 +931,16 @@ def runTrends(outputFolderName="trends"):
         #     'hBaseName' : "h4010",
         #     'flagIsUnlike' : "false",
         #     'outputFolder' : "MC_pPb",
-        #     'hNameCommonEndForMult' : "_400",
-        #     'hNameCommonEndForKt' : "_400"
+        #     'hNameCommonEndForMult' : "_200",
+        #     'hNameCommonEndForKt' : "_200"
         # },
         # {
         #     'fileName' : os.getenv('MYDIR') + "/output/fits/MC_Pbp/fitResults.root",
         #     'hBaseName' : "h4010",
         #     'flagIsUnlike' : "false",
         #     'outputFolder' : "MC_Pbp",
-        #     'hNameCommonEndForMult' : "_400",
-        #     'hNameCommonEndForKt' : "_400"
+        #     'hNameCommonEndForMult' : "_200",
+        #     'hNameCommonEndForKt' : "_200"
         # },
 
         # DATA UNLIKE
@@ -950,8 +950,8 @@ def runTrends(outputFolderName="trends"):
         #     'fName': "funcMain",
         #     'flagIsUnlike': "true",
         #     'outputFolder': "RD_pPb",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
+        #     'hNameCommonEndForMult': "_200",
+        #     'hNameCommonEndForKt': "_200"
         # },
         # {
         #     'fileName': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -959,8 +959,8 @@ def runTrends(outputFolderName="trends"):
         #     'fName': "funcMain",
         #     'flagIsUnlike': "true",
         #     'outputFolder': "RD_Pbp",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
+        #     'hNameCommonEndForMult': "_200",
+        #     'hNameCommonEndForKt': "_200"
         # },
 
         # DATA LIKE
@@ -970,8 +970,8 @@ def runTrends(outputFolderName="trends"):
             'fName': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_pPb",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         },
         {
             'fileName': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -979,8 +979,8 @@ def runTrends(outputFolderName="trends"):
             'fName': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_Pbp",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         }
     ]
 
@@ -1016,8 +1016,8 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
         #     'fNameRef': "funcMain",
         #     'flagIsUnlike': "true",
         #     'outputFolder': "RD_pPb",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
+        #     'hNameCommonEndForMult': "_200",
+        #     'hNameCommonEndForKt': "_200"
         # },
         # {
         #     'fileNameMain': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -1028,8 +1028,8 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
         #     'fNameRef': "funcMain",
         #     'flagIsUnlike': "true",
         #     'outputFolder': "RD_Pbp",
-        #     'hNameCommonEndForMult': "_400",
-        #     'hNameCommonEndForKt': "_400"
+        #     'hNameCommonEndForMult': "_200",
+        #     'hNameCommonEndForKt': "_200"
         # },
 
         # DATA LIKE
@@ -1042,8 +1042,8 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
             'fNameRef': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_pPb",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         },
         {
             'fileNameMain': os.getenv('MYDIR') + "/output/fits/RD_Pbp/fitResults.root",
@@ -1054,8 +1054,8 @@ def runDiffs(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/output/fits",
             'fNameRef': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_Pbp",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         }
     ]
 
@@ -1091,8 +1091,8 @@ def runFitsScaledBkg(outputFolderName="fits_scaledBkg"):
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_pPb",
-            'hCommonEndNameForMult': "_400",
-            'hCommonEndNameForKt': "_400",
+            'hCommonEndNameForMult': "_200",
+            'hCommonEndNameForKt': "_200",
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hRefNameBase': "h4110",
@@ -1115,8 +1115,8 @@ def runFitsScaledBkg(outputFolderName="fits_scaledBkg"):
             'isMC': "false",
             'isUnlike': "false",
             'outputFolder': "RD_Pbp",
-            'hCommonEndNameForMult': "_400",
-            'hCommonEndNameForKt': "_400",
+            'hCommonEndNameForMult': "_200",
+            'hCommonEndNameForKt': "_200",
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hRefNameBase': "h4110",
@@ -1162,8 +1162,8 @@ def runTrendsScaledBkg(outputFolderName="trends_scaledBkg"):
             'fName': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_pPb",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         },
         {
             'fileName': os.getenv('MYDIR') + "/output/fits_scaledBkg/RD_Pbp/fitResults.root",
@@ -1171,8 +1171,8 @@ def runTrendsScaledBkg(outputFolderName="trends_scaledBkg"):
             'fName': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_Pbp",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         }
     ]
 
@@ -1208,8 +1208,8 @@ def runDiffsScaledBkg(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/outp
             'fNameRef': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_pPb",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         },
         {
             'fileNameMain': os.getenv('MYDIR') + "/output/fits_scaledBkg/RD_Pbp/fitResults.root",
@@ -1220,8 +1220,8 @@ def runDiffsScaledBkg(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/outp
             'fNameRef': "funcMain",
             'flagIsUnlike': "false",
             'outputFolder': "RD_Pbp",
-            'hNameCommonEndForMult': "_400",
-            'hNameCommonEndForKt': "_400"
+            'hNameCommonEndForMult': "_200",
+            'hNameCommonEndForKt': "_200"
         }
     ]
 
