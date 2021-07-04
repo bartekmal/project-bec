@@ -129,7 +129,7 @@ std::map<std::string, FitParam> prepareParamsGeneral()
 
         {"scaleZ", FitParam(9, "#font[12]{z}", 1.0, false, {0., 2.}, {0.4, 1.4}, {-40., 40.})},
 
-        {"radiusEff", FitParam(10, "#font[12]{R_{#font[122]{eff}}} [fm]", R_eff, true, {0., 5.}, {0., 5.}, {-100., 100.})},
+        {"radiusEff", FitParam(10, "#font[12]{R_{#font[122]{eff}}} [fm]", R_eff, true, {0., R_eff}, {0., R_eff}, {-100., 100.})},
 
         {"radius", FitParam(11, "#font[12]{R} [GeV^{-1}]", 15.0, false, {0., 50.}, {0., 30.}, {-40., 40.})},
         {"alphaLevy", FitParam(12, "#font[12]{#alpha_{#font[122]{L}}}", 1.0, true, {0., 2.}, {0., 2.}, {-60., 60.})},
