@@ -100,7 +100,7 @@ inline void SelectionClass::initializeSelectionCuts()
     this->m_pCut = 2.0f;
     this->m_ptCut = 0.1f;
     this->m_sharedVeloHitsCut = 0.999999f;
-    this->m_ghostNNCut = 0.25f;
+    this->m_ghostNNCut = 0.5f;
 
     this->m_piNNCut = 0.65f;
     this->m_kNNCut = 0.5f;
