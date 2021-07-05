@@ -106,7 +106,7 @@ std::map<std::string, FitParam> prepareParamsBkgSigma()
     return {
         {"sigmaBkgSig0", FitParam(0, "#font[12]{#sigma_{0}}", 0.5, false, {0.0, 2.0}, {0.0, 2.0}, {-40., 40.})},
         {"sigmaBkgSig1", FitParam(1, "#font[12]{#sigma_{1}}", 0.5, false, {0.0, 2.0}, {0.0, 2.0}, {-40., 40.})},
-        {"sigmaBkgMult0", FitParam(2, "#font[12]{N_{0}}", 15, true, {0, 100}, {0.0, 100.0}, {-40., 40.})},
+        {"sigmaBkgMult0", FitParam(2, "#font[12]{N_{0}}", 20, true, {0, 100}, {0.0, 100.0}, {-40., 40.})},
         {"sigmaBkgExpKt", FitParam(3, "#font[12]{n_{k_{#font[122]{T}}}}", 0.1, false, {0., 1.}, {0.0, 1.0}, {-40., 40.})},
     };
 }
