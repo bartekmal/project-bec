@@ -1174,8 +1174,43 @@ def runDiffsScaledBkg(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/outp
         ))
 
 
+def runSystematics(outputFolderName="systematics"):
+
+    # prepare output directory
+    outputDirPath = prepareFolder(
+        os.getenv('MYDIR') + '/output', outputFolderName)
+
+    print(f'Running {outputFolderName} in directory:\n{outputDirPath}\n')
+
+    # define jobs
+    jobsToRun = [
+        # DATA LIKE
+        {
+            'fileName': "output/fits_scaledBkg/RD_pPb/fitResults.root",
+            'hBaseName': "h4010",
+            'hNameCommonEndForMult': "_400",
+            'fName': "funcMain",
+            'outputFolder': "RD_pPb"
+        },
+        {
+            'fileName': "output/fits_scaledBkg/RD_Pbp/fitResults.root",
+            'hBaseName': "h4010",
+            'hNameCommonEndForMult': "_400",
+            'fName': "funcMain",
+            'outputFolder': "RD_Pbp"
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        recreateAndChangeDir(aJob['outputFolder'])
+
+        os.system('lb-conda default python ' +
+                  f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/systematics.py "{aJob["fileName"]}" "{aJob["hBaseName"]}" "{aJob["hNameCommonEndForMult"]}" "{aJob["fName"]}" >> {outputFolderName}.log')
 ####################################################
 # poor make init
+
 
 def runTrendsScaledBkgDownstream():
     runTrendsScaledBkg()
