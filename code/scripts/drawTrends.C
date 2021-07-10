@@ -13,6 +13,7 @@
 Double_t maxForMult = 180.;
 Double_t maxForKt = 1.0;
 const int padSize = 1200;
+const float bkgScalingBandWidth = 0.15f;
 
 /*-------------- enf of configuration -------------*/
 
@@ -35,6 +36,15 @@ void setStyleLocal()
     gStyle->SetOptFit(0);
     gStyle->SetStatX(0.875);
     gStyle->SetStatY(0.3);
+}
+
+// add base function with an offset to the given graph
+void addFunction(TGraphErrors &graph, const TF1 &funcBase, const float &offset, const unsigned int &offsetParamId)
+{
+    const auto func = new TF1(funcBase);
+    func->FixParameter(offsetParamId, offset);
+    func->SetLineStyle(9);
+    graph.GetListOfFunctions()->Add(func);
 }
 
 // add an entry to the given graph, corresponding to a parameter value obtained from a fit in the given bin (checks if the fit result is valid)
@@ -154,11 +164,12 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
                 auto &curGraph = tGraphs[i];
 
                 // configure fit
-                auto fTrend = std::make_unique<TF1>(funcScaleZName, "([0] * x + [1]) / (1 + [0] * x + [1])", 1., maxForMult); // make sure not to take points at 0,0 (they should be not there in principle)
-                fTrend->SetParNames("a", "b");
-                fTrend->SetParameters(0.5, 0.5);
+                const auto fTrend = std::make_unique<TF1>(funcScaleZName, "([0] * x + [1]) / (1 + [0] * x + [1]) + [2]", 1., maxForMult); // make sure not to take points at 0,0 (they should be not there in principle)
+                fTrend->SetParNames("a", "b", "offset");
+                fTrend->SetParameters(0.5, 0.5, 0.0);
                 fTrend->SetParLimits(0, 0, 10);
                 fTrend->SetParLimits(1, 0, 10);
+                fTrend->FixParameter(2, 0.0);
                 // fTrend->SetLineColor(gStyle->GetColorPalette(i));
 
                 // do fit and save if valid
@@ -174,6 +185,10 @@ void drawTrendsGeneric(const TString inputFile, const TString hNameBase, const T
                         gStyle->SetOptFit(111);
                         curGraph.UseCurrentStyle();
                         gStyle->SetOptFit(curStyle);
+
+                        // plot also band around the main trend (for systematics)
+                        addFunction(curGraph, *(fTrend.get()), -1.0 * bkgScalingBandWidth, 2);
+                        addFunction(curGraph, *(fTrend.get()), 1.0 * bkgScalingBandWidth, 2);
                     }
                 }
                 else
