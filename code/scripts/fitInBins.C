@@ -43,7 +43,7 @@ using FuncStructure = std::vector<FuncStructureKt>;
 
 /*-------------- configuration -------------------*/
 
-const Double_t fitRangeLikeMin = 0.04;
+const Double_t fitRangeLikeMin = 0.06;
 const Double_t fitRangeUnlikeMin = 0.25;
 const Double_t fitRangeMcMin = 0.25;
 const Double_t fitRangeMax = 2.0;
