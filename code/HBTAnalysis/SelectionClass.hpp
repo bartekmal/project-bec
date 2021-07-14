@@ -92,8 +92,8 @@ public:
 inline void SelectionClass::initializeSelectionCuts()
 {
 
-    this->m_zPvMin = -192.;
-    this->m_zPvMax = 72.;
+    this->m_zPvMin = -128.;
+    this->m_zPvMax = 48.;
 
     this->m_trackChi2Cut = 2.0f;
     this->m_ipCut = 0.4f;
