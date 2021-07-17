@@ -86,6 +86,7 @@ class ContributionConfig:
 
 
 listOfParams = ['radius', 'lambda']
+paramUnits = {'radius': 'GeV-1', 'lambda': '-'}
 
 keyMainResult = 'main'
 keyTotalSystError = 'syst'
@@ -351,16 +352,15 @@ def printResults(results, description):
         print('')
 
 
-def saveAsFile(binCentres, fitResults, errors, paramKey, errorKey):
+def saveAsFile(fileName, header, binCentres, fitResults, errors, paramKey):
 
-    outputName = f'mult_{paramKey}_{errorKey}.csv'
-
-    with open(outputName, 'w', encoding='utf8') as outputFile:
+    with open(fileName, 'w', encoding='utf8') as outputFile:
+        outputFile.write(header)
         # list of (common) valid bins (results only contain valid fits)
         bins = fitResults.keys()
         for bin in bins:
             outputFile.write(
-                f'{binCentres[bin]:6.2f}\t{fitResults[bin][paramKey][keyMainResult].getValue():7.4f}\t{errors[bin][paramKey][errorKey].getAbs():7.4f}\n')
+                f'{binCentres[bin]:6.2f}\t{fitResults[bin][paramKey][keyMainResult].getValue():7.4f}\t{errors[bin][paramKey][keyStatError].getAbs():7.4f}\t{errors[bin][paramKey][keyTotalSystError].getAbs():7.4f}\n')
 
 
 # main part
@@ -431,8 +431,8 @@ def main():
 
     # save total systematic and statisctical uncertainty
     for param in fitParams.keys():
-        saveAsFile(binCentres, results, totalErrors, param, keyTotalSystError)
-        saveAsFile(binCentres, results, statErrors, param, keyStatError)
+        saveAsFile(f'{param}_multReconstructed.csv',
+                   f'N_rec(bin centre)\t{param}[{paramUnits[param]}]\tstat[{paramUnits[param]}]\tsyst[{paramUnits[param]}]\n', binCentres, results, summary, param)
 
 
 if __name__ == '__main__':
