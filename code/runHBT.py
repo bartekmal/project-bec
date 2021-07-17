@@ -1208,6 +1208,31 @@ def runSystematics(outputFolderName="systematics"):
 
         os.system('lb-conda default python ' +
                   f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/systematics.py "{aJob["fileName"]}" "{aJob["hBaseName"]}" "{aJob["hNameCommonEndForMult"]}" "{aJob["fName"]}" >> {outputFolderName}.log')
+
+
+def runDiscussion(outputFolderName="discussion"):
+
+    # prepare output directory
+    outputDirPath = os.getenv('MYDIR') + '/output'
+
+    print(f'Running {outputFolderName} in directory:\n{outputDirPath}\n')
+
+    # define jobs
+    jobsToRun = [
+        # DATA LIKE
+        {
+            'basePath': os.getenv("BEC_BASE_ANALYSIS"),
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        recreateAndChangeDir(outputFolderName)
+
+        os.system('root -l -b -q \'' +
+                  f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/discussion.C("{aJob["basePath"]}")\' >> {outputFolderName}.log')
+
 ####################################################
 # poor make init
 
@@ -1241,6 +1266,11 @@ def runDivideDownstream():
 def runMergeDownstream():
     runMerge()
     runDivideDownstream()
+
+
+def runSystematicsDownstream():
+    runSystematics()
+    runDiscussion()
 
 
 def runAll():
