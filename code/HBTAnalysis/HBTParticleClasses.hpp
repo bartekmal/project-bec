@@ -116,6 +116,8 @@ namespace HBT
     HBT::Units::FloatType m_pt2{};
 
     int m_pairMCID{};
+    int m_hasClone{};
+    int m_hasGhost{};
     HBT::Units::FloatType m_invariantMass{};
     HBT::Units::FloatType m_chargedParticleMultiplicity{};
     HBT::Units::FloatType m_kt{};
@@ -153,6 +155,8 @@ namespace HBT
                                                                            m_pt1(part1.m_pt),
                                                                            m_pt2(part2.m_pt),
                                                                            m_pairMCID(assignPairMCID(part1, part2)),
+                                                                           m_hasClone(((part1.m_MCID == 0 && part1.m_isClone) || (part2.m_MCID == 0 && part2.m_isClone)) ? 1 : 0),
+                                                                           m_hasGhost(((part1.m_MCID == 0 && !part1.m_isClone) || (part2.m_MCID == 0 && !part2.m_isClone)) ? 1 : 0),
                                                                            m_invariantMass(calculateInvariantMass(part1, part2)),
                                                                            m_chargedParticleMultiplicity(part1.m_chargedParticleMultiplicity),
                                                                            m_kt(calculateAveragePairTransverseMomentum(part1, part2)),
@@ -204,7 +208,19 @@ inline void HBT::ParticlePair::buildLAB(const HBT::Particle &part1, const HBT::P
 
 inline int HBT::ParticlePair::assignPairMCID(const HBT::Particle &part1, const HBT::Particle &part2)
 {
-  return fabs(part1.m_MCID) == fabs(part2.m_MCID) ? fabs(part1.m_MCID) : 0;
+  // ghost or clone / mixed / 'pure' pair
+  if (part1.m_MCID == 0 || part2.m_MCID == 0)
+  {
+    return 0;
+  }
+  else if (abs(part1.m_MCID) != abs(part2.m_MCID))
+  {
+    return -1;
+  }
+  else
+  {
+    return abs(part1.m_MCID);
+  }
 }
 
 inline HBT::Units::FloatType HBT::ParticlePair::calculateInvariantMass(const HBT::Particle &part1, const HBT::Particle &part2)
@@ -226,14 +242,14 @@ inline HBT::Units::FloatType HBT::ParticlePair::getSlopeDifferenceX(const HBT::P
 {
   const HBT::Units::FloatType t1 = p1.m_fourVec.Px() / p1.m_fourVec.Pz();
   const HBT::Units::FloatType t2 = p2.m_fourVec.Px() / p2.m_fourVec.Pz();
-  return fabs(t1 - t2);
+  return (t1 - t2);
 }
 
 inline HBT::Units::FloatType HBT::ParticlePair::getSlopeDifferenceY(const HBT::Particle &p1, const HBT::Particle &p2)
 {
   const HBT::Units::FloatType t1 = p1.m_fourVec.Py() / p1.m_fourVec.Pz();
   const HBT::Units::FloatType t2 = p2.m_fourVec.Py() / p2.m_fourVec.Pz();
-  return fabs(t1 - t2);
+  return (t1 - t2);
 }
 
 /*
