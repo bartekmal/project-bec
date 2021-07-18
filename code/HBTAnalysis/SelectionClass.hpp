@@ -231,7 +231,7 @@ inline bool SelectionClass::passPairSelection(const HBT::ParticlePair &pair)
     // }
 
     //opening angle
-    if ((pair.m_slopeDiffX < m_openingAngleCut) && (pair.m_slopeDiffY < m_openingAngleCut))
+    if ((fabs(pair.m_slopeDiffX) < m_openingAngleCut) && (fabs(pair.m_slopeDiffY) < m_openingAngleCut))
         passStatus = false;
 
     return passStatus;

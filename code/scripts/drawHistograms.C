@@ -220,12 +220,12 @@ void drawHistograms(const TString inputFile, const TString hMainNameBase, const 
     auto nrBinsKt = selection.getNrOfBinsKt();
 
     // call for no bins
-    if (flagBins >= 0)
+    if (flagBins == 0)
         drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, 0, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
     // call for mult bins only
-    if (flagBins >= 1)
+    if (flagBins == 1)
         drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
     // call for mult + kT bins
-    // if (flagBins >= 2)
+    // if (flagBins == 2)
     //     drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
 }

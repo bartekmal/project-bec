@@ -47,7 +47,8 @@ int main(int argc, char **argv)
   auto histogramSet1000 = HBT::Histograms::CreateHistogramSeries1000("10");
   auto histogram2DSet1000 = HBT::Histograms::Create2DHistogramSeries1000("10");
   //auto histogramSet1100 = HBT::Histograms::CreateHistogramSeries1000( "11" );
-  auto histogramSet1200 = HBT::Histograms::CreateHistogramSeries1000("12");
+  auto histogramSet1200NoBins = HBT::Histograms::CreateHistogramSeries1000("12");
+  auto histogramSet1200MultiplicityBins = HBT::Histograms::CreateHistogramSeries1000InBins("12", hbtSelection.getBinsOfMultiplicity());
 
   auto histogramSet2000 = HBT::Histograms::CreateHistogramSeries2000("20", "LIKE pairs");
   auto histogramSet2100 = HBT::Histograms::CreateHistogramSeries2000("21", "UNLIKE pairs");
@@ -123,7 +124,8 @@ int main(int argc, char **argv)
       if (!hbtSelection.passPIDSelection(i, MC))
         continue;
 
-      HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1200, i);
+      HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1200NoBins, i);
+      HBT::Histograms::FillHistogramSeries1000InBins(histogramSet1200MultiplicityBins, i, hbtSelection.getBinsOfMultiplicity());
 
       selectedPions.emplace_back(i, MC, HBT::Units::PIDPion, HBT::Units::MassPion);
     }
