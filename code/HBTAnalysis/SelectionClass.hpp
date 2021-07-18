@@ -96,7 +96,7 @@ inline void SelectionClass::initializeSelectionCuts()
     this->m_zPvMax = 60.;
 
     this->m_trackChi2Cut = 2.0f;
-    this->m_ipCut = 0.4f;
+    this->m_ipCut = 0.3f;
     this->m_pCut = 2.0f;
     this->m_ptCut = 0.1f;
     this->m_sharedVeloHitsCut = 0.999999f;
