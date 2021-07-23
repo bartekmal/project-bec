@@ -67,10 +67,10 @@ int main(int argc, char **argv)
   auto histogramSet3600InMultiplicityBins = HBT::Histograms::CreateHistogramSeries3000InBins("36", "EVMIX UNLIKE pairs", hbtSelection.getBinsOfMultiplicity());
 
   //multiplicity and kT bins
-  auto histogramSet3000InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("30", "LIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
-  auto histogramSet3100InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("31", "UNLIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
-  auto histogramSet3500InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("35", "EVMIX LIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
-  auto histogramSet3600InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("36", "EVMIX UNLIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+  // auto histogramSet3000InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("30", "LIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+  // auto histogramSet3100InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("31", "UNLIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+  // auto histogramSet3500InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("35", "EVMIX LIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+  // auto histogramSet3600InMultiplicityAndKtBins = HBT::Histograms::CreateHistogramSeries3000InBins("36", "EVMIX UNLIKE pairs", hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
 
   //setup reading from the ntuple
   auto *inputFile = new TFile(inputFilePath);
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
           HBT::Histograms::FillHistogramSeries2000(histogramSet2000, currentPair);
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000NoBins, currentPair, MC);
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+          // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
 
           // try to get a reference pair (or pairs) for each LIKE one
           if (isEventMixingReady)
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
               HBT::Histograms::FillHistogramSeries2000(histogramSet2500, pairFromEventMixing);
               HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500NoBins, pairFromEventMixing, MC);
               HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
-              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+              // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
             }
           }
         }
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
           HBT::Histograms::FillHistogramSeries2000(histogramSet2100, currentPair);
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100NoBins, currentPair, MC);
           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
-          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+          // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
 
           // try to get a reference pair (or pairs) for each UNLIKE one
           if (isEventMixingReady)
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
               HBT::Histograms::FillHistogramSeries2000(histogramSet2600, pairFromEventMixing);
               HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600NoBins, pairFromEventMixing, MC);
               HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
-              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+              // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
             }
           }
         }
