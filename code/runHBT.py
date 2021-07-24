@@ -317,8 +317,8 @@ def setEnvironmentBEC():
         # testmatch    = 3 days
         # nextweek     = 1 week
         os.environ['BEC_SETUP_SCRIPT'] = os.environ['BEC_BASE']+'/setupBEC.sh'
-        os.environ['BEC_BATCH_QUEUE'] = 'testmatch'
-        os.environ['BEC_BATCH_MAXTIME'] = '172800'  # in secs
+        os.environ['BEC_BATCH_QUEUE'] = 'tomorrow'
+        os.environ['BEC_BATCH_MAXTIME'] = '86000'  # in secs
         os.environ['BEC_BATCH_TMPDIR'] = 'TMPDIR'
         os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'condor_submit'
         print("BEC environment set for user: " + os.getenv('USER') + " (lxplus)\n")

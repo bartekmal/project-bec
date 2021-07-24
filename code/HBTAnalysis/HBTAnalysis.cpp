@@ -116,13 +116,13 @@ int main(int argc, char **argv)
       HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1000, i);
       HBT::Histograms::Fill2DHistogramSeries1000(histogram2DSet1000, i);
 
-      // if (!hbtSelection.passTrackSelection(i))
-      //   continue;
+      if (!hbtSelection.passTrackSelection(i))
+        continue;
 
       //HBT::Histograms::FillHistogramSetWithParticleLevelInfo( histogramSet1100, i );
 
-      // if (!hbtSelection.passPIDSelection(i, MC))
-      //   continue;
+      if (!hbtSelection.passPIDSelection(i, MC))
+        continue;
 
       HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1200NoBins, i);
       HBT::Histograms::FillHistogramSeries1000InBins(histogramSet1200MultiplicityBins, i, hbtSelection.getBinsOfMultiplicity());
@@ -145,8 +145,8 @@ int main(int argc, char **argv)
 
         auto currentPair = HBT::ParticlePair(*firstParticleIterator, *secondParticleIterator);
 
-        // if (!hbtSelection.passPairSelection(currentPair))
-        //   continue;
+        if (!hbtSelection.passPairSelection(currentPair))
+          continue;
 
         if (hbtSelection.isLikePair(currentPair))
         {
