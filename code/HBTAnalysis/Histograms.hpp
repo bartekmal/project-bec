@@ -244,6 +244,7 @@ inline void HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo(std::vect
   }
 
   // slopes (ghost / clones; aimed for data)
+  if (!isMC || (isMC && !pair.m_hasClone && !pair.m_hasGhost))
   {
     // get slope diffs [rad]
     const HBT::Units::FloatType slopeDiffX = pair.m_slopeDiffX;

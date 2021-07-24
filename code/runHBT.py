@@ -396,14 +396,14 @@ def runHBTJobs(outputFolderName="HBTAnalysis"):
 
     # define jobs
     jobsToRun = [
-        jobBEC(jobName='RD_pPb_MU', outputPath='RD_pPb_MU', inputData=os.getenv(
-            'BEC_STORAGE') + '/ntuple/data/pPb_MU/hbtNTuple.root', dataType='RD'),
-        jobBEC(jobName='RD_pPb_MD', outputPath='RD_pPb_MD', inputData=os.getenv(
-            'BEC_STORAGE') + '/ntuple/data/pPb_MD/hbtNTuple.root', dataType='RD'),
-        jobBEC(jobName='RD_Pbp_MU', outputPath='RD_Pbp_MU', inputData=os.getenv(
-            'BEC_STORAGE') + '/ntuple/data/Pbp_MU/hbtNTuple.root', dataType='RD'),
-        jobBEC(jobName='RD_Pbp_MD', outputPath='RD_Pbp_MD', inputData=os.getenv(
-            'BEC_STORAGE') + '/ntuple/data/Pbp_MD/hbtNTuple.root', dataType='RD'),
+        # jobBEC(jobName='RD_pPb_MU', outputPath='RD_pPb_MU', inputData=os.getenv(
+        #     'BEC_STORAGE') + '/ntuple/data/pPb_MU/hbtNTuple.root', dataType='RD'),
+        # jobBEC(jobName='RD_pPb_MD', outputPath='RD_pPb_MD', inputData=os.getenv(
+        #     'BEC_STORAGE') + '/ntuple/data/pPb_MD/hbtNTuple.root', dataType='RD'),
+        # jobBEC(jobName='RD_Pbp_MU', outputPath='RD_Pbp_MU', inputData=os.getenv(
+        #     'BEC_STORAGE') + '/ntuple/data/Pbp_MU/hbtNTuple.root', dataType='RD'),
+        # jobBEC(jobName='RD_Pbp_MD', outputPath='RD_Pbp_MD', inputData=os.getenv(
+        #     'BEC_STORAGE') + '/ntuple/data/Pbp_MD/hbtNTuple.root', dataType='RD'),
         jobBEC(jobName='MC_pPb_MU', outputPath='MC_pPb_MU', inputData=os.getenv('BEC_STORAGE') +
                '/ntuple/sim/epos/central/Sim09c/pPb_MU/hbtNTuple_corrected.root', dataType='MC'),
         jobBEC(jobName='MC_pPb_MD', outputPath='MC_pPb_MD', inputData=os.getenv('BEC_STORAGE') +
