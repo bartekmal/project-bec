@@ -181,8 +181,8 @@ inline bool SelectionClass::passTrackSelection(const int &part_i)
         passStatus = false;
     else if (ghostNN[part_i] > m_ghostNNCut)
         passStatus = false;
-    else if (shareVHits[part_i] < -m_sharedVeloHitsCut)
-        passStatus = false;
+    // else if (shareVHits[part_i] < -m_sharedVeloHitsCut)
+    //     passStatus = false;
 
     return passStatus;
 }
@@ -233,8 +233,8 @@ inline bool SelectionClass::passPairSelection(const HBT::ParticlePair &pair)
     // }
 
     //opening angle
-    if ((fabs(pair.m_slopeDiffX) < m_openingAngleCut) && (fabs(pair.m_slopeDiffY) < m_openingAngleCut))
-        passStatus = false;
+    // if ((fabs(pair.m_slopeDiffX) < m_openingAngleCut) && (fabs(pair.m_slopeDiffY) < m_openingAngleCut))
+    //     passStatus = false;
 
     return passStatus;
 }
