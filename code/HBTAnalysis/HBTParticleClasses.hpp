@@ -114,6 +114,8 @@ namespace HBT
     int m_chargeParticle2{};
     HBT::Units::FloatType m_pt1{};
     HBT::Units::FloatType m_pt2{};
+    HBT::Units::FloatType m_phi1{};
+    HBT::Units::FloatType m_phi2{};
 
     int m_pairMCID{};
     int m_hasClone{};
@@ -154,6 +156,8 @@ namespace HBT
                                                                            m_chargeParticle2(part2.m_charge),
                                                                            m_pt1(part1.m_pt),
                                                                            m_pt2(part2.m_pt),
+                                                                           m_phi1(part1.m_phi),
+                                                                           m_phi2(part2.m_phi),
                                                                            m_pairMCID(assignPairMCID(part1, part2)),
                                                                            m_hasClone(((part1.m_MCID == 0 && part1.m_isClone) || (part2.m_MCID == 0 && part2.m_isClone)) ? 1 : 0),
                                                                            m_hasGhost(((part1.m_MCID == 0 && !part1.m_isClone) || (part2.m_MCID == 0 && !part2.m_isClone)) ? 1 : 0),

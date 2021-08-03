@@ -7,6 +7,7 @@
 
 //local
 #include "Units.hpp"
+#include "Utils.hpp"
 #include "TreeData.hpp"
 #include "HBTParticleClasses.hpp"
 
@@ -235,6 +236,18 @@ inline bool SelectionClass::passPairSelection(const HBT::ParticlePair &pair)
     //opening angle
     if ((fabs(pair.m_slopeDiffX) < m_openingAngleCut) && (fabs(pair.m_slopeDiffY) < m_openingAngleCut))
         passStatus = false;
+
+    // VELO overlap
+    // ranges in rads
+    const auto rangeMin1 = 80.0f / HBT::Units::RadToDeg;
+    const auto rangeMax1 = 100.0f / HBT::Units::RadToDeg;
+    const auto rangeMin2 = 260.0f / HBT::Units::RadToDeg;
+    const auto rangeMax2 = 280.0f / HBT::Units::RadToDeg;
+
+    if ((HBT::Utils::numberInRange(pair.m_phi1, rangeMin1, rangeMax1) && HBT::Utils::numberInRange(pair.m_phi2, rangeMin1, rangeMax1)) || (HBT::Utils::numberInRange(pair.m_phi1, rangeMin2, rangeMax2) && HBT::Utils::numberInRange(pair.m_phi2, rangeMin2, rangeMax2)))
+    {
+        passStatus = false;
+    }
 
     return passStatus;
 }

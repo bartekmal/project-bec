@@ -70,6 +70,12 @@ namespace HBT
             }
         }
 
+        // check if number is in range (inclusive)
+        inline bool numberInRange(const float &number, const float &min, const float &max)
+        {
+            return (number >= min && number <= max);
+        }
+
         // get a valid (existing and non-empty) histogram from a file
         inline TH1 *getValidHist(TFile *&inputFile, const std::string &objName)
         {
