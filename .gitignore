@@ -1,6 +1,9 @@
 # analysis files
 analysis/
 
+# software
+software/
+
 #editor files
 .vscode/
 
