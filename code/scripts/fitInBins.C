@@ -1,5 +1,6 @@
 #include "../HBTAnalysis/Units.hpp"
 #include "../HBTAnalysis/Utils.hpp"
+#include "../utils/Styles.hpp"
 #include "../HBTAnalysis/SelectionClass.hpp"
 #include "../HBTAnalysis/CoulombCorrection.hpp"
 
@@ -42,13 +43,13 @@ using FuncStructure = std::vector<FuncStructureKt>;
 
 /*-------------- configuration -------------------*/
 
-const int padSize = 600;
-const HBT::Units::FloatType lineWidth = 1.0;
-
 const Double_t fitRangeLikeMin = 0.05;
 const Double_t fitRangeUnlikeMin = 0.25;
 const Double_t fitRangeMcMin = 0.25;
 const Double_t fitRangeMax = 2.0;
+
+const HBT::Units::FloatType descriptionPosX = 0.425;
+const HBT::Units::FloatType descriptionPosY = 0.25;
 
 /*-------------- enf of configuration -------------*/
 
@@ -194,23 +195,22 @@ TFitResultPtr doFit(const ROOT::Fit::BinData *dataSet, const ROOT::Fit::BinData 
     return fitResult;
 }
 
-void printDescription(const TString &dataType, const bool &isMultBinsOnly, const int &currentMultBin, const int &currentKtBin)
+void printDescription(const bool &isMultBinsOnly, const int &currentMultBin, const int &currentKtBin)
 {
+    // config / info
     const auto selection = SelectionClass();
     const auto binRangesMult = isMultBinsOnly ? selection.getBinsOfMultiplicityRangesAsStrings() : selection.getBinsOfMultiplicityForKtRangesAsStrings();
     const auto binRangesKt = selection.getBinsOfKtRangesAsStrings();
 
-    const HBT::Units::FloatType commPosX = 0.50;
-    const HBT::Units::FloatType commPosY = 0.35;
-    TLatex comments;
-    comments.SetNDC();
-    comments.SetTextSize(0.035);
-    comments.DrawLatex(commPosX, commPosY, dataType);
-
-    comments.DrawLatex(commPosX, commPosY - 0.05, TString("Multiplicity : ") + binRangesMult[currentMultBin].c_str());
-
+    // make description
+    auto plotDescription = HBT::Styles::makeLhcbLabel(descriptionPosX, descriptionPosX + 0.25, descriptionPosY + 0.10, descriptionPosY + 0.20);
+    plotDescription->SetTextSize(plotDescription->GetTextSize() * 0.825); // ! make slighlty smaller
+    HBT::Utils::addMultilineText(std::string("#font[12]{N}_{VELO} : " + binRangesMult[currentMultBin]).c_str(), plotDescription);
     if (!isMultBinsOnly)
-        comments.DrawLatex(commPosX, commPosY - 0.10, TString("k_{T} [GeV]: ") + binRangesKt[currentKtBin].c_str());
+    {
+        HBT::Utils::addMultilineText(std::string("#font[12]{k}_{T} [GeV] : " + binRangesKt[currentKtBin]).c_str(), plotDescription);
+    }
+    plotDescription->Draw();
 }
 
 void printFitInfo(const TFitResultPtr &fitResult)
@@ -219,20 +219,37 @@ void printFitInfo(const TFitResultPtr &fitResult)
     std::stringstream myStr;
     myStr << "MinFcn / ndf : " << round(fitResult->MinFcnValue()) << " / " << fitResult->Ndf();
 
-    // print
-    const HBT::Units::FloatType commPosX = 0.50;
-    const HBT::Units::FloatType commPosY = 0.35;
-    TLatex comments;
-    comments.SetNDC();
-    comments.SetTextSize(0.03);
-    comments.DrawLatex(commPosX, commPosY - 0.15, myStr.str().c_str());
+    // make description
+    auto plotDescription = HBT::Styles::makeLhcbLabel(descriptionPosX, descriptionPosX + 0.25, descriptionPosY, descriptionPosY + 0.075);
+    plotDescription->SetTextSize(plotDescription->GetTextSize() * 0.825); // ! make slighlty smaller
+    HBT::Utils::addMultilineText(myStr.str().c_str(), plotDescription);
+
+    plotDescription->Draw();
+}
+
+// provide custom style (based on the general ones)
+void setStyleLocal(const unsigned int &flagStyle)
+{
+    HBT::Styles::setStyle(flagStyle);
+
+    // local style settings
+    gStyle->SetMarkerSize(gStyle->GetMarkerSize() * 0.75); // ! a lot of points - improve visibility
+    if (HBT::Styles::flagShowStats(flagStyle))
+    {
+        gStyle->SetStatW(0.13);
+    }
+    else
+    {
+        gStyle->SetOptFit(0);
+    }
+    gROOT->ForceStyle();
 }
 
 void drawPull(const TH1D *hFit, const TF1 *fFit, const HBT::Units::FloatType &fitRangeMin, const TString drawOpts = "BSAME")
 {
     // create a histogram with identical binning
     TH1D *hPull = (TH1D *)hFit->Clone(TString(hFit->GetName()) + "_pull");
-    hPull->SetTitle("pull;Q [GeV]; pull");
+    hPull->SetTitle("pull;#font[12]{Q} [GeV]; pull");
     hPull->Reset();
 
     //make pull
@@ -254,37 +271,27 @@ void drawPull(const TH1D *hFit, const TF1 *fFit, const HBT::Units::FloatType &fi
     }
 
     //draw
-    hPull->SetLabelSize(0.06, "x"); // X numbers label size ()
-    hPull->SetLabelSize(0.06, "y"); // Y numbers label size ()
-    hPull->SetTitleSize(0.07, "x"); // X title size ()
-    hPull->SetTitleSize(0.07, "y"); // Y title size ()
-    hPull->GetYaxis()->SetTitleOffset(0.5);
-    //hPull->SetBarWidth( 0.1 );
-    hPull->SetFillColor(kBlue);
-    hPull->SetLineWidth(lineWidth);
+    hPull->SetFillColor(HBT::Styles::getColorPrimary());
     hPull->GetYaxis()->SetRangeUser(-6, 6);
     hPull->Draw(drawOpts);
 
     //draw lines
     auto lineUp = new TLine(0, 3, 2, 3);
-    lineUp->SetLineColor(kRed);
-    lineUp->SetLineWidth(lineWidth);
+    lineUp->SetLineColor(HBT::Styles::getColorEmphasize());
     lineUp->Draw("SAME");
     auto lineDown = new TLine(0, -3, 2, -3);
-    lineDown->SetLineColor(kRed);
-    lineDown->SetLineWidth(lineWidth);
+    lineDown->SetLineColor(HBT::Styles::getColorEmphasize());
     lineDown->Draw("SAME");
 }
 
-void drawHistogram(TH1D *h, const int color = kBlue, const TString drawOpts = "ESAME", const Double_t yMin = 0.5, const Double_t yMax = 1.6)
+void drawHistogram(TH1D *h, const int color = kBlue, const Style_t marker = gStyle->GetMarkerStyle(), const TString drawOpts = "ESAME", const Double_t yMin = 0.5, const Double_t yMax = 1.6)
 {
 
     //draw histogram
     h->GetYaxis()->SetRangeUser(yMin, yMax);
+    h->SetMarkerStyle(marker);
     h->SetMarkerColor(color);
     h->SetLineColor(color);
-    h->SetLineWidth(lineWidth);
-    h->GetYaxis()->SetTitleOffset(1.2);
 
     h->Draw(drawOpts);
 }
@@ -389,10 +396,10 @@ std::string getBinCombinations(const DataStructure &binDataSet)
     return ss.str();
 }
 
-void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagUseBkgScaling, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
+void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, const int nrBinsMult, const int nrBinsKt, TString hCommonEndName, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagUseBkgScaling, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper, const unsigned int &flagStyle)
 {
     // set ROOT style
-    HBT::Utils::setStyle();
+    setStyleLocal(flagStyle);
 
     // prepare settings for type of binning and histogram type
     const bool isMultBinsOnly = (nrBinsKt == 0) ? true : false;
@@ -416,9 +423,8 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     const auto maxKtValue = curKtValues.back();
 
     // prepare canvas
-    const HBT::Units::FloatType scaleFactorDueToMargins = 1.2;
-    const int canvasSizeHeight = flagDoFit ? padSize * 1.5 : padSize;
-    const int canvasSizeWidth = isMultBinsOnly ? padSize : nrBinsKtForLoops * padSize * scaleFactorDueToMargins;
+    const int canvasSizeHeight = flagDoFit ? HBT::Styles::defaultCanvasSizeY * 1.5 : HBT::Styles::defaultCanvasSizeY;
+    const int canvasSizeWidth = isMultBinsOnly ? HBT::Styles::defaultCanvasSizeX : nrBinsKtForLoops * HBT::Styles::defaultCanvasSizeX;
     auto tc = std::make_unique<TCanvas>(title, title, canvasSizeWidth, canvasSizeHeight);
     const TString plotFile = title + ".pdf";
     tc->SaveAs(plotFile + "[");
@@ -632,37 +638,44 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             // prepare pads
             tc->cd(j + 1);
 
-            auto tl = new TLegend(0.30, 0.70, 0.60, 0.85);
+            auto tl = new TLegend(0.175, 0.225, 0.475, 0.40);
 
             auto p1 = new TPad("p1", "p1", 0., 0.33, 1., 1.);
             auto p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
-            p2->SetBottomMargin(0.15);
             p1->Draw();
             p2->Draw();
 
             // get histograms
             TString hMainName = HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
             TH1D *hMain = (TH1D *)fIn->Get(hMainName);
+            hMain->SetTitle(";#font[12]{Q} [GeV];#font[12]{C_{2}}(#font[12]{Q})");
             TH1D *hMain_1 = (TH1D *)fIn->Get(HBT::Utils::getHistogramName(hMainNameBase_1, hCommonEndName, true, !isMultBinsOnly, i, j));
             TH1D *hMain_2 = (TH1D *)fIn->Get(HBT::Utils::getHistogramName(hMainNameBase_2, hCommonEndName, true, !isMultBinsOnly, i, j));
 
             //get the reference histogram and fit result if available
             const auto hRefName = HBT::Utils::getHistogramName(hRefNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
             TH1D *hRef = flagDrawRef ? (TH1D *)fInRef->Get(hRefName) : nullptr;
+            if (hRef)
+            {
+                hRef->SetTitle(";#font[12]{Q} [GeV];#font[12]{C_{2}}(#font[12]{Q})");
+            }
             auto fitResultRef = flagUseBkgFromRef ? (TFitResult *)fInRefFitResults->Get(resName) : nullptr;
             fOut->cd();
 
             // draw histograms
             p1->cd();
-            drawHistogram(hMain, kBlue);
-            tl->AddEntry(hMain, histType, "pe");
 
             // draw a reference histogram if required
             if (flagDrawRef)
             {
-                drawHistogram(hRef, kGreen);
+                hRef->SetLineWidth(gStyle->GetLineWidth() / 2.0); // ! a lot of points - improve visibility
+                drawHistogram(hRef, HBT::Styles::getColorSecondary(), HBT::Styles::getMarker(1));
                 tl->AddEntry(hRef, refType, "pe");
             }
+            hMain->SetLineWidth(gStyle->GetLineWidth() / 2.0); // ! a lot of points - improve visibility
+            drawHistogram(hMain, HBT::Styles::getColorPrimary());
+            const auto hMainLabel = HBT::Utils::dataTypeAsString(dataType) + " (" + HBT::Utils::histTypeAsString(histType) + ")";
+            tl->AddEntry(hMain, hMainLabel.c_str(), "pe");
 
             // perform a fit in individual bins if required
             TFitResultPtr fitResult{};
@@ -780,12 +793,19 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                         f->SetFitResult(*curFitResult);
                     }
 
-                    f->SetLineColor(kRed);
-                    f->SetLineWidth(lineWidth);
+                    f->SetLineColor(HBT::Styles::getColorEmphasize());
+                    f->SetLineWidth(gStyle->GetLineWidth() * 3.0);
 
-                    hMain->GetListOfFunctions()->Add(f);
                     f->Draw("SAME");
-                    tl->AddEntry(f, histType + " (fit)", "l");
+                    const auto fLabel = std::string("fit (") + HBT::Utils::histTypeAsString(histType) + ")";
+                    tl->AddEntry(f, fLabel.c_str(), "l");
+
+                    // redraw the data points
+                    if (flagDrawRef)
+                    {
+                        drawHistogram(hRef, HBT::Styles::getColorSecondary(), HBT::Styles::getMarker(1));
+                    }
+                    drawHistogram(hMain, HBT::Styles::getColorPrimary());
 
                     // draw/print the fit info
                     printFitInfo(curFitResult);
@@ -804,9 +824,17 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                 }
             }
 
-            // add description / legend
-            printDescription(dataType, isMultBinsOnly, i, j);
+            // add LHCb label
+            auto lhcbLabel = HBT::Styles::makeLhcbLabel();
+            HBT::Utils::addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
+            lhcbLabel->Draw();
+            tc->Update();
+
+            // add legend
             tl->Draw("SAME");
+
+            // add description
+            printDescription(isMultBinsOnly, i, j);
         }
 
         // plot each mult bin on a different page
@@ -836,7 +864,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     }
 }
 
-void fitInBins(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, TString hCommonEndNameForMult, TString hCommonEndNameForKt, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagUseBkgScaling, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinMultForKtLower, const int &ignoreBinMultForKtUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper)
+void fitInBins(const TString inputFile, const TString hMainNameBase, const TString hMainNameBase_1, const TString hMainNameBase_2, const bool flagIsMc, const bool flagIsUnlike, const TString dataType, TString hCommonEndNameForMult, TString hCommonEndNameForKt, const int flagDoFit, const TString inputFileRef, const TString hRefNameBase, const TString refType, const bool flagDrawRef, const bool flagUseBkgFromRef, const bool flagUseBkgScaling, const int &ignoreBinMultLower, const int &ignoreBinMultUpper, const int &ignoreBinMultForKtLower, const int &ignoreBinMultForKtUpper, const int &ignoreBinKtLower, const int &ignoreBinKtUpper, const unsigned int &flagStyle = HBT::Styles::defaultStyleFlag)
 {
     // get configuration
     auto selection = SelectionClass();
@@ -846,7 +874,7 @@ void fitInBins(const TString inputFile, const TString hMainNameBase, const TStri
     auto nrBinsKt = selection.getNrOfBinsKt();
 
     // call for mult bins only
-    fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultLower, ignoreBinMultUpper, 0, 1);
+    fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMult, 0, hCommonEndNameForMult, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultLower, ignoreBinMultUpper, 0, 1, flagStyle);
     // call for mult + kT bins
-    // fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultForKtLower, ignoreBinMultForKtUpper, ignoreBinKtLower, ignoreBinKtUpper);
+    // fitInBinsGeneric(inputFile, hMainNameBase, hMainNameBase_1, hMainNameBase_2, flagIsMc, flagIsUnlike, dataType, nrBinsMultForKt, nrBinsKt, hCommonEndNameForKt, flagDoFit, inputFileRef, hRefNameBase, refType, flagDrawRef, flagUseBkgFromRef, flagUseBkgScaling, ignoreBinMultForKtLower, ignoreBinMultForKtUpper, ignoreBinKtLower, ignoreBinKtUpper, flagStyle);
 }

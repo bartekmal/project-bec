@@ -1,5 +1,6 @@
 #include "../HBTAnalysis/Units.hpp"
 #include "../HBTAnalysis/Utils.hpp"
+#include "../utils/Styles.hpp"
 #include "../HBTAnalysis/SelectionClass.hpp"
 #include "../HBTAnalysis/CoulombCorrection.hpp"
 
@@ -8,49 +9,56 @@ using namespace HBT::Units;
 
 /*-------------- configuration -------------------*/
 
-const int padSize = 600;
-const HBT::Units::FloatType lineWidth = 1.0;
-
 /*-------------- enf of configuration -------------*/
 
-// provide custom style (based on the general one)
-void setStyleLocal()
+// provide custom style (based on the general ones)
+void setStyleLocal(const unsigned int &flagStyle)
 {
-    HBT::Utils::setStyle();
-    gStyle->SetOptStat(1111);
-    gStyle->SetMarkerSize(0.6);
+    HBT::Styles::setStyle(flagStyle);
+
+    // local style settings
+    gStyle->SetPadTopMargin(0.055);
+    gStyle->SetPadLeftMargin(0.17);
+    gStyle->SetPadRightMargin(0.115);
+
+    gStyle->SetPalette(kRainBow);
+
+    if (HBT::Styles::flagShowStats(flagStyle))
+    {
+        gStyle->SetStatW(0.13);
+    }
+
+    gROOT->ForceStyle();
 }
 
-void printDescription(const TString &dataType, const bool &flagMultBins, const bool &flagKtBins, const int &currentMultBin, const int &currentKtBin)
+void printDescription(const bool &flagMultBins, const bool &flagKtBins, const int &currentMultBin, const int &currentKtBin)
 {
+    // config / info
+    const HBT::Units::FloatType commPosX = 0.05;
+    const HBT::Units::FloatType commPosY = 0.85;
+
     const auto selection = SelectionClass();
     const auto binRangesMult = !flagKtBins ? selection.getBinsOfMultiplicityRangesAsStrings() : selection.getBinsOfMultiplicityForKtRangesAsStrings();
     const auto binRangesKt = selection.getBinsOfKtRangesAsStrings();
 
-    const HBT::Units::FloatType commPosX = 0.25;
-    const HBT::Units::FloatType commPosY = 0.30;
-    TLatex comments;
-    comments.SetNDC();
-    comments.SetTextSize(0.035);
-    comments.DrawLatex(commPosX, commPosY, dataType);
-
-    // print only info relevant for the given bins
-    if (flagMultBins)
-    {
-        comments.DrawLatex(commPosX, commPosY - 0.05, TString("Multiplicity : ") + binRangesMult[currentMultBin].c_str());
-    }
+    // make description
+    auto plotDescription = HBT::Styles::makeLhcbLabel(commPosX, commPosX + 0.25, commPosY - 0.075, commPosY);
+    plotDescription->SetTextSize(plotDescription->GetTextSize() * 0.825); // ! make slighlty smaller
+    auto binLabel = flagMultBins ? std::string("#font[12]{N}_{VELO} : " + binRangesMult[currentMultBin]) : std::string("");
     if (flagKtBins)
     {
-        comments.DrawLatex(commPosX, commPosY - 0.10, TString("k_{T} [GeV]: ") + binRangesKt[currentKtBin].c_str());
+        binLabel += std::string(";#font[12]{k}_{T} [GeV] : " + binRangesKt[currentKtBin]);
     }
+    HBT::Utils::addMultilineText(binLabel.c_str(), plotDescription);
+    plotDescription->Draw();
 }
 
-void drawHistogram1D(TH1D *h, const int color = kBlue, const TString drawOpts = "ESAME")
+void drawHistogram1D(TH1D *h, const int color = HBT::Styles::getColorPrimary(), const Style_t marker = gStyle->GetMarkerStyle(), const TString drawOpts = "ESAME")
 {
     //draw histogram
+    h->SetMarkerStyle(marker);
     h->SetMarkerColor(color);
     h->SetLineColor(color);
-    h->SetLineWidth(lineWidth);
     h->GetYaxis()->SetTitleOffset(1.2);
 
     h->Draw(drawOpts);
@@ -59,10 +67,10 @@ void drawHistogram1D(TH1D *h, const int color = kBlue, const TString drawOpts = 
 void drawHistogram2D(TH2D *h)
 {
     //draw histogram
-    gPad->SetRightMargin(0.15);
-    gStyle->SetStatX(0.80);
-    gStyle->SetStatY(0.85);
-    h->UseCurrentStyle();
+    // gPad->SetRightMargin(0.15);
+    // gStyle->SetStatX(0.80);
+    // gStyle->SetStatY(0.85);
+    // h->UseCurrentStyle();
 
     h->Draw("COLZ");
 }
@@ -97,10 +105,10 @@ TH1D *makeIntegratedCopy(const TH1D *hSrc)
     return h;
 }
 
-void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBase, const TString &inputFileRef, const TString &hRefNameBase, const TString &hMainNameEnd, const int &nrBinsMult, const int &nrBinsKt, const TString &dataTypeMain, const TString &dataTypeRef, const bool &isHist1D, const bool &flagNormalisation, const bool &flagIntegration, const bool &isHistFullName)
+void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBase, const TString &inputFileRef, const TString &hRefNameBase, const TString &hMainNameEnd, const int &nrBinsMult, const int &nrBinsKt, const TString &dataTypeMain, const TString &dataTypeRef, const bool &isHist1D, const bool &flagNormalisation, const bool &flagIntegration, const bool &isHistFullName, const TString &histTitle, const unsigned int &flagStyle)
 {
     // set ROOT style
-    setStyleLocal();
+    setStyleLocal(flagStyle);
 
     // prepare settings for type of binning and histogram type
     const bool isNoBins = (nrBinsMult == 0) ? true : false;
@@ -108,8 +116,10 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
     const int nrBinsMultForLoops = isNoBins ? 1 : nrBinsMult;
     const int nrBinsKtForLoops = isMultBinsOnly ? 1 : nrBinsKt;
 
-    const TString binsType = isNoBins ? TString("noBins") : isMultBinsOnly ? TString("mult") : TString("kT");
-    const TString histMode = flagNormalisation ? TString("norm") : flagIntegration ? TString("integrated") : TString("std");
+    const TString binsType = isNoBins ? TString("noBins") : isMultBinsOnly ? TString("mult")
+                                                                           : TString("kT");
+    const TString histMode = flagNormalisation ? TString("norm") : flagIntegration ? TString("integrated")
+                                                                                   : TString("std");
     const TString title = hMainNameBase + "_" + histMode + "_" + binsType;
 
     // check if reference histogram is given (based on this setting, the relevant file / hist will be drawn, if available)
@@ -117,9 +127,9 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
     const TString descriptionDataType = drawRef ? "" : dataTypeMain;
 
     // prepare canvas
-    const HBT::Units::FloatType scaleFactorDueToMargins = 1.2;
-    const int canvasSizeHeight = padSize;
-    const int canvasSizeWidth = isMultBinsOnly ? padSize : nrBinsKtForLoops * padSize * scaleFactorDueToMargins;
+    const float scaleFactorDueToMargins = 1.1;
+    const int canvasSizeHeight = HBT::Styles::defaultCanvasSizeY;
+    const int canvasSizeWidth = isMultBinsOnly ? HBT::Styles::defaultCanvasSizeX * scaleFactorDueToMargins : nrBinsKtForLoops * HBT::Styles::defaultCanvasSizeX * scaleFactorDueToMargins;
     TCanvas *tc = new TCanvas(title, title, canvasSizeWidth, canvasSizeHeight);
     const TString plotFile = title + ".pdf";
     tc->SaveAs(plotFile + "[");
@@ -141,17 +151,26 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // prepare pads
             tc->cd(j + 1);
             gPad->Draw();
+            auto *tl = new TLegend(0.60, 0.55, 0.825, 0.75);
 
             TString hMainName = isHistFullName ? hMainNameBase : HBT::Utils::getHistogramName(hMainNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j);
 
             if (isHist1D)
             {
                 TH1D *hMain = (TH1D *)fIn->Get(hMainName);
+                // set custom plot title (labels for axes) if given
+                // TODO in principle should be filled properly at the HBT alhorithms level
+                if (histTitle.CompareTo("")) // ! if string not empty
+                {
+                    hMain->SetTitle(histTitle);
+                }
 
                 // process the histogram if required
-                hMain = flagNormalisation ? makeNormalisedCopy(hMain) : flagIntegration ? makeIntegratedCopy(hMain) : hMain;
+                hMain = flagNormalisation ? makeNormalisedCopy(hMain) : flagIntegration ? makeIntegratedCopy(hMain)
+                                                                                        : hMain;
 
-                drawHistogram1D(hMain, kBlue);
+                drawHistogram1D(hMain, HBT::Styles::getColorPrimary());
+                tl->AddEntry(hMain, HBT::Utils::dataTypeAsString(dataTypeMain).c_str(), "pe");
 
                 // draw the ref hist if available (and add proper descriptions)
                 if (fInRef)
@@ -159,22 +178,18 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                     auto *hRef = (TH1D *)fInRef->Get(isHistFullName ? hRefNameBase : HBT::Utils::getHistogramName(hRefNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j));
 
                     // process the histogram if required
-                    hRef = flagNormalisation ? makeNormalisedCopy(hRef) : flagIntegration ? makeIntegratedCopy(hRef) : hRef;
+                    hRef = flagNormalisation ? makeNormalisedCopy(hRef) : flagIntegration ? makeIntegratedCopy(hRef)
+                                                                                          : hRef;
 
-                    drawHistogram1D(hRef, kGreen);
+                    drawHistogram1D(hRef, HBT::Styles::getColorEmphasize(), HBT::Styles::getMarker(1));
+                    tl->AddEntry(hRef, dataTypeRef, "pe");
 
                     // set the Y-axis range properly (main hist is drawn first)
-                    hMain->GetYaxis()->SetRangeUser(0, 1.05 * std::max(hMain->GetMaximum(), hRef->GetMaximum()));
+                    hMain->GetYaxis()->SetRangeUser(0, 1.1 * std::max(hMain->GetMaximum(), hRef->GetMaximum()));
 
                     // do not show stats if histograms are compared
                     hMain->SetStats(0);
                     hRef->SetStats(0);
-
-                    // add description
-                    auto *tl = new TLegend(0.55, 0.50, 0.85, 0.65);
-                    tl->AddEntry(hMain, hMainNameBase + " " + dataTypeMain, "pe");
-                    tl->AddEntry(hRef, hRefNameBase + " " + dataTypeRef, "pe");
-                    tl->Draw("SAME");
                 }
             }
             else
@@ -183,8 +198,21 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                 drawHistogram2D(hMain);
             }
 
-            // add description / legend
-            printDescription(descriptionDataType, !isNoBins, !isMultBinsOnly, i, j);
+            // // add arrows (optional)
+            // auto arrow = HBT::Styles::makeArrow();
+            // arrow->DrawArrow(-160.0, 1e7, -160.0, 0.0);
+
+            // add LHCb label
+            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05, 0.325, 0.87, 0.95);
+            HBT::Utils::addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
+            lhcbLabel->Draw();
+            tc->Update();
+
+            // add legend
+            tl->Draw("SAME");
+
+            // add description
+            printDescription(!isNoBins, !isMultBinsOnly, i, j);
         }
 
         // plot each mult bin on a different page
@@ -207,7 +235,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
     }
 }
 
-void drawHistograms(const TString inputFile, const TString hMainNameBase, const TString inputFileRef, const TString hRefNameBase, TString hMainNameEnd, const TString dataTypeMain, const TString dataTypeRef, const bool isHist1D, const bool flagNormalisation, const bool flagIntegration, const int flagBins, const bool isHistFullName)
+void drawHistograms(const TString inputFile, const TString hMainNameBase, const TString inputFileRef, const TString hRefNameBase, TString hMainNameEnd, const TString dataTypeMain, const TString dataTypeRef, const bool isHist1D, const bool flagNormalisation, const bool flagIntegration, const int flagBins, const bool isHistFullName, const TString &histTitle = "", const unsigned int &flagStyle = HBT::Styles::defaultStyleFlag)
 {
     // sanitise the flag for bins
     assert(flagBins >= 0 && flagBins <= 2);
@@ -221,11 +249,11 @@ void drawHistograms(const TString inputFile, const TString hMainNameBase, const 
 
     // call for no bins
     if (flagBins == 0)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, 0, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
+        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, 0, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, histTitle, flagStyle);
     // call for mult bins only
     if (flagBins == 1)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
+        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, histTitle, flagStyle);
     // call for mult + kT bins
     // if (flagBins == 2)
-    //     drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName);
+    //     drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, histTitle, flagStyle);
 }

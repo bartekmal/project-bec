@@ -236,15 +236,16 @@ histogramsToDraw = [
      'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
 ]
 
+# ! keep an eye on the bin width in y-axis title
 histogramsSlopes = [
     {'name': 'h3053', 'refName': 'h3053', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
     {'name': 'h3053_restrictedQ', 'refName': 'h3053_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
     {'name': 'h3054', 'refName': 'h3054', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
     {'name': 'h3054_restrictedQ', 'refName': 'h3054_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
 ]
 
 ######### end of configuration ############
@@ -520,6 +521,7 @@ def runHistograms(outputFolderName="histograms"):
         flagNormalise = (hist['type'] == 'normalised')
         flagIntegrated = (hist['type'] == 'integrated')
         flagRefInputSame = (hist['flagRefInput'] == 'same')
+        histTitle = hist['title'] if 'title' in hist else ''
 
         jobsToRun = [
             {
@@ -567,9 +569,9 @@ def runHistograms(outputFolderName="histograms"):
             mkdirIfNotExists(aJob['outputFolder'])
             os.chdir(aJob['outputFolder'])
 
-            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{},{})\' >> histograms.log'.format(
+            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{},{},"{}")\' >> histograms.log'.format(
                 aJob['fileMainPath'], aJob['hMainName'], aJob['fileRefPath'], aJob['hRefName'], aJob['hMainNameEnd'], aJob['outputFolder'], aJob['dataTypeRef'], int(
-                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins'], int(hist['isHistFullName'])
+                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins'], int(hist['isHistFullName']), histTitle
             ))
 
 
@@ -781,7 +783,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 2,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "MC_pPb - UNLIKE",
+            'refType': "#font[12]{p}Pb sim (OS)",
             'flagDrawRef': "false",
             'flagUseBkgFromRef': "false",
             'flagUseBkgScaling': "false",
@@ -805,7 +807,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 2,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "MC_Pbp - UNLIKE",
+            'refType': "Pb#font[12]{p} sim (OS)",
             'flagDrawRef': "false",
             'flagUseBkgFromRef': "false",
             'flagUseBkgScaling': "false",
@@ -832,7 +834,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_pPb - UNLIKE",
+            'refType': "#font[12]{p}Pb data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "false",
@@ -856,7 +858,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_Pbp - UNLIKE",
+            'refType': "Pb#font[12]{p} data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "false",
@@ -1080,7 +1082,7 @@ def runFitsScaledBkg(outputFolderName="fits_scaledBkg"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_pPb - UNLIKE",
+            'refType': "#font[12]{p}Pb data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "true",
@@ -1104,7 +1106,7 @@ def runFitsScaledBkg(outputFolderName="fits_scaledBkg"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_Pbp - UNLIKE",
+            'refType': "Pb#font[12]{p} data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "true",
@@ -1273,6 +1275,7 @@ def runSlopes(outputFolderName="slopes"):
         flagNormalise = (hist['type'] == 'normalised')
         flagIntegrated = (hist['type'] == 'integrated')
         flagRefInputSame = (hist['flagRefInput'] == 'same')
+        histTitle = hist['title'] if 'title' in hist else ''
 
         jobsToRun = [
             # compare slopes in data for no selection / full selection
@@ -1281,7 +1284,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_pPb/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "RD_pPb (no selection)",
+                'dataTypeRef': "#font[12]{p}Pb data (no sel)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "RD_pPb"
             },
@@ -1290,7 +1293,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_Pbp/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "RD_Pbp (no selection)",
+                'dataTypeRef': "Pb#font[12]{p} data (no sel)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "RD_Pbp"
             },
@@ -1300,7 +1303,7 @@ def runSlopes(outputFolderName="slopes"):
             #     'hMainName': hist['name'],
             #     'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_pPb/merged.root",
             #     'hRefName': hist['refName'],
-            #     'dataTypeRef': "RD_pPb (no selection)",
+            #     'dataTypeRef': "#font[12]{p}Pb data (partial sel)",
             #     'hMainNameEnd': hist['nameEnd'],
             #     'outputFolder': "RD_pPb"
             # },
@@ -1309,7 +1312,7 @@ def runSlopes(outputFolderName="slopes"):
             #     'hMainName': hist['name'],
             #     'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_Pbp/merged.root",
             #     'hRefName': hist['refName'],
-            #     'dataTypeRef': "RD_Pbp (no selection)",
+            #     'dataTypeRef': "Pb#font[12]{p} data (partial sel)",
             #     'hMainNameEnd': hist['nameEnd'],
             #     'outputFolder': "RD_Pbp"
             # },
@@ -1319,7 +1322,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/MC_pPb/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "MC_pPb (no ghosts/clones)",
+                'dataTypeRef': "#font[12]{p}Pb sim (no gh/cl)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "MC_pPb"
             },
@@ -1328,7 +1331,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/MC_Pbp/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "MC_Pbp (no ghosts/clones)",
+                'dataTypeRef': "Pb#font[12]{p} sim (no gh/cl)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "MC_Pbp"
             },
@@ -1340,9 +1343,9 @@ def runSlopes(outputFolderName="slopes"):
             mkdirIfNotExists(aJob['outputFolder'])
             os.chdir(aJob['outputFolder'])
 
-            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{},{})\' >> histograms.log'.format(
+            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{},{},"{}")\' >> histograms.log'.format(
                 aJob['fileMainPath'], aJob['hMainName'], aJob['fileRefPath'], aJob['hRefName'], aJob['hMainNameEnd'], aJob['outputFolder'], aJob['dataTypeRef'], int(
-                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins'], int(hist['isHistFullName'])
+                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins'], int(hist['isHistFullName']), histTitle
             ))
 
 

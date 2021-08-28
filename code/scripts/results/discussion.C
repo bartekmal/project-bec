@@ -1,5 +1,6 @@
 #include "../../HBTAnalysis/Units.hpp"
 #include "../../HBTAnalysis/Utils.hpp"
+#include "../../utils/Styles.hpp"
 #include "../../HBTAnalysis/SelectionClass.hpp"
 
 #include "../fitModel.C"
@@ -12,8 +13,6 @@
 #include <string>
 
 /*-------------- global config -------------------*/
-const int padSize = 1200;
-
 const FloatType errorXForPlots{1.5f};
 /*-------------- end of global config -------------*/
 
@@ -41,41 +40,34 @@ struct PlotConfig
 
 /*-------------- end of helpers -------------------*/
 
-void printDescription(const std::string &description)
+// provide custom style (based on the general ones)
+void setStyleLocal(const unsigned int &flagStyle)
 {
-    Double_t commPosX = 0.20;
-    Double_t commPosY = 0.80;
-    TLatex comments;
-    comments.SetNDC();
-    comments.SetTextSize(0.035);
-    comments.DrawLatex(commPosX, commPosY, description.c_str());
+    HBT::Styles::setStyle(flagStyle);
+
+    // local style settings
+    if (HBT::Styles::flagShowStats(flagStyle))
+    {
+        gStyle->SetStatW(0.13);
+    }
+    gROOT->ForceStyle();
 }
 
-// provide custom style (based on the general one)
-void setStyleLocal()
-{
-    HBT::Utils::setStyle();
-    gStyle->SetMarkerSize(1);
-    gStyle->SetOptFit(111);
-    gStyle->SetStatX(0.875);
-    gStyle->SetStatY(0.3);
-}
-
-void discussionGeneric(const PlotConfig &plot)
+void discussionGeneric(const PlotConfig &plot, const unsigned int &flagStyle)
 {
     // global config
-    const std::string overlappingGraphLabel{"Data sample"};
+    // const std::string overlappingGraphLabel{"Data sample"};
 
     // set ROOT style
-    setStyleLocal();
+    setStyleLocal(flagStyle);
 
     // prepare I/O files
     auto fOut = std::make_unique<TFile>("discussion.root", "UPDATE");
 
     // prepare canvas for the current parameter
-    auto tc = std::make_unique<TCanvas>(plot.plotName.c_str(), plot.plotTitle.c_str(), padSize, padSize);
+    auto tc = std::make_unique<TCanvas>(plot.plotName.c_str(), plot.plotTitle.c_str(), HBT::Styles::defaultCanvasSizeX, HBT::Styles::defaultCanvasSizeY);
     tc->SetGrid();
-    tc->DrawFrame(plot.axisRangeX.first, plot.axisRangeY.first, plot.axisRangeX.second, plot.axisRangeY.second);
+    tc->DrawFrame(plot.axisRangeX.first, plot.axisRangeY.first, plot.axisRangeX.second, plot.axisRangeY.second, tc->GetTitle());
 
     // read graphs from csv files
     std::vector<std::map<std::string, TGraphErrors>> tGraphs{};
@@ -130,12 +122,11 @@ void discussionGeneric(const PlotConfig &plot)
     }
 
     // drawing and fits
-    TLegend *tl = new TLegend(0.80, 0.75, 0.95, 0.95);
-    tl->SetHeader(overlappingGraphLabel.c_str(), "C");
+    TLegend *tl = new TLegend(0.45, 0.20, 0.80, 0.375);
     for (auto i = 0; i < tGraphs.size(); ++i)
     {
         auto &graphs = tGraphs[i];
-        const auto color = gStyle->GetColorPalette(0 + i * 200);
+        const auto color = HBT::Styles::getColor(i);
 
         graphs["syst"].SetFillStyle(0);
         graphs["syst"].SetLineColor(color);
@@ -164,7 +155,7 @@ void discussionGeneric(const PlotConfig &plot)
             fTrend->SetLineColor(color);
 
             // do fit and save if valid
-            const TFitResultPtr fitResult = graph.Fit(fTrend.get(), "SREX0");
+            const TFitResultPtr fitResult = graph.Fit(fTrend.get(), "SREX0"); // ! do not use errors in X for fits
             if ((fitResult.Get() != nullptr) && fitResult->IsValid())
             {
                 fTrend->Write(funcName);
@@ -181,9 +172,24 @@ void discussionGeneric(const PlotConfig &plot)
         }
     }
 
-    // add description
+    // add LHCb label
+    auto lhcbLabel = HBT::Styles::makeLhcbLabel();
+    HBT::Utils::addMultilineText("LHCb preliminary", lhcbLabel);
+    lhcbLabel->Draw();
+    tc->Update();
+
+    // add legend
     tl->Draw("SAME");
-    printDescription(plot.plotDescription);
+
+    // add description (optional)
+    if (HBT::Styles::flagShowDescription(flagStyle))
+    {
+        auto plotDescription = HBT::Styles::makePlotDescription();
+        HBT::Utils::addMultilineText(plot.plotDescription, plotDescription);
+
+        plotDescription->Draw();
+        tc->Update();
+    }
 
     // save the current plot
     tc->SaveAs(".pdf");
@@ -191,7 +197,7 @@ void discussionGeneric(const PlotConfig &plot)
     fOut->Close();
 }
 
-void discussion(const std::string basePath)
+void discussion(const std::string basePath, const unsigned int &flagStyle = HBT::Styles::defaultStyleFlag)
 {
     // // keep to acces the param configuration (eg name in latex etc)
     // const auto fitParams = prepareFitParamsForTrends();
@@ -208,21 +214,26 @@ void discussion(const std::string basePath)
     const FloatType lambdaMax = 1.0;
     const FloatType multMax = 180.0;
 
+    // ! useful string below
+    // #font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV
+    // #font[12]{#sqrt{s}} = 7 TeV
+    // #font[12]{pp}
+
     const std::vector<PlotConfig> plots{
         // basic mult dependence
-        PlotConfig("lambda_mult_pPb", ";mult;#lambda", "#lambda : mult (pPb)", std::make_pair(0., multMax), std::make_pair(0., lambdaMax), "lambda", {basePath + "/main/output/systematics/RD_pPb/lambda_multReconstructed.csv"}, {"pPb"}, {false}),
-        PlotConfig("lambda_mult_Pbp", ";mult;#lambda", "#lambda : mult (Pbp)", std::make_pair(0., multMax), std::make_pair(0., lambdaMax), "lambda", {basePath + "/main/output/systematics/RD_Pbp/lambda_multReconstructed.csv"}, {"Pbp"}, {false}),
-        PlotConfig("radius_mult_pPb", ";mult;R [fm]", "R : mult (pPb)", std::make_pair(0., multMax), std::make_pair(0.0, radiusMax), "radius", {basePath + "/main/output/systematics/RD_pPb/radius_multReconstructed.csv"}, {"pPb"}, {true}, 1),
-        PlotConfig("radius_mult_Pbp", ";mult;R [fm]", "R : mult (Pbp)", std::make_pair(0., multMax), std::make_pair(0.0, radiusMax), "radius", {basePath + "/main/output/systematics/RD_Pbp/radius_multReconstructed.csv"}, {"Pbp"}, {true}, 1),
+        PlotConfig("lambda_mult_pPb", ";#font[12]{N_{rec}};#lambda", "#lambda : mult (pPb)", std::make_pair(0., multMax), std::make_pair(0., lambdaMax), "lambda", {basePath + "/main/output/systematics/RD_pPb/lambda_multReconstructed.csv"}, {"#font[12]{p}Pb 5.02 TeV"}, {false}),
+        PlotConfig("lambda_mult_Pbp", ";#font[12]{N_{rec}};#lambda", "#lambda : mult (Pbp)", std::make_pair(0., multMax), std::make_pair(0., lambdaMax), "lambda", {basePath + "/main/output/systematics/RD_Pbp/lambda_multReconstructed.csv"}, {"Pb#font[12]{p} 5.02 TeV"}, {false}),
+        PlotConfig("radius_mult_pPb", ";#font[12]{N_{rec}};#font[12]{R} [fm]", "R : mult (pPb)", std::make_pair(0., multMax), std::make_pair(0.0, radiusMax), "radius", {basePath + "/main/output/systematics/RD_pPb/radius_multReconstructed.csv"}, {"#font[12]{p}Pb 5.02 TeV"}, {true}, 1),
+        PlotConfig("radius_mult_Pbp", ";#font[12]{N_{rec}};#font[12]{R} [fm]", "R : mult (Pbp)", std::make_pair(0., multMax), std::make_pair(0.0, radiusMax), "radius", {basePath + "/main/output/systematics/RD_Pbp/radius_multReconstructed.csv"}, {"Pb#font[12]{p} 5.02 TeV"}, {true}, 1),
         // compare data samples
-        PlotConfig("radius_mult_compareSystems", ";mult;R [fm]", "R : data samples", std::make_pair(0., multMax), std::make_pair(0.0, radiusMax), "radius", {basePath + "/main/output/systematics/RD_pPb/radius_multReconstructed.csv", basePath + "/main/output/systematics/RD_Pbp/radius_multReconstructed.csv", externalPath + "/pp_lhcb_radius_multReconstructed.csv"}, {"pPb", "Pbp", "pp"}, {true, true, false}, 1),
-        PlotConfig("lambda_mult_compareSystems", ";mult;#lambda", "#lambda : data samples", std::make_pair(0., multMax), std::make_pair(0., lambdaMax), "lambda", {basePath + "/main/output/systematics/RD_pPb/lambda_multReconstructed.csv", basePath + "/main/output/systematics/RD_Pbp/lambda_multReconstructed.csv", externalPath + "/pp_lhcb_lambda_multReconstructed.csv"}, {"pPb", "Pbp", "pp"}, {false, false, false}),
+        PlotConfig("radius_mult_compareSystems", ";#font[12]{N_{rec}};#font[12]{R} [fm]", "R : data samples", std::make_pair(0., multMax), std::make_pair(0.0, radiusMax), "radius", {basePath + "/main/output/systematics/RD_pPb/radius_multReconstructed.csv", basePath + "/main/output/systematics/RD_Pbp/radius_multReconstructed.csv", externalPath + "/pp_lhcb_radius_multReconstructed.csv"}, {"#font[12]{p}Pb 5.02 TeV", "Pb#font[12]{p} 5.02 TeV", "#font[12]{pp} 7 TeV"}, {true, true, false}, 1),
+        PlotConfig("lambda_mult_compareSystems", ";#font[12]{N_{rec}};#lambda", "#lambda : data samples", std::make_pair(0., multMax), std::make_pair(0., lambdaMax), "lambda", {basePath + "/main/output/systematics/RD_pPb/lambda_multReconstructed.csv", basePath + "/main/output/systematics/RD_Pbp/lambda_multReconstructed.csv", externalPath + "/pp_lhcb_lambda_multReconstructed.csv"}, {"#font[12]{p}Pb 5.02 TeV", "Pb#font[12]{p} 5.02 TeV", "#font[12]{pp} 7 TeV"}, {false, false, false}),
         // pp : LHCb vs ATLAS
-        PlotConfig("radius_mult_rapidity", ";N_ch;R [fm]", "R : rapidity", std::make_pair(0., 250.0), std::make_pair(0.0, 3.5), "radius", {externalPath + "/pp_atlas_radius_multUnfolded_MB.csv", externalPath + "/pp_atlas_radius_multUnfolded_HM.csv", externalPath + "/pp_lhcb_radius_multUnfolded.csv"}, {"pp ATLAS (MB)", "pp ATLAS (HM)", "pp LHCb"}, {false, false, false}, 0),
+        PlotConfig("radius_mult_rapidity", ";#font[12]{N_{ch}};#font[12]{R} [fm]", "R : rapidity", std::make_pair(0., 250.0), std::make_pair(0.0, 3.5), "radius", {externalPath + "/pp_atlas_radius_multUnfolded_MB.csv", externalPath + "/pp_atlas_radius_multUnfolded_HM.csv", externalPath + "/pp_lhcb_radius_multUnfolded.csv"}, {"ATLAS #font[12]{pp} 7 TeV (MB)", "ATLAS #font[12]{pp} 7 TeV (HM)", "LHCb #font[12]{pp} 7 TeV"}, {false, false, false}, 0),
     };
 
     for (const auto &plot : plots)
     {
-        discussionGeneric(plot);
+        discussionGeneric(plot, flagStyle);
     }
 }
