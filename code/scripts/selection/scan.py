@@ -29,6 +29,8 @@ ROOT.gInterpreter.ProcessLine(
     '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/HBTAnalysis/SelectionClass.hpp"')
 ROOT.gInterpreter.ProcessLine(
     '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/HBTAnalysis/Utils.hpp"')
+ROOT.gInterpreter.ProcessLine(
+    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/utils/Styles.hpp"')
 
 __author__ = 'Bartosz Malecki'
 __email__ = 'bartosz.piotr.malecki@cern.ch'
@@ -118,8 +120,6 @@ studiesPlots = {
     'corrFunc': ConfigEntry('corrFunc', listOfJobsPlots.keys(), 4, 'h4010', '_400'),
 }
 
-padSize = 1200
-
 # helper functions
 
 
@@ -148,19 +148,29 @@ def getMCIDHistInfo(hist, pidNumber, binZero=binZeroInMCIDHists):
     return float(nrCurrent) / hist.GetEntries() * 100
 
 
-def setStyleLocal():
-    '''Set local style (based on the general one)'''
-    ROOT.HBT.Utils.setStyle()
+def setStyleLocal(flagStyle):
+    '''Set local style (based on the general ones)'''
+    ROOT.HBT.Styles.setStyle(flagStyle)
+
+    # local style settings
+    ROOT.gStyle.SetMarkerSize(ROOT.gStyle.GetMarkerSize() * 0.625); # ! a lot of points - improve visibility
+    ROOT.HBT.Styles.setColorPalette()
+    ROOT.gROOT.ForceStyle()
 
 
-def printDescription(text):
-    posX = 0.20
-    posY = 0.80
+def printDescription(currentMultBin):
 
-    latex = ROOT.TLatex()
-    latex.SetNDC()
-    latex.SetTextSize(0.035)
-    latex.DrawLatex(posX, posY, text)
+    # config / info
+    posX = 0.075
+    posY = 0.30
+    selection = ROOT.SelectionClass()
+    binRangesMult = selection.getBinsOfMultiplicityRangesAsStrings()
+
+    # make description
+    plotDescription = ROOT.HBT.Styles.makeLhcbLabel(posX, posX + 0.25, posY, posY + 0.10)
+    plotDescription.SetTextSize(plotDescription.GetTextSize() * 0.825) # ! make slighlty smaller
+    ROOT.HBT.Utils.addMultilineText("#font[12]{N}_{VELO} : " + binRangesMult[currentMultBin], plotDescription)
+    plotDescription.Draw()
 
 # functions
 
@@ -298,7 +308,7 @@ def makePlots(studies, inputs):
 
         # prepare global canvas
         canvas = ROOT.TCanvas(
-            studyKey, study.id, padSize, padSize)
+            studyKey, study.id, ROOT.HBT.Styles.defaultCanvasSizeX, ROOT.HBT.Styles.defaultCanvasSizeY)
         canvas.SaveAs('.pdf[')
 
         for inputsInBinKey, inputsInBin in inputs.items():
@@ -307,7 +317,8 @@ def makePlots(studies, inputs):
 
             # prepare individual canvas
             canvas.Clear()
-            legend = ROOT.TLegend(0.55, 0.80, 0.85, 0.95)
+            legend = ROOT.TLegend(0.70, 0.20, 0.925, 0.475)
+            legend.SetHeader('#font[12]{ProbNN}(pion)')
 
             for jobKey, jobInput in inputsInBin[studyKey].items():
                 # process only info for jobs confgured in the given study
@@ -316,20 +327,26 @@ def makePlots(studies, inputs):
                     if studies[studyKey].strategy == 4:
                         # ! histograms style / config
                         jobInput.GetYaxis().SetRangeUser(0.5, 1.6)
-                        jobInput.SetTitle('')
-                        jobInput.SetStats(0)
-
-                        color = ROOT.gStyle.GetColorPalette(0 + iSame * 200)
-                        jobInput.SetLineColor(color)
-                        jobInput.SetMarkerColor(color)
-
-                        jobInput.Draw('SAME' if (iSame != 0) else '')
-                        legend.AddEntry(jobInput, str(jobKey), 'pe')
+                        jobInput.SetTitle(';#font[12]{Q} [GeV];#font[12]{C_{2}}(#font[12]{Q})')
+                        jobInput.SetLineWidth(int(ROOT.gStyle.GetLineWidth() / 2.0)); # ! a lot of points - improve visibility
+ 
+                        jobInput.Draw('SAME PMC PLC' if (iSame != 0) else 'PMC PLC')
+                        legend.AddEntry(jobInput, '> ' + str(jobKey), 'pe')
                         iSame += 1
 
-            # plot individual canvas
+            # add LHCb label
+            lhcbLabel = ROOT.HBT.Styles.makeLhcbLabel()
+            ROOT.HBT.Utils.addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel)
+            lhcbLabel.Draw()
+            canvas.Update()
+
+            # add legend
             legend.Draw('SAME')
-            printDescription(f'{studies[studyKey].id} : {inputsInBinKey+1}')
+
+            # add description
+            printDescription(inputsInBinKey)
+
+            # plot individual canvas
             canvas.SaveAs('.pdf')
 
         # save global canvas
@@ -462,7 +479,7 @@ def main():
     print('Plots part\n')
 
     # set style
-    setStyleLocal()
+    setStyleLocal(ROOT.HBT.Styles.defaultStyleFlag)
 
     inputsRawPlots = getIndividualInputs(
         inputPathPlots, listOfJobs, nrOfBinsMult, studiesPlots)
