@@ -17,7 +17,7 @@ void setStyleLocal(const unsigned int &flagStyle)
     HBT::Styles::setStyle(flagStyle);
 
     // local style settings
-    gStyle->SetPadTopMargin(0.055);
+    gStyle->SetPadTopMargin(0.057);
     gStyle->SetPadLeftMargin(0.17);
     gStyle->SetPadRightMargin(0.115);
 
@@ -59,7 +59,7 @@ void drawHistogram1D(TH1D *h, const int color = HBT::Styles::getColorPrimary(), 
     h->SetMarkerStyle(marker);
     h->SetMarkerColor(color);
     h->SetLineColor(color);
-    h->GetYaxis()->SetTitleOffset(1.2);
+    h->GetYaxis()->SetTitleOffset(1.15);
 
     h->Draw(drawOpts);
 }
@@ -203,7 +203,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // arrow->DrawArrow(-160.0, 1e7, -160.0, 0.0);
 
             // add LHCb label
-            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05, 0.325, 0.87, 0.95);
+            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.40, 0.675, 0.87, 0.95);
             HBT::Utils::addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
             lhcbLabel->Draw();
             tc->Update();
@@ -212,7 +212,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             tl->Draw("SAME");
 
             // add description
-            printDescription(!isNoBins, !isMultBinsOnly, i, j);
+            // printDescription(!isNoBins, !isMultBinsOnly, i, j);
         }
 
         // plot each mult bin on a different page
