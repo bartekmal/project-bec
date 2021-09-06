@@ -17,9 +17,9 @@ void setStyleLocal(const unsigned int &flagStyle)
     HBT::Styles::setStyle(flagStyle);
 
     // local style settings
-    gStyle->SetPadTopMargin(0.055);
-    gStyle->SetPadLeftMargin(0.17);
-    gStyle->SetPadRightMargin(0.115);
+    gStyle->SetPadTopMargin(0.057);
+    gStyle->SetPadLeftMargin(0.185);
+    gStyle->SetPadRightMargin(0.10);
 
     gStyle->SetPalette(kRainBow);
 
@@ -59,7 +59,7 @@ void drawHistogram1D(TH1D *h, const int color = HBT::Styles::getColorPrimary(), 
     h->SetMarkerStyle(marker);
     h->SetMarkerColor(color);
     h->SetLineColor(color);
-    h->GetYaxis()->SetTitleOffset(1.2);
+    h->GetYaxis()->SetTitleOffset(1.35);
 
     h->Draw(drawOpts);
 }
@@ -151,7 +151,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // prepare pads
             tc->cd(j + 1);
             gPad->Draw();
-            auto *tl = new TLegend(0.60, 0.55, 0.825, 0.75);
+            auto *tl = new TLegend(0.625, 0.7, 0.850, 0.9);
 
             TString hMainName = isHistFullName ? hMainNameBase : HBT::Utils::getHistogramName(hMainNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j);
 
@@ -185,7 +185,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                     tl->AddEntry(hRef, dataTypeRef, "pe");
 
                     // set the Y-axis range properly (main hist is drawn first)
-                    hMain->GetYaxis()->SetRangeUser(0, 1.1 * std::max(hMain->GetMaximum(), hRef->GetMaximum()));
+                    hMain->GetYaxis()->SetRangeUser(0, 0.04);
 
                     // do not show stats if histograms are compared
                     hMain->SetStats(0);
@@ -198,12 +198,13 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                 drawHistogram2D(hMain);
             }
 
-            // // add arrows (optional)
-            // auto arrow = HBT::Styles::makeArrow();
-            // arrow->DrawArrow(-160.0, 1e7, -160.0, 0.0);
+            // add arrows (optional)
+            auto arrow = HBT::Styles::makeArrow();
+            arrow->DrawArrow(-160.0, 0.025, -160.0, 0.0);
+            arrow->DrawArrow(60.0, 0.025, 60.0, 0.0);
 
             // add LHCb label
-            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05, 0.325, 0.87, 0.95);
+            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.025, 0.300, 0.87, 0.95);
             HBT::Utils::addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
             lhcbLabel->Draw();
             tc->Update();
@@ -212,7 +213,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             tl->Draw("SAME");
 
             // add description
-            printDescription(!isNoBins, !isMultBinsOnly, i, j);
+            // printDescription(!isNoBins, !isMultBinsOnly, i, j);
         }
 
         // plot each mult bin on a different page
