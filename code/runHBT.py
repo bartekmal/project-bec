@@ -234,6 +234,20 @@ histogramsToDraw = [
      'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h3057', 'refName': 'h3057', 'flagRefInput': 'custom', 'nameEnd': '_400',
      'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+    
+    # custom (for thesis)
+    # # mult
+    # {'name': 'h3002', 'refName': 'h3002', 'flagRefInput': 'custom', 'nameEnd': '',
+    #  'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#font[12]{N}_{VELO};Entries / (1.0)'},
+    # {'name': 'h3002', 'refName': 'h3002', 'flagRefInput': 'custom', 'nameEnd': '',
+    #  'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False, 'title': ';#font[12]{N}_{VELO};Entries / (1.0) (normalised)'},
+    # {'name': 'h3002', 'refName': 'h3002', 'flagRefInput': 'custom', 'nameEnd': '',
+    #  'dim': '1D', 'type': 'integrated', 'flagBins': 0, 'isHistFullName': False, 'title': ';#font[12]{N}_{VELO};Entries / (1.0) (integrated)'},
+    # zPv (needs special run with modified preselection)
+    # {'name': 'h1011', 'refName': 'h1011', 'flagRefInput': 'custom', 'nameEnd': '',
+    #  'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#font[12]{z}_{PV} [mm];Entries / (4 mm)'},
+    # {'name': 'h1011', 'refName': 'h1011', 'flagRefInput': 'custom', 'nameEnd': '',
+    #  'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False, 'title': ';#font[12]{z}_{PV} [mm];Entries / (4 mm) (normalised)'}
 ]
 
 # ! keep an eye on the bin width in y-axis title
@@ -529,7 +543,7 @@ def runHistograms(outputFolderName="histograms"):
                 'hMainName': hist['name'],
                 'fileRefPath': (os.getenv('MYDIR') + "/output/merged/RD_pPb/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/RD_Pbp/merged.root"),
                 'hRefName': hist['refName'],
-                'dataTypeRef': "RD_pPb" if flagRefInputSame else "RD_Pbp",
+                'dataTypeRef': "#font[12]{p}Pb data" if flagRefInputSame else "Pb#font[12]{p} data",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "RD_pPb"
             },
@@ -538,7 +552,7 @@ def runHistograms(outputFolderName="histograms"):
                 'hMainName': hist['name'],
                 'fileRefPath': (os.getenv('MYDIR') + "/output/merged/RD_Pbp/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/RD_pPb/merged.root"),
                 'hRefName': hist['refName'],
-                'dataTypeRef': "RD_Pbp" if flagRefInputSame else "RD_pPb",
+                'dataTypeRef': "Pb#font[12]{p} data" if flagRefInputSame else "#font[12]{p}Pb data",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "RD_Pbp"
             },
@@ -548,7 +562,7 @@ def runHistograms(outputFolderName="histograms"):
                 'hMainName': hist['name'],
                 'fileRefPath': (os.getenv('MYDIR') + "/output/merged/MC_pPb/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/MC_Pbp/merged.root"),
                 'hRefName': hist['refName'],
-                'dataTypeRef': "MC_pPb" if flagRefInputSame else "MC_Pbp",
+                'dataTypeRef': "#font[12]{p}Pb sim" if flagRefInputSame else "Pb#font[12]{p} sim",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "MC_pPb"
             },
@@ -557,7 +571,7 @@ def runHistograms(outputFolderName="histograms"):
                 'hMainName': hist['name'],
                 'fileRefPath': (os.getenv('MYDIR') + "/output/merged/MC_Pbp/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/MC_pPb/merged.root"),
                 'hRefName': hist['refName'],
-                'dataTypeRef': "MC_Pbp" if flagRefInputSame else "MC_pPb",
+                'dataTypeRef': "Pb#font[12]{p} sim" if flagRefInputSame else "#font[12]{p}Pb sim",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "MC_Pbp"
             }
