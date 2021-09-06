@@ -17,9 +17,9 @@ void setStyleLocal(const unsigned int &flagStyle)
     HBT::Styles::setStyle(flagStyle);
 
     // local style settings
-    gStyle->SetPadTopMargin(0.055);
-    gStyle->SetPadLeftMargin(0.17);
-    gStyle->SetPadRightMargin(0.115);
+    gStyle->SetPadTopMargin(0.06);
+    gStyle->SetPadLeftMargin(0.2);
+    gStyle->SetPadRightMargin(0.1125);
 
     gStyle->SetPalette(kRainBow);
 
@@ -59,7 +59,7 @@ void drawHistogram1D(TH1D *h, const int color = HBT::Styles::getColorPrimary(), 
     h->SetMarkerStyle(marker);
     h->SetMarkerColor(color);
     h->SetLineColor(color);
-    h->GetYaxis()->SetTitleOffset(1.2);
+    h->GetYaxis()->SetTitleOffset(1.45);
 
     h->Draw(drawOpts);
 }
