@@ -154,8 +154,8 @@ inline bool SelectionClass::passEventSelection()
         passStatus = false;
     else if (N == 0)
         passStatus = false;
-    else if (zBestPV[0] < m_zPvMin || zBestPV[0] > m_zPvMax)
-        return false;
+    // else if (zBestPV[0] < m_zPvMin || zBestPV[0] > m_zPvMax)
+    //     return false;
 
     return passStatus;
 }
