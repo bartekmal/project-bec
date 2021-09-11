@@ -77,6 +77,9 @@ binZeroInMCIDHists = 10001
 basePath = '/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/analysis/studies/pionIdScan'
 listOfCuts = ['0.30', '0.35', '0.40', '0.45', '0.50',
               '0.55', '0.60', '0.65', '0.70', '0.75', '0.80']
+# # TODO (manual) replace for a ProbNN(ghost) scan
+# basePath = '/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/analysis/studies/ghostScan'
+# listOfCuts = ['0.25', '0.50']
 listOfJobs = {cutValue: os.path.join(
     basePath, cutValue.replace('.', 'c')) for cutValue in listOfCuts}
 
@@ -330,7 +333,13 @@ def makePlots(studies, inputs):
                         jobInput.SetTitle(';#font[12]{Q} [GeV];#font[12]{C_{2}}(#font[12]{Q})')
                         jobInput.SetLineWidth(int(ROOT.gStyle.GetLineWidth() / 2.0)); # ! a lot of points - improve visibility
  
-                        jobInput.Draw('SAME PMC PLC' if (iSame != 0) else 'PMC PLC')
+                        # ! custom color palette
+                        customPalette = [ROOT.kBlack,  ROOT.kRed + 1, ROOT.kBlue + 1, ROOT.kGreen + 2,  ROOT.kGray + 2]
+                        currentColor = customPalette[iSame % len(customPalette)] # modulo to get valid colors
+                        jobInput.SetMarkerColor(currentColor) 
+                        jobInput.SetLineColor(currentColor) 
+
+                        jobInput.Draw('SAME' if (iSame != 0) else '')
                         legend.AddEntry(jobInput, '> ' + str(jobKey), 'pe')
                         iSame += 1
 
@@ -387,7 +396,7 @@ def saveAsFile(fileName, header, fractions, studies, validBinKeys, keysOfIdentif
 
                 outputFile.write(f'{(cut):6s}')
                 for study in studies:
-                    outputFile.write(f'\t{fractionsInBin[study][cut]:6.2f}')
+                    outputFile.write(f'\t{fractionsInBin[study][cut]:7.3f}')
                 outputFile.write(f'\n')
 
             outputFile.write(f'\n')
