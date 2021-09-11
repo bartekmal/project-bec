@@ -135,12 +135,12 @@ void divideHistogramsInBinsGeneric(const TString file1, const TString h1BaseName
       h2->Scale(double(h1->GetEntries()) / h2->GetEntries());
 
       // remove resonances from the correlation function for UNLIKE pairs
-      if (flagRemoveResonances && !isLike)
-      {
-        removeResonances(h1);
-        removeResonances(h2);
-        removeResonances(hOut);
-      }
+      // if (flagRemoveResonances && !isLike)
+      // {
+      //   removeResonances(h1);
+      //   removeResonances(h2);
+      //   removeResonances(hOut);
+      // }
 
       h1->Write();
       h2->Write();
