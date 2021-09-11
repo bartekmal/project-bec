@@ -48,7 +48,7 @@ const Double_t fitRangeUnlikeMin = 0.25;
 const Double_t fitRangeMcMin = 0.25;
 const Double_t fitRangeMax = 2.0;
 
-const HBT::Units::FloatType descriptionPosX = 0.525;
+const HBT::Units::FloatType descriptionPosX = 0.425;
 const HBT::Units::FloatType descriptionPosY = 0.25;
 
 /*-------------- enf of configuration -------------*/
@@ -638,7 +638,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             // prepare pads
             tc->cd(j + 1);
 
-            auto tl = new TLegend(0.175, 0.2, 0.65, 0.425);
+            auto tl = new TLegend(0.175, 0.225, 0.475, 0.40);
 
             auto p1 = new TPad("p1", "p1", 0., 0.33, 1., 1.);
             auto p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
@@ -669,13 +669,13 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             if (flagDrawRef)
             {
                 hRef->SetLineWidth(gStyle->GetLineWidth() / 2.0); // ! a lot of points - improve visibility
-                drawHistogram(hRef, HBT::Styles::getColorEmphasize(), HBT::Styles::getMarker(1));
-                const auto hMainLabel = HBT::Utils::dataTypeAsString(dataType) + " (" + HBT::Utils::histTypeAsString(histType) + ")";
-                tl->AddEntry(hRef, hMainLabel.c_str(), "pe");
+                drawHistogram(hRef, HBT::Styles::getColorSecondary(), HBT::Styles::getMarker(1));
+                tl->AddEntry(hRef, refType, "pe");
             }
             hMain->SetLineWidth(gStyle->GetLineWidth() / 2.0); // ! a lot of points - improve visibility
-            drawHistogram(hMain, HBT::Styles::getColorPrimary(), HBT::Styles::getMarker(0));
-            tl->AddEntry(hMain, refType, "pe");
+            drawHistogram(hMain, HBT::Styles::getColorPrimary());
+            const auto hMainLabel = HBT::Utils::dataTypeAsString(dataType) + " (" + HBT::Utils::histTypeAsString(histType) + ")";
+            tl->AddEntry(hMain, hMainLabel.c_str(), "pe");
 
             // perform a fit in individual bins if required
             TFitResultPtr fitResult{};
@@ -835,40 +835,6 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
 
             // add description
             printDescription(isMultBinsOnly, i, j);
-
-            // indicate resonances
-            const auto labelWidth = 0.1;
-            const auto labelHeight = 0.075;
-            {
-                auto resLabel = HBT::Styles::makeLhcbLabel(0.11, 0.11 + labelWidth, 0.705, 0.705 + labelHeight);
-                resLabel->SetTextSize(resLabel->GetTextSize() * 0.825); // ! make slighlty smaller
-                HBT::Utils::addMultilineText(std::string("#font[12]{K}_{S}^{0}(497)").c_str(), resLabel);
-                resLabel->Draw();
-            }
-            {
-                auto resLabel = HBT::Styles::makeLhcbLabel(0.24, 0.24 + labelWidth, 0.74, 0.74 + labelHeight);
-                resLabel->SetTextSize(resLabel->GetTextSize() * 0.825); // ! make slighlty smaller
-                HBT::Utils::addMultilineText(std::string("#font[12]{#rho}^{0}(770)").c_str(), resLabel);
-                resLabel->Draw();
-            }
-            {
-                auto resLabel = HBT::Styles::makeLhcbLabel(0.33, 0.33 + labelWidth, 0.68, 0.68 + labelHeight);
-                resLabel->SetTextSize(resLabel->GetTextSize() * 0.825); // ! make slighlty smaller
-                HBT::Utils::addMultilineText(std::string("#font[12]{f}_{0}(980)").c_str(), resLabel);
-                resLabel->Draw();
-            }
-            {
-                auto resLabel = HBT::Styles::makeLhcbLabel(0.44, 0.44 + labelWidth, 0.73, 0.73 + labelHeight);
-                resLabel->SetTextSize(resLabel->GetTextSize() * 0.825); // ! make slighlty smaller
-                HBT::Utils::addMultilineText(std::string("#font[12]{f}_{2}(1270)").c_str(), resLabel);
-                resLabel->Draw();
-            }
-            const auto arrowLength = 0.15;
-            auto resArrow = HBT::Styles::makeArrow();
-            resArrow->DrawArrow(0.41, 1.2, 0.41, 1.2 - arrowLength);
-            resArrow->DrawArrow(0.715, 1.25, 0.715, 1.25 - arrowLength);
-            resArrow->DrawArrow(0.94, 1.175, 0.94, 1.175 - arrowLength);
-            resArrow->DrawArrow(1.24, 1.25, 1.24, 1.25 - (arrowLength + 0.05));
         }
 
         // plot each mult bin on a different page
