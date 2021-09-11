@@ -640,10 +640,10 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
 
             auto tl = new TLegend(0.175, 0.2, 0.65, 0.425);
 
-            auto p1 = new TPad("p1", "p1", 0., 0., 1., 1.);
-            // auto p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
+            auto p1 = new TPad("p1", "p1", 0., 0.33, 1., 1.);
+            auto p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
             p1->Draw();
-            // p2->Draw();
+            p2->Draw();
 
             // get histograms
             TString hMainName = HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
@@ -810,8 +810,8 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                     // draw/print the fit info
                     printFitInfo(curFitResult);
 
-                    // p2->cd();
-                    // drawPull(hMain, f, fitRangeMin);
+                    p2->cd();
+                    drawPull(hMain, f, fitRangeMin);
                     p1->cd();
                 }
                 else
