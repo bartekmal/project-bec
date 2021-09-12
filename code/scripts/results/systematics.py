@@ -31,6 +31,8 @@ ROOT.gInterpreter.ProcessLine(
 ROOT.gInterpreter.ProcessLine(
     '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/HBTAnalysis/Utils.hpp"')
 ROOT.gInterpreter.ProcessLine(
+    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/utils/Styles.hpp"')
+ROOT.gInterpreter.ProcessLine(
     '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/scripts/fitModel.C"')
 
 __author__ = 'Bartosz Malecki'
@@ -107,9 +109,8 @@ listOfJobs = {
     'coulomb_0': os.path.join(basePath, 'analysis/systematics/coulomb/rEff_0c5'),
     'coulomb_1': os.path.join(basePath, 'analysis/systematics/coulomb/rEff_8c0'),
     # ref sample
-    'refSample_0': os.path.join(basePath, 'analysis/systematics/refSample/nrEventsToMix_20'),
-    'refSample_1': os.path.join(basePath, 'analysis/systematics/refSample/nrEventsToMix_50'),
-    'refSample_2': os.path.join(basePath, 'analysis/systematics/refSample/nrEventsToMix_100'),
+    'refSample_0': os.path.join(basePath, 'analysis/systematics/refSample/nrEventsToMix_50'),
+    'refSample_1': os.path.join(basePath, 'analysis/systematics/refSample/nrEventsToMix_100'),
     # selection
     'selection_zPv_0': os.path.join(basePath, 'analysis/systematics/selection/zPv/looser'),
     'selection_zPv_1': os.path.join(basePath, 'analysis/systematics/selection/zPv/stricter'),
@@ -137,7 +138,7 @@ listOfContributions = {
     # Coulomb
     'coulomb': ContributionConfig(['coulomb_0', 'coulomb_1'], 2),
     # ref sample
-    'refSample': ContributionConfig(['refSample_0', 'refSample_1', 'refSample_2'], 2),
+    'refSample': ContributionConfig(['refSample_0', 'refSample_1'], 2),
     # selection
     'selection_zPv': ContributionConfig(['selection_zPv_0', 'selection_zPv_1'], 2),
     'selection_ghosts': ContributionConfig(['selection_ghosts'], 0),
@@ -175,6 +176,17 @@ def getRelativeDiff(diff, refNumber):
     '''Return a relative difference wrt the reference value [%].'''
 
     return diff/refNumber * 100.0
+
+
+def setStyleLocal(flagStyle):
+    '''Set local style (based on the general ones)'''
+    ROOT.HBT.Styles.setStyle(flagStyle)
+
+    # local style settings
+    ROOT.gStyle.SetPadLeftMargin(0.15)
+    ROOT.HBT.Styles.setColorPalette()
+    ROOT.gROOT.ForceStyle()
+
 
 # functions
 
@@ -363,21 +375,81 @@ def saveAsFile(fileName, header, binCentres, fitResults, errors, paramKey):
                 f'{binCentres[bin]:6.2f}\t{fitResults[bin][paramKey][keyMainResult].getValue():7.4f}\t{errors[bin][paramKey][keyStatError].getAbs():7.4f}\t{errors[bin][paramKey][keyTotalSystError].getAbs():7.4f}\n')
 
 
+def plotErrors(inputs, binCentres, fitParams, dataLabel):
+    '''Plot uncertainties in bins.'''
+
+    # list of contributions (inputs should only contain valid data of uniform sizes in each dimension - get any (first) bin info)
+    contributions = inputs[next(iter(inputs))][next(iter(fitParams))].keys()
+
+    for paramKey in fitParams:
+
+        # prepare global canvas
+        canvas = ROOT.TCanvas(f'{paramKey}', f'{paramKey}',
+                              ROOT.HBT.Styles.defaultCanvasSizeX,
+                              ROOT.HBT.Styles.defaultCanvasSizeY)
+        canvas.SaveAs('.pdf[')
+
+        paramName = '#font[12]{R}' if paramKey == 'radius' else (
+            '#font[12]{#lambda}'
+            if paramKey == 'lambda' else fitParams[paramKey])
+
+        for contributionKey in contributions:
+
+            # prepare canvas & graph
+            canvas.SetGrid()
+            title = f'{contributionKey}' + ';#font[12]{N}_{VELO};#font[12]{#sigma}_{syst}(' + paramName + ') [%]'
+            # TODO (manual) range setting (improve config)
+            frame = canvas.DrawFrame(0.0, 0.0, 180., 45.0, title)
+            graph = ROOT.TGraphErrors()
+
+            # add points
+            for binKey, bin in inputs.items():
+                graph.SetPoint(
+                    int(binKey), binCentres[binKey],
+                    bin[paramKey][contributionKey].getRel())
+
+            # draw
+            graph.Draw('P PMC PLC')
+
+            # add LHCb label (& description)
+            lhcbLabel = ROOT.HBT.Styles.makeLhcbLabel(0.05, 0.35, 0.80, 0.95)
+            ROOT.HBT.Utils.addMultilineText(f'LHCb preliminary', lhcbLabel)
+            # TODO custom name only for interesting plots (improve config)
+            contributionName = 'total uncertainty' if contributionKey == 'syst' else (
+                'bkg scaling' if contributionKey == 'bkg_scaling' else
+                ('PID optimisation'
+                 if contributionKey == 'selection_pid' else contributionKey))
+            ROOT.HBT.Utils.addMultilineText(f'{contributionName}', lhcbLabel)
+            lhcbLabel.Draw()
+            canvas.Update()
+
+            # add legend
+            legend = ROOT.TLegend(0.20, 0.55, 0.55, 0.725)
+            legend.AddEntry(graph, dataLabel, 'pe')
+            legend.Draw('SAME')
+
+            # save plot
+            canvas.SaveAs(f'.pdf')
+
+        canvas.SaveAs('.pdf]')
+
+
 # main part
 
 
 def main():
     # get args
     args = sys.argv[1:]
-    if len(args) != 4:
+    if len(args) != 5:
         print('Wrong number of arguments!\n')
         return 1
     inputPath = args[0]
     hNameBase = args[1]
     hCommonEndName = args[2]
     funcName = args[3]
+    dataLabel = args[4]
     print(
-        f'Input args: {inputPath} {hNameBase} {hCommonEndName} {funcName} \n')
+        f'Input args: {inputPath} {hNameBase} {hCommonEndName} {funcName} {dataLabel} \n')
 
     # do systematics
     print(
@@ -433,6 +505,10 @@ def main():
     for param in fitParams.keys():
         saveAsFile(f'{param}_multReconstructed.csv',
                    f'N_rec(bin centre)\t{param}[{paramUnits[param]}]\tstat[{paramUnits[param]}]\tsyst[{paramUnits[param]}]\n', binCentres, results, summary, param)
+
+    # plot uncertainties in bins
+    setStyleLocal(ROOT.HBT.Styles.defaultStyleFlag)
+    plotErrors(summary, binCentres, fitParams, dataLabel)
 
 
 if __name__ == '__main__':

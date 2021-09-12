@@ -1365,14 +1365,16 @@ def runSystematics(outputFolderName="systematics"):
             'hBaseName': "h4010",
             'hNameCommonEndForMult': "_400",
             'fName': "funcMain",
-            'outputFolder': "RD_pPb"
+            'outputFolder': "RD_pPb",
+            'dataLabel': "#font[12]{p}Pb 5.02 TeV"
         },
         {
             'fileName': "output/fits_scaledBkg/RD_Pbp/fitResults.root",
             'hBaseName': "h4010",
             'hNameCommonEndForMult': "_400",
             'fName': "funcMain",
-            'outputFolder': "RD_Pbp"
+            'outputFolder': "RD_Pbp",
+            'dataLabel': "Pb#font[12]{p} 5.02 TeV"
         }
     ]
 
@@ -1382,7 +1384,7 @@ def runSystematics(outputFolderName="systematics"):
         recreateAndChangeDir(aJob['outputFolder'])
 
         os.system('lb-conda default python ' +
-                  f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/systematics.py "{aJob["fileName"]}" "{aJob["hBaseName"]}" "{aJob["hNameCommonEndForMult"]}" "{aJob["fName"]}" >> {outputFolderName}.log')
+                  f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/systematics.py "{aJob["fileName"]}" "{aJob["hBaseName"]}" "{aJob["hNameCommonEndForMult"]}" "{aJob["fName"]}" "{aJob["dataLabel"]}" >> {outputFolderName}.log')
 
 
 def runDiscussion(outputFolderName="discussion"):
