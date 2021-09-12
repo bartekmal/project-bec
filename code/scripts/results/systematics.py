@@ -34,6 +34,8 @@ ROOT.gInterpreter.ProcessLine(
     '#include "' + os.getenv('BEC_BASE_CODE') + '/utils/Styles.hpp"')
 ROOT.gInterpreter.ProcessLine(
     '#include "' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitModel.C"')
+ROOT.gInterpreter.ProcessLine(
+    '#include "' + os.getenv('BEC_BASE_CODE_HBT') + '/Units.hpp"')
 
 __author__ = 'Bartosz Malecki'
 __email__ = 'bartosz.piotr.malecki@cern.ch'
@@ -86,9 +88,8 @@ class ContributionConfig:
 
 # global config
 
-
-listOfParams = ['radius', 'lambda']
-paramUnits = {'radius': 'GeV-1', 'lambda': '-'}
+listOfParams = ['radius', 'lambda', 'norm', 'delta','MinFcn']
+paramUnits = {'radius': 'fm', 'lambda': '-', 'norm': '-', 'delta': 'GeV-1', 'MinFcn': '-'}
 
 keyMainResult = 'main'
 keyTotalSystError = 'syst'
@@ -250,8 +251,10 @@ def getTransformedFitResults(fitResults, fitParams, listOfBins):
             curResults = {}
 
             for resultKey, result in fitResults.items():
-                curResults[resultKey] = FitResultEntry(
-                    result[bin].Parameter(paramId), result[bin].ParError(paramId))
+                if paramKey == 'MinFcn':
+                    curResults[resultKey] = FitResultEntry(result[bin].MinFcnValue(), result[bin].Ndf())
+                else:    
+                    curResults[resultKey] = FitResultEntry(result[bin].Parameter(paramId), result[bin].ParError(paramId))
 
             resultsInBin[paramKey] = curResults
 
@@ -371,9 +374,10 @@ def saveAsFile(fileName, header, binCentres, fitResults, errors, paramKey):
         # list of (common) valid bins (results only contain valid fits)
         bins = fitResults.keys()
         for bin in bins:
-            outputFile.write(
-                f'{binCentres[bin]:6.2f}\t{fitResults[bin][paramKey][keyMainResult].getValue():7.4f}\t{errors[bin][paramKey][keyStatError].getAbs():7.4f}\t{errors[bin][paramKey][keyTotalSystError].getAbs():7.4f}\n')
-
+            if paramKey == 'radius':
+                outputFile.write(f'{binCentres[bin]:6.2f} \pm {ROOT.HBT.Units.GevInvToFm(fitResults[bin][paramKey][keyMainResult].getValue()):7.3f} \pm {ROOT.HBT.Units.GevInvToFm(errors[bin][paramKey][keyStatError].getAbs()):7.3f} \pm {ROOT.HBT.Units.GevInvToFm(errors[bin][paramKey][keyTotalSystError].getAbs()):7.3f}\n')
+            else:
+                outputFile.write(f'{binCentres[bin]:6.2f} \pm {fitResults[bin][paramKey][keyMainResult].getValue():7.3f} \pm {errors[bin][paramKey][keyStatError].getAbs():7.3f} \pm {errors[bin][paramKey][keyTotalSystError].getAbs():7.3f}\n')
 
 def plotErrors(inputs, binCentres, fitParams, dataLabel):
     '''Plot uncertainties in bins.'''
