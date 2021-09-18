@@ -1284,7 +1284,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_pPb/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "#font[12]{p}Pb data (no sel)",
+                'dataTypeRef': "#font[12]{p}Pb data (presel)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "RD_pPb"
             },
@@ -1293,7 +1293,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_Pbp/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "Pb#font[12]{p} data (no sel)",
+                'dataTypeRef': "Pb#font[12]{p} data (presel)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "RD_Pbp"
             },
@@ -1303,7 +1303,7 @@ def runSlopes(outputFolderName="slopes"):
             #     'hMainName': hist['name'],
             #     'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_pPb/merged.root",
             #     'hRefName': hist['refName'],
-            #     'dataTypeRef': "#font[12]{p}Pb data (partial sel)",
+            #     'dataTypeRef': "#font[12]{p}Pb data (presel)",
             #     'hMainNameEnd': hist['nameEnd'],
             #     'outputFolder': "RD_pPb"
             # },
@@ -1312,7 +1312,7 @@ def runSlopes(outputFolderName="slopes"):
             #     'hMainName': hist['name'],
             #     'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_Pbp/merged.root",
             #     'hRefName': hist['refName'],
-            #     'dataTypeRef': "Pb#font[12]{p} data (partial sel)",
+            #     'dataTypeRef': "Pb#font[12]{p} data (presel)",
             #     'hMainNameEnd': hist['nameEnd'],
             #     'outputFolder': "RD_Pbp"
             # },
@@ -1322,7 +1322,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/MC_pPb/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "#font[12]{p}Pb sim (no gh/cl)",
+                'dataTypeRef': "#font[12]{p}Pb sim (presel)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "MC_pPb"
             },
@@ -1331,7 +1331,7 @@ def runSlopes(outputFolderName="slopes"):
                 'hMainName': hist['name'],
                 'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/MC_Pbp/merged.root",
                 'hRefName': hist['refName'],
-                'dataTypeRef': "Pb#font[12]{p} sim (no gh/cl)",
+                'dataTypeRef': "Pb#font[12]{p} sim (presel)",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "MC_Pbp"
             },
