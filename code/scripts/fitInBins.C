@@ -423,7 +423,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
     const auto maxKtValue = curKtValues.back();
 
     // prepare canvas
-    const int canvasSizeHeight = flagDoFit ? HBT::Styles::defaultCanvasSizeY * 1.5 : HBT::Styles::defaultCanvasSizeY;
+    const int canvasSizeHeight = flagDoFit ? HBT::Styles::defaultCanvasSizeY : HBT::Styles::defaultCanvasSizeY;
     const int canvasSizeWidth = isMultBinsOnly ? HBT::Styles::defaultCanvasSizeX : nrBinsKtForLoops * HBT::Styles::defaultCanvasSizeX;
     auto tc = std::make_unique<TCanvas>(title, title, canvasSizeWidth, canvasSizeHeight);
     const TString plotFile = title + ".pdf";
@@ -640,10 +640,10 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
 
             auto tl = new TLegend(0.175, 0.225, 0.475, 0.40);
 
-            auto p1 = new TPad("p1", "p1", 0., 0.33, 1., 1.);
-            auto p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
-            p1->Draw();
-            p2->Draw();
+            // auto p1 = new TPad("p1", "p1", 0., 0., 1., 1.);
+            // auto p2 = new TPad("p2", "p2", 0., 0., 1., 0.33);
+            // p1->Draw();
+            // p2->Draw();
 
             // get histograms
             TString hMainName = HBT::Utils::getHistogramName(hMainNameBase, hCommonEndName, true, !isMultBinsOnly, i, j);
@@ -663,7 +663,7 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
             fOut->cd();
 
             // draw histograms
-            p1->cd();
+            // p1->cd();
 
             // draw a reference histogram if required
             if (flagDrawRef)
@@ -810,9 +810,9 @@ void fitInBinsGeneric(const TString inputFile, const TString hMainNameBase, cons
                     // draw/print the fit info
                     printFitInfo(curFitResult);
 
-                    p2->cd();
-                    drawPull(hMain, f, fitRangeMin);
-                    p1->cd();
+                    // p2->cd();
+                    // drawPull(hMain, f, fitRangeMin);
+                    // p1->cd();
                 }
                 else
                 {
