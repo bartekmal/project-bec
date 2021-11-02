@@ -413,7 +413,7 @@ def plotErrors(inputs, binCentres, fitParams, dataLabel):
 
             # add LHCb label (& description)
             lhcbLabel = ROOT.HBT.Styles.makeLhcbLabel(0.05, 0.35, 0.80, 0.95)
-            ROOT.HBT.Utils.addMultilineText(f'LHCb preliminary', lhcbLabel)
+            ROOT.HBT.Utils.addMultilineText(f'LHCb Unofficial', lhcbLabel)
             # TODO custom name only for interesting plots (improve config)
             contributionName = 'total uncertainty' if contributionKey == 'syst' else (
                 'bkg scaling' if contributionKey == 'bkg_scaling' else

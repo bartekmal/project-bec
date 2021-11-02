@@ -345,7 +345,7 @@ def makePlots(studies, inputs):
 
             # add LHCb label
             lhcbLabel = ROOT.HBT.Styles.makeLhcbLabel()
-            ROOT.HBT.Utils.addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel)
+            ROOT.HBT.Utils.addMultilineText("LHCb Unofficial;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel)
             lhcbLabel.Draw()
             canvas.Update()
 

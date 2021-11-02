@@ -204,7 +204,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
 
             // add LHCb label
             auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05, 0.325, 0.87, 0.95);
-            HBT::Utils::addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
+            HBT::Utils::addMultilineText("LHCb Unofficial;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
             lhcbLabel->Draw();
             tc->Update();
 

@@ -174,7 +174,7 @@ void discussionGeneric(const PlotConfig &plot, const unsigned int &flagStyle)
 
     // add LHCb label
     auto lhcbLabel = HBT::Styles::makeLhcbLabel();
-    HBT::Utils::addMultilineText("LHCb preliminary", lhcbLabel);
+    HBT::Utils::addMultilineText("LHCb Unofficial", lhcbLabel);
     lhcbLabel->Draw();
     tc->Update();
 

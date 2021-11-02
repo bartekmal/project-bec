@@ -179,7 +179,7 @@ void drawDiffsGeneric(const TString inputFileMain, const TString hNameBaseMain, 
 
         // add LHCb label
         auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05,0.35,0.75,0.95);
-        HBT::Utils::addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
+        HBT::Utils::addMultilineText("LHCb Unofficial;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
         const auto dataLabel = HBT::Utils::dataTypeAsString(dataType) + " fit (" + HBT::Utils::histTypeAsString(histType) + ");diff wrt reference [%]";
         HBT::Utils::addMultilineText((";"+dataLabel).c_str(), lhcbLabel); // ? rm this line
         lhcbLabel->Draw();
