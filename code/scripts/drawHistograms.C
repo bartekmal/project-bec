@@ -35,7 +35,7 @@ void printDescription(const bool &flagMultBins, const bool &flagKtBins, const in
 {
     // config / info
     const HBT::Units::FloatType commPosX = 0.05;
-    const HBT::Units::FloatType commPosY = 0.85;
+    const HBT::Units::FloatType commPosY = 0.75;
 
     const auto selection = SelectionClass();
     const auto binRangesMult = !flagKtBins ? selection.getBinsOfMultiplicityRangesAsStrings() : selection.getBinsOfMultiplicityForKtRangesAsStrings();
@@ -43,7 +43,7 @@ void printDescription(const bool &flagMultBins, const bool &flagKtBins, const in
 
     // make description
     auto plotDescription = HBT::Styles::makeLhcbLabel(commPosX, commPosX + 0.25, commPosY - 0.075, commPosY);
-    plotDescription->SetTextSize(plotDescription->GetTextSize() * 0.825); // ! make slighlty smaller
+    // plotDescription->SetTextSize(plotDescription->GetTextSize() * 0.825); // ! make slighlty smaller
     auto binLabel = flagMultBins ? std::string("#font[12]{N}_{VELO} : " + binRangesMult[currentMultBin]) : std::string("");
     if (flagKtBins)
     {
@@ -170,7 +170,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                                                                                         : hMain;
 
                 drawHistogram1D(hMain, HBT::Styles::getColorPrimary());
-                tl->AddEntry(hMain, HBT::Utils::dataTypeAsString(dataTypeMain).c_str(), "pe");
+                tl->AddEntry(hMain, "final selection", "pe");
 
                 // draw the ref hist if available (and add proper descriptions)
                 if (fInRef)
@@ -203,8 +203,8 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // arrow->DrawArrow(-160.0, 1e7, -160.0, 0.0);
 
             // add LHCb label
-            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05, 0.325, 0.87, 0.95);
-            HBT::Utils::addMultilineText("LHCb Unofficial;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
+            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05, 0.325, 0.80, 0.95);
+            HBT::Utils::addMultilineText(std::string("LHCb Unofficial;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV;") + HBT::Utils::dataTypeAsString(dataTypeMain), lhcbLabel);
             lhcbLabel->Draw();
             tc->Update();
 
