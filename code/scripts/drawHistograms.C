@@ -151,7 +151,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // prepare pads
             tc->cd(j + 1);
             gPad->Draw();
-            auto *tl = new TLegend(0.60, 0.55, 0.825, 0.75);
+            auto *tl = new TLegend(0.60, 0.55, 0.875, 0.75);
 
             TString hMainName = isHistFullName ? hMainNameBase : HBT::Utils::getHistogramName(hMainNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j);
 
