@@ -115,11 +115,11 @@ namespace HBT
             }
             else if (!dataType.CompareTo("MC_pPb"))
             {
-                return std::string("#font[12]{p}Pb simulation");
+                return std::string("#font[12]{p}Pb sim");
             }
             else if (!dataType.CompareTo("MC_Pbp"))
             {
-                return std::string("Pb#font[12]{p} simulation");
+                return std::string("Pb#font[12]{p} sim");
             }
             else
             {

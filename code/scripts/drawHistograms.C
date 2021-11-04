@@ -151,7 +151,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // prepare pads
             tc->cd(j + 1);
             gPad->Draw();
-            auto *tl = new TLegend(0.6, 0.55, 0.875, 0.75);
+            auto *tl = new TLegend(0.60, 0.55, 0.825, 0.75);
 
             TString hMainName = isHistFullName ? hMainNameBase : HBT::Utils::getHistogramName(hMainNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j);
 
@@ -170,7 +170,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                                                                                         : hMain;
 
                 drawHistogram1D(hMain, HBT::Styles::getColorPrimary());
-                tl->AddEntry(hMain, "no fake/clone", "pe");
+                tl->AddEntry(hMain, "final selection", "pe");
 
                 // draw the ref hist if available (and add proper descriptions)
                 if (fInRef)
