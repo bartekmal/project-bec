@@ -101,8 +101,8 @@ int main(int argc, char **argv)
       continue;
 
     //fill histograms
-    // HBT::Histograms::FillHistogramSetWithEventLevelInfo(histogramSet100);
-    // HBT::Histograms::FillHistogramSeries200(histogramSet200);
+    HBT::Histograms::FillHistogramSetWithEventLevelInfo(histogramSet100);
+    HBT::Histograms::FillHistogramSeries200(histogramSet200);
 
     //prepare particle / pair containers for the event
     std::vector<HBT::Particle> selectedPions;
@@ -114,86 +114,86 @@ int main(int argc, char **argv)
 
       //fill histograms
       HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1000, i);
-      // HBT::Histograms::Fill2DHistogramSeries1000(histogram2DSet1000, i);
+      HBT::Histograms::Fill2DHistogramSeries1000(histogram2DSet1000, i);
 
-      // if (!hbtSelection.passTrackSelection(i))
-      //   continue;
+      if (!hbtSelection.passTrackSelection(i))
+        continue;
 
-      // //HBT::Histograms::FillHistogramSetWithParticleLevelInfo( histogramSet1100, i );
+      //HBT::Histograms::FillHistogramSetWithParticleLevelInfo( histogramSet1100, i );
 
-      // if (!hbtSelection.passPIDSelection(i, MC))
-      //   continue;
+      if (!hbtSelection.passPIDSelection(i, MC))
+        continue;
 
-      // HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1200NoBins, i);
-      // HBT::Histograms::FillHistogramSeries1000InBins(histogramSet1200MultiplicityBins, i, hbtSelection.getBinsOfMultiplicity());
+      HBT::Histograms::FillHistogramSetWithParticleLevelInfo(histogramSet1200NoBins, i);
+      HBT::Histograms::FillHistogramSeries1000InBins(histogramSet1200MultiplicityBins, i, hbtSelection.getBinsOfMultiplicity());
 
-      // selectedPions.emplace_back(i, MC, HBT::Units::PIDPion, HBT::Units::MassPion);
+      selectedPions.emplace_back(i, MC, HBT::Units::PIDPion, HBT::Units::MassPion);
     }
 
-    // //safety check for 'empty' events
-    // if (selectedPions.empty())
-    //   continue;
+    //safety check for 'empty' events
+    if (selectedPions.empty())
+      continue;
 
-    // //check if event-mixing is ready for this event class
-    // const auto isEventMixingReady = hbtEventMixing.isListOfCandidatesForMixingReady(selectedPions);
+    //check if event-mixing is ready for this event class
+    const auto isEventMixingReady = hbtEventMixing.isListOfCandidatesForMixingReady(selectedPions);
 
-    // //create particle pairs
-    // for (auto firstParticleIterator = selectedPions.begin(); firstParticleIterator != selectedPions.end() - 1; firstParticleIterator++)
-    // {
-    //   for (auto secondParticleIterator = firstParticleIterator + 1; secondParticleIterator != selectedPions.end(); secondParticleIterator++)
-    //   {
+    //create particle pairs
+    for (auto firstParticleIterator = selectedPions.begin(); firstParticleIterator != selectedPions.end() - 1; firstParticleIterator++)
+    {
+      for (auto secondParticleIterator = firstParticleIterator + 1; secondParticleIterator != selectedPions.end(); secondParticleIterator++)
+      {
 
-    //     auto currentPair = HBT::ParticlePair(*firstParticleIterator, *secondParticleIterator);
+        auto currentPair = HBT::ParticlePair(*firstParticleIterator, *secondParticleIterator);
 
-    //     if (!hbtSelection.passPairSelection(currentPair))
-    //       continue;
+        if (!hbtSelection.passPairSelection(currentPair))
+          continue;
 
-    //     if (hbtSelection.isLikePair(currentPair))
-    //     {
-    //       HBT::Histograms::FillHistogramSeries2000(histogramSet2000, currentPair);
-    //       HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000NoBins, currentPair, MC);
-    //       HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
-    //       // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+        if (hbtSelection.isLikePair(currentPair))
+        {
+          HBT::Histograms::FillHistogramSeries2000(histogramSet2000, currentPair);
+          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000NoBins, currentPair, MC);
+          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
+          // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3000InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
 
-    //       // try to get a reference pair (or pairs) for each LIKE one
-    //       if (isEventMixingReady)
-    //       {
-    //         const auto pairsFromEventMixingLike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, 1, true, hbtSelection);
+          // try to get a reference pair (or pairs) for each LIKE one
+          if (isEventMixingReady)
+          {
+            const auto pairsFromEventMixingLike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, 1, true, hbtSelection);
 
-    //         for (const auto &pairFromEventMixing : pairsFromEventMixingLike)
-    //         {
-    //           HBT::Histograms::FillHistogramSeries2000(histogramSet2500, pairFromEventMixing);
-    //           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500NoBins, pairFromEventMixing, MC);
-    //           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
-    //           // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
-    //         }
-    //       }
-    //     }
-    //     else if (hbtSelection.isUnlikePair(currentPair))
-    //     {
-    //       HBT::Histograms::FillHistogramSeries2000(histogramSet2100, currentPair);
-    //       HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100NoBins, currentPair, MC);
-    //       HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
-    //       // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+            for (const auto &pairFromEventMixing : pairsFromEventMixingLike)
+            {
+              HBT::Histograms::FillHistogramSeries2000(histogramSet2500, pairFromEventMixing);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500NoBins, pairFromEventMixing, MC);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
+              // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3500InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+            }
+          }
+        }
+        else if (hbtSelection.isUnlikePair(currentPair))
+        {
+          HBT::Histograms::FillHistogramSeries2000(histogramSet2100, currentPair);
+          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100NoBins, currentPair, MC);
+          HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityBins, currentPair, MC, hbtSelection.getBinsOfMultiplicity());
+          // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3100InMultiplicityAndKtBins, currentPair, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
 
-    //       // try to get a reference pair (or pairs) for each UNLIKE one
-    //       if (isEventMixingReady)
-    //       {
-    //         const auto pairsFromEventMixingUnlike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, 1, false, hbtSelection);
+          // try to get a reference pair (or pairs) for each UNLIKE one
+          if (isEventMixingReady)
+          {
+            const auto pairsFromEventMixingUnlike = hbtEventMixing.getValidPairsFromEventMixing(*firstParticleIterator, 1, false, hbtSelection);
 
-    //         for (const auto &pairFromEventMixing : pairsFromEventMixingUnlike)
-    //         {
-    //           HBT::Histograms::FillHistogramSeries2000(histogramSet2600, pairFromEventMixing);
-    //           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600NoBins, pairFromEventMixing, MC);
-    //           HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
-    //           // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+            for (const auto &pairFromEventMixing : pairsFromEventMixingUnlike)
+            {
+              HBT::Histograms::FillHistogramSeries2000(histogramSet2600, pairFromEventMixing);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600NoBins, pairFromEventMixing, MC);
+              HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicity());
+              // HBT::Histograms::FillHistogramSeries3000InBins(histogramSet3600InMultiplicityAndKtBins, pairFromEventMixing, MC, hbtSelection.getBinsOfMultiplicityForKt(), hbtSelection.getBinsOfKt());
+            }
+          }
+        }
+      }
+    }
 
-    // hbtEventMixing.updateListOfCandidatesForMixing(selectedPions);
+    hbtEventMixing.updateListOfCandidatesForMixing(selectedPions);
   }
 
   //summary
