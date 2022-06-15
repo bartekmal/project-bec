@@ -28,39 +28,39 @@ histogramsToDraw = [
      'dim': '2D', 'type': 'standard', 'flagBins': 0, 'isHistFullName': True},
 
     {'name': 'h1005', 'refName': 'h1005', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1006', 'refName': 'h1006', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1007', 'refName': 'h1007', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1008', 'refName': 'h1008', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1009', 'refName': 'h1009', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1010', 'refName': 'h1010', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1011', 'refName': 'h1011', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1017', 'refName': 'h1017', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1018', 'refName': 'h1018', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1019', 'refName': 'h1019', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1020', 'refName': 'h1020', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1021', 'refName': 'h1021', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1022', 'refName': 'h1022', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1023', 'refName': 'h1023', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1024', 'refName': 'h1024', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1025', 'refName': 'h1025', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h1035', 'refName': 'h1035', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': True},
+     'dim': '1D', 'type': 'normalised', 'flagBins': 0, 'isHistFullName': False},
 
     # 1D - mult, kT, Q distributions (LIKE & EVMIX)
     {'name': 'h3002', 'refName': 'h3002', 'flagRefInput': 'custom', 'nameEnd': '',
@@ -75,14 +75,14 @@ histogramsToDraw = [
      'dim': '1D', 'type': 'integrated', 'flagBins': 0, 'isHistFullName': False},
     {'name': 'h3003', 'refName': 'h3003', 'flagRefInput': 'custom', 'nameEnd': '',
      'dim': '1D', 'type': 'integrated', 'flagBins': 1, 'isHistFullName': False},
-    {'name': 'h3010', 'refName': 'h3510', 'flagRefInput': 'same', 'nameEnd': '_400',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
-    {'name': 'h3510', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_400',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
-    {'name': 'h3110', 'refName': 'h3610', 'flagRefInput': 'same', 'nameEnd': '_400',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
-    {'name': 'h3610', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_400',
-     'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
+    # {'name': 'h3010', 'refName': 'h3510', 'flagRefInput': 'same', 'nameEnd': '_400',
+    #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
+    # {'name': 'h3510', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_400',
+    #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
+    # {'name': 'h3110', 'refName': 'h3610', 'flagRefInput': 'same', 'nameEnd': '_400',
+    #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
+    # {'name': 'h3610', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '_400',
+    #  'dim': '1D', 'type': 'normalised', 'flagBins': 2, 'isHistFullName': False},
 
     # 2D - mult / kT VS Q (LIKE & EVMIX)
     {'name': 'h2000', 'refName': '', 'flagRefInput': 'custom', 'nameEnd': '',
@@ -217,6 +217,35 @@ histogramsToDraw = [
     {'name': 'h3622', 'refName': 'h3622', 'flagRefInput': 'custom', 'nameEnd': '',
      'dim': '1D', 'type': 'normalised', 'flagBins': 1, 'isHistFullName': False},
 
+    # ghost / clone checks
+    # slopes
+    {'name': 'h3053', 'refName': 'h3053', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+    {'name': 'h3053_restrictedQ', 'refName': 'h3053_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+    {'name': 'h3054', 'refName': 'h3054', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+    {'name': 'h3054_restrictedQ', 'refName': 'h3054_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+    # Q distributions for pairs with a clone/ghost
+    {'name': 'h3055', 'refName': 'h3055', 'flagRefInput': 'custom', 'nameEnd': '_400',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+    {'name': 'h3056', 'refName': 'h3056', 'flagRefInput': 'custom', 'nameEnd': '_400',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+    {'name': 'h3057', 'refName': 'h3057', 'flagRefInput': 'custom', 'nameEnd': '_400',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False},
+]
+
+# ! keep an eye on the bin width in y-axis title
+histogramsSlopes = [
+    {'name': 'h3053', 'refName': 'h3053', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
+    {'name': 'h3053_restrictedQ', 'refName': 'h3053_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
+    {'name': 'h3054', 'refName': 'h3054', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
+    {'name': 'h3054_restrictedQ', 'refName': 'h3054_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
+     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}} [rad];Entries / (0.01 #times 10^{-3} rad)'},
 ]
 
 ######### end of configuration ############
@@ -492,6 +521,7 @@ def runHistograms(outputFolderName="histograms"):
         flagNormalise = (hist['type'] == 'normalised')
         flagIntegrated = (hist['type'] == 'integrated')
         flagRefInputSame = (hist['flagRefInput'] == 'same')
+        histTitle = hist['title'] if 'title' in hist else ''
 
         jobsToRun = [
             {
@@ -511,6 +541,25 @@ def runHistograms(outputFolderName="histograms"):
                 'dataTypeRef': "RD_Pbp" if flagRefInputSame else "RD_pPb",
                 'hMainNameEnd': hist['nameEnd'],
                 'outputFolder': "RD_Pbp"
+            },
+            # MC only needed for ghost / clone checks
+            {
+                'fileMainPath': os.getenv('MYDIR') + "/output/merged/MC_pPb/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': (os.getenv('MYDIR') + "/output/merged/MC_pPb/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/MC_Pbp/merged.root"),
+                'hRefName': hist['refName'],
+                'dataTypeRef': "MC_pPb" if flagRefInputSame else "MC_Pbp",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "MC_pPb"
+            },
+            {
+                'fileMainPath': os.getenv('MYDIR') + "/output/merged/MC_Pbp/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': (os.getenv('MYDIR') + "/output/merged/MC_Pbp/merged.root") if flagRefInputSame else (os.getenv('MYDIR') + "/output/merged/MC_pPb/merged.root"),
+                'hRefName': hist['refName'],
+                'dataTypeRef': "MC_Pbp" if flagRefInputSame else "MC_pPb",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "MC_Pbp"
             }
         ]
 
@@ -520,9 +569,9 @@ def runHistograms(outputFolderName="histograms"):
             mkdirIfNotExists(aJob['outputFolder'])
             os.chdir(aJob['outputFolder'])
 
-            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{},{})\' >> histograms.log'.format(
+            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{},{},"{}")\' >> histograms.log'.format(
                 aJob['fileMainPath'], aJob['hMainName'], aJob['fileRefPath'], aJob['hRefName'], aJob['hMainNameEnd'], aJob['outputFolder'], aJob['dataTypeRef'], int(
-                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins'], int(hist['isHistFullName'])
+                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins'], int(hist['isHistFullName']), histTitle
             ))
 
 
@@ -734,7 +783,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 2,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/MC_pPb/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "MC_pPb - UNLIKE",
+            'refType': "#font[12]{p}Pb sim (OS)",
             'flagDrawRef': "false",
             'flagUseBkgFromRef': "false",
             'flagUseBkgScaling': "false",
@@ -758,7 +807,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 2,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/MC_Pbp/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "MC_Pbp - UNLIKE",
+            'refType': "Pb#font[12]{p} sim (OS)",
             'flagDrawRef': "false",
             'flagUseBkgFromRef': "false",
             'flagUseBkgScaling': "false",
@@ -785,7 +834,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_pPb - UNLIKE",
+            'refType': "#font[12]{p}Pb data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "false",
@@ -809,7 +858,7 @@ def runFits(outputFolderName="fits"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_Pbp - UNLIKE",
+            'refType': "Pb#font[12]{p} data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "false",
@@ -1033,7 +1082,7 @@ def runFitsScaledBkg(outputFolderName="fits_scaledBkg"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_pPb/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_pPb - UNLIKE",
+            'refType': "#font[12]{p}Pb data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "true",
@@ -1057,7 +1106,7 @@ def runFitsScaledBkg(outputFolderName="fits_scaledBkg"):
             'flagDoFit': 1,
             'inputFileRef': os.getenv('MYDIR') + "/output/correlations/RD_Pbp/correlations.root",
             'hRefNameBase': "h4110",
-            'refType': "RD_Pbp - UNLIKE",
+            'refType': "Pb#font[12]{p} data (OS)",
             'flagDrawRef': "true",
             'flagUseBkgFromRef': "true",
             'flagUseBkgScaling': "true",
@@ -1174,8 +1223,196 @@ def runDiffsScaledBkg(referencePath=os.getenv('BEC_BASE_ANALYSIS') + "/main/outp
         ))
 
 
+def runScanPionId(outputFolderName="pionIdScan"):
+
+    # prepare output directory
+    outputDirPath = prepareFolder(
+        os.getenv('MYDIR') + '/output', outputFolderName)
+
+    print(f'Running {outputFolderName} in directory:\n{outputDirPath}\n')
+
+    # define jobs
+    jobsToRun = [
+        # DATA LIKE
+        {
+            'fileName': "output/merged/MC_pPb/merged.root",
+            'fileNamePlots': "output/correlations/RD_pPb/correlations.root",
+            'ignoreBinMultLower': ignoreBinMultLower['pPb'],
+            'ignoreBinMultUpper': ignoreBinMultUpper['pPb'],
+            'outputFolder': "pPb",
+        },
+        {
+            'fileName': "output/merged/MC_Pbp/merged.root",
+            'fileNamePlots': "output/correlations/RD_Pbp/correlations.root",
+            'ignoreBinMultLower': ignoreBinMultLower['Pbp'],
+            'ignoreBinMultUpper': ignoreBinMultUpper['Pbp'],
+            'outputFolder': "Pbp",
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        recreateAndChangeDir(aJob['outputFolder'])
+
+        os.system('lb-conda default python ' +
+                  f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/selection/scan.py "{aJob["fileName"]}" "{aJob["fileNamePlots"]}" {aJob["ignoreBinMultLower"]} {aJob["ignoreBinMultUpper"]} >> {outputFolderName}.log')
+
+
+def runSlopes(outputFolderName="slopes"):
+
+    # prepare output directory
+    os.chdir(os.getenv('MYDIR') + '/output')
+    recreateAndChangeDir(outputFolderName)
+    outputDirPath = os.getenv('MYDIR') + '/output/' + outputFolderName
+
+    print("Running histograms in directory:\n{0}\n".format(outputDirPath))
+
+    # define jobs
+    for hist in histogramsSlopes:
+
+        isHist1D = (hist['dim'] == '1D')
+        flagNormalise = (hist['type'] == 'normalised')
+        flagIntegrated = (hist['type'] == 'integrated')
+        flagRefInputSame = (hist['flagRefInput'] == 'same')
+        histTitle = hist['title'] if 'title' in hist else ''
+
+        jobsToRun = [
+            # compare slopes in data for no selection / full selection
+            {
+                'fileMainPath': os.getenv('BEC_BASE_ANALYSIS') + "/main/output/merged/RD_pPb/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_pPb/merged.root",
+                'hRefName': hist['refName'],
+                'dataTypeRef': "#font[12]{p}Pb data (presel)",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "RD_pPb"
+            },
+            {
+                'fileMainPath': os.getenv('BEC_BASE_ANALYSIS') + "/main/output/merged/RD_Pbp/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_Pbp/merged.root",
+                'hRefName': hist['refName'],
+                'dataTypeRef': "Pb#font[12]{p} data (presel)",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "RD_Pbp"
+            },
+            # compare slopes in data for no selection / no clone-specific selection
+            # {
+            #     'fileMainPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelectionClones/output/merged/RD_pPb/merged.root",
+            #     'hMainName': hist['name'],
+            #     'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_pPb/merged.root",
+            #     'hRefName': hist['refName'],
+            #     'dataTypeRef': "#font[12]{p}Pb data (presel)",
+            #     'hMainNameEnd': hist['nameEnd'],
+            #     'outputFolder': "RD_pPb"
+            # },
+            # {
+            #     'fileMainPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelectionClones/output/merged/RD_Pbp/merged.root",
+            #     'hMainName': hist['name'],
+            #     'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/RD_Pbp/merged.root",
+            #     'hRefName': hist['refName'],
+            #     'dataTypeRef': "Pb#font[12]{p} data (presel)",
+            #     'hMainNameEnd': hist['nameEnd'],
+            #     'outputFolder': "RD_Pbp"
+            # },
+            # show slopes with removed ghosts/clones using MC
+            {
+                'fileMainPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelectionNoMisreconstructed/output/merged/MC_pPb/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/MC_pPb/merged.root",
+                'hRefName': hist['refName'],
+                'dataTypeRef': "#font[12]{p}Pb sim (presel)",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "MC_pPb"
+            },
+            {
+                'fileMainPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelectionNoMisreconstructed/output/merged/MC_Pbp/merged.root",
+                'hMainName': hist['name'],
+                'fileRefPath': os.getenv('BEC_BASE_ANALYSIS') + "/studies/misreconstructed/slopes_noSelection/output/merged/MC_Pbp/merged.root",
+                'hRefName': hist['refName'],
+                'dataTypeRef': "Pb#font[12]{p} sim (presel)",
+                'hMainNameEnd': hist['nameEnd'],
+                'outputFolder': "MC_Pbp"
+            },
+        ]
+
+        # run job
+        for aJob in jobsToRun:
+            os.chdir(outputDirPath)
+            mkdirIfNotExists(aJob['outputFolder'])
+            os.chdir(aJob['outputFolder'])
+
+            os.system('root -l -b -q \'' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/drawHistograms.C("{}","{}","{}","{}","{}","{}","{}",{},{},{},{},{},"{}")\' >> histograms.log'.format(
+                aJob['fileMainPath'], aJob['hMainName'], aJob['fileRefPath'], aJob['hRefName'], aJob['hMainNameEnd'], aJob['outputFolder'], aJob['dataTypeRef'], int(
+                    isHist1D), int(flagNormalise), int(flagIntegrated), hist['flagBins'], int(hist['isHistFullName']), histTitle
+            ))
+
+
+def runSystematics(outputFolderName="systematics"):
+
+    # prepare output directory
+    outputDirPath = prepareFolder(
+        os.getenv('MYDIR') + '/output', outputFolderName)
+
+    print(f'Running {outputFolderName} in directory:\n{outputDirPath}\n')
+
+    # define jobs
+    jobsToRun = [
+        # DATA LIKE
+        {
+            'fileName': "output/fits_scaledBkg/RD_pPb/fitResults.root",
+            'hBaseName': "h4010",
+            'hNameCommonEndForMult': "_400",
+            'fName': "funcMain",
+            'outputFolder': "RD_pPb",
+            'dataLabel': "#font[12]{p}Pb 5.02 TeV"
+        },
+        {
+            'fileName': "output/fits_scaledBkg/RD_Pbp/fitResults.root",
+            'hBaseName': "h4010",
+            'hNameCommonEndForMult': "_400",
+            'fName': "funcMain",
+            'outputFolder': "RD_Pbp",
+            'dataLabel': "Pb#font[12]{p} 5.02 TeV"
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        recreateAndChangeDir(aJob['outputFolder'])
+
+        os.system('lb-conda default python ' +
+                  f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/systematics.py "{aJob["fileName"]}" "{aJob["hBaseName"]}" "{aJob["hNameCommonEndForMult"]}" "{aJob["fName"]}" "{aJob["dataLabel"]}" >> {outputFolderName}.log')
+
+
+def runDiscussion(outputFolderName="discussion"):
+
+    # prepare output directory
+    outputDirPath = os.getenv('MYDIR') + '/output'
+
+    print(f'Running {outputFolderName} in directory:\n{outputDirPath}\n')
+
+    # define jobs
+    jobsToRun = [
+        # DATA LIKE
+        {
+            'basePath': os.getenv("BEC_BASE_ANALYSIS"),
+        }
+    ]
+
+    # run job
+    for aJob in jobsToRun:
+        os.chdir(outputDirPath)
+        recreateAndChangeDir(outputFolderName)
+
+        os.system('root -l -b -q \'' +
+                  f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/discussion.C("{aJob["basePath"]}")\' >> {outputFolderName}.log')
+
 ####################################################
 # poor make init
+
 
 def runTrendsScaledBkgDownstream():
     runTrendsScaledBkg()
@@ -1206,6 +1443,19 @@ def runDivideDownstream():
 def runMergeDownstream():
     runMerge()
     runDivideDownstream()
+
+
+def runSystematicsDownstream():
+    runSystematics()
+    runDiscussion()
+
+
+def runScans():
+    runScanPionId()
+
+
+def runMisreconstructed():
+    runSlopes()
 
 
 def runAll():

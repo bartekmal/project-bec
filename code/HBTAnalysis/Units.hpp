@@ -38,6 +38,12 @@ namespace HBT
 
     const FloatType FineStructureConstant = 1.0 / 137.0;
 
+    // conversions
+    inline FloatType GevInvToFm(const FloatType &sizeInGevInv)
+    {
+      return 0.197f * sizeInGevInv;
+    }
+
     // resonances info
     struct Resonance
     {

@@ -19,44 +19,44 @@ namespace HBT
   class Particle
   {
   public:
-    int m_pvIndex;
-    int m_chargedParticleMultiplicity;
-    int m_charge;
-    int m_isClone;
-    int m_MCID;
-    HBT::Units::FloatType m_kDLL;
-    HBT::Units::FloatType m_pDLL;
-    HBT::Units::FloatType m_piNN;
-    HBT::Units::FloatType m_kNN;
-    HBT::Units::FloatType m_pNN;
-    HBT::Units::FloatType m_ghostNN;
-    HBT::Units::FloatType m_xBestPV;
-    HBT::Units::FloatType m_yBestPV;
-    HBT::Units::FloatType m_zBestPV;
-    HBT::Units::FloatType m_pxBestPV;
-    HBT::Units::FloatType m_pyBestPV;
-    HBT::Units::FloatType m_pzBestPV;
-    HBT::Units::FloatType m_chi2BestPV;
-    HBT::Units::FloatType m_e;
-    HBT::Units::FloatType m_p;
-    HBT::Units::FloatType m_pt;
-    HBT::Units::FloatType m_phi;
-    HBT::Units::FloatType m_theta;
-    HBT::Units::FloatType m_rapidity;
-    HBT::Units::FloatType m_eta;
-    HBT::Units::FloatType m_ip;
-    HBT::Units::FloatType m_ipChi2;
-    HBT::Units::FloatType m_trkChi2;
-    HBT::Units::FloatType m_cloneDist;
-    HBT::Units::FloatType m_chi2PV1;
-    HBT::Units::FloatType m_chi2PV2;
-    HBT::Units::FloatType m_chi2PV3;
-    HBT::Units::FloatType m_chi2PV4;
+    int m_pvIndex{};
+    int m_chargedParticleMultiplicity{};
+    int m_charge{};
+    int m_isClone{};
+    int m_MCID{};
+    HBT::Units::FloatType m_kDLL{};
+    HBT::Units::FloatType m_pDLL{};
+    HBT::Units::FloatType m_piNN{};
+    HBT::Units::FloatType m_kNN{};
+    HBT::Units::FloatType m_pNN{};
+    HBT::Units::FloatType m_ghostNN{};
+    HBT::Units::FloatType m_xBestPV{};
+    HBT::Units::FloatType m_yBestPV{};
+    HBT::Units::FloatType m_zBestPV{};
+    HBT::Units::FloatType m_pxBestPV{};
+    HBT::Units::FloatType m_pyBestPV{};
+    HBT::Units::FloatType m_pzBestPV{};
+    HBT::Units::FloatType m_chi2BestPV{};
+    HBT::Units::FloatType m_e{};
+    HBT::Units::FloatType m_p{};
+    HBT::Units::FloatType m_pt{};
+    HBT::Units::FloatType m_phi{};
+    HBT::Units::FloatType m_theta{};
+    HBT::Units::FloatType m_rapidity{};
+    HBT::Units::FloatType m_eta{};
+    HBT::Units::FloatType m_ip{};
+    HBT::Units::FloatType m_ipChi2{};
+    HBT::Units::FloatType m_trkChi2{};
+    HBT::Units::FloatType m_cloneDist{};
+    HBT::Units::FloatType m_chi2PV1{};
+    HBT::Units::FloatType m_chi2PV2{};
+    HBT::Units::FloatType m_chi2PV3{};
+    HBT::Units::FloatType m_chi2PV4{};
 
-    int m_PID;
-    HBT::Units::FloatType m_mass;
-    TLorentzVector m_fourVec;
-    TLorentzVector m_transverse4Vec;
+    int m_PID{};
+    HBT::Units::FloatType m_mass{};
+    TLorentzVector m_fourVec{};
+    TLorentzVector m_transverse4Vec{};
 
     //methods
     TLorentzVector build4V(const HBT::Units::FloatType &p, const HBT::Units::FloatType &pt, const HBT::Units::FloatType &phi, const HBT::Units::FloatType &m);
@@ -98,43 +98,44 @@ namespace HBT
                                                                                                                            m_chi2PV4(chi2PV4[part_i]),
 
                                                                                                                            m_PID(particlePIDCode),
-                                                                                                                           m_mass(particleMass),
-                                                                                                                           m_fourVec(build4V(m_p, m_pt, m_phi, m_mass)),
-                                                                                                                           m_transverse4Vec(buildTrans4V(m_pt, m_phi))
-
+                                                                                                                           m_mass(particleMass)
     {
+      m_fourVec = build4V(m_p, m_pt, m_phi, m_mass);
+      m_transverse4Vec = buildTrans4V(m_pt, m_phi);
     }
   }; // end of class Particle
 
   class ParticlePair
   {
   public:
-    int m_pvIndexParticle1;
-    int m_pvIndexParticle2;
-    int m_chargeParticle1;
-    int m_chargeParticle2;
-    HBT::Units::FloatType m_pt1;
-    HBT::Units::FloatType m_pt2;
+    int m_pvIndexParticle1{};
+    int m_pvIndexParticle2{};
+    int m_chargeParticle1{};
+    int m_chargeParticle2{};
+    HBT::Units::FloatType m_pt1{};
+    HBT::Units::FloatType m_pt2{};
 
-    int m_pairMCID;
-    HBT::Units::FloatType m_invariantMass;
-    HBT::Units::FloatType m_chargedParticleMultiplicity;
-    HBT::Units::FloatType m_kt;
-    HBT::Units::FloatType m_slopeDiffX;
-    HBT::Units::FloatType m_slopeDiffY;
-    HBT::Units::FloatType m_zPv;
+    int m_pairMCID{};
+    int m_hasClone{};
+    int m_hasGhost{};
+    HBT::Units::FloatType m_invariantMass{};
+    HBT::Units::FloatType m_chargedParticleMultiplicity{};
+    HBT::Units::FloatType m_kt{};
+    HBT::Units::FloatType m_slopeDiffX{};
+    HBT::Units::FloatType m_slopeDiffY{};
+    HBT::Units::FloatType m_zPv{};
 
-    HBT::Units::FloatType m_Q_LAB;
-    HBT::Units::FloatType m_deltaPhi_LAB;
-    HBT::Units::FloatType m_deltaRapidity_LAB;
-    HBT::Units::FloatType m_deltaPt_LAB;
-    HBT::Units::FloatType m_Q_LCMS;
-    HBT::Units::FloatType m_Q_long;
-    HBT::Units::FloatType m_Q_side;
-    HBT::Units::FloatType m_Q_out;
-    HBT::Units::FloatType m_deltaPhi_LCMS;
-    HBT::Units::FloatType m_deltaRapidity_LCMS;
-    HBT::Units::FloatType m_deltaPt_LCMS;
+    HBT::Units::FloatType m_Q_LAB{};
+    HBT::Units::FloatType m_deltaPhi_LAB{};
+    HBT::Units::FloatType m_deltaRapidity_LAB{};
+    HBT::Units::FloatType m_deltaPt_LAB{};
+    HBT::Units::FloatType m_Q_LCMS{};
+    HBT::Units::FloatType m_Q_long{};
+    HBT::Units::FloatType m_Q_side{};
+    HBT::Units::FloatType m_Q_out{};
+    HBT::Units::FloatType m_deltaPhi_LCMS{};
+    HBT::Units::FloatType m_deltaRapidity_LCMS{};
+    HBT::Units::FloatType m_deltaPt_LCMS{};
 
     //methods
     //assign particle MCID to a pair if both partcles have same MCID (fabs); otherwise assign '0'
@@ -154,6 +155,8 @@ namespace HBT
                                                                            m_pt1(part1.m_pt),
                                                                            m_pt2(part2.m_pt),
                                                                            m_pairMCID(assignPairMCID(part1, part2)),
+                                                                           m_hasClone(((part1.m_MCID == 0 && part1.m_isClone) || (part2.m_MCID == 0 && part2.m_isClone)) ? 1 : 0),
+                                                                           m_hasGhost(((part1.m_MCID == 0 && !part1.m_isClone) || (part2.m_MCID == 0 && !part2.m_isClone)) ? 1 : 0),
                                                                            m_invariantMass(calculateInvariantMass(part1, part2)),
                                                                            m_chargedParticleMultiplicity(part1.m_chargedParticleMultiplicity),
                                                                            m_kt(calculateAveragePairTransverseMomentum(part1, part2)),
@@ -205,7 +208,19 @@ inline void HBT::ParticlePair::buildLAB(const HBT::Particle &part1, const HBT::P
 
 inline int HBT::ParticlePair::assignPairMCID(const HBT::Particle &part1, const HBT::Particle &part2)
 {
-  return fabs(part1.m_MCID) == fabs(part2.m_MCID) ? fabs(part1.m_MCID) : 0;
+  // ghost or clone / mixed / 'pure' pair
+  if (part1.m_MCID == 0 || part2.m_MCID == 0)
+  {
+    return 0;
+  }
+  else if (abs(part1.m_MCID) != abs(part2.m_MCID))
+  {
+    return -1;
+  }
+  else
+  {
+    return abs(part1.m_MCID);
+  }
 }
 
 inline HBT::Units::FloatType HBT::ParticlePair::calculateInvariantMass(const HBT::Particle &part1, const HBT::Particle &part2)
@@ -227,14 +242,14 @@ inline HBT::Units::FloatType HBT::ParticlePair::getSlopeDifferenceX(const HBT::P
 {
   const HBT::Units::FloatType t1 = p1.m_fourVec.Px() / p1.m_fourVec.Pz();
   const HBT::Units::FloatType t2 = p2.m_fourVec.Px() / p2.m_fourVec.Pz();
-  return fabs(t1 - t2);
+  return (t1 - t2);
 }
 
 inline HBT::Units::FloatType HBT::ParticlePair::getSlopeDifferenceY(const HBT::Particle &p1, const HBT::Particle &p2)
 {
   const HBT::Units::FloatType t1 = p1.m_fourVec.Py() / p1.m_fourVec.Pz();
   const HBT::Units::FloatType t2 = p2.m_fourVec.Py() / p2.m_fourVec.Pz();
-  return fabs(t1 - t2);
+  return (t1 - t2);
 }
 
 /*

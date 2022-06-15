@@ -43,7 +43,7 @@ private:
 
     // utility functions
     inline std::vector<HBT::Units::FloatType> getBinErrors(const std::vector<HBT::Units::FloatType> &bins) const;
-    inline std::vector<HBT::Units::FloatType> getBinCentres(const std::vector<HBT::Units::FloatType> &bins) const;
+    inline std::vector<HBT::Units::FloatType> getBinCentres(const std::vector<HBT::Units::FloatType> &bins, const bool &isIntegerBins = false) const;
     inline std::vector<std::string> getBinRangesAsStrings(const std::vector<HBT::Units::FloatType> &bins, const bool &isForMultBins) const;
 
 public:
@@ -69,7 +69,7 @@ public:
     inline unsigned int getNrOfBinsMultForKt() const { return m_binsOfMultiplicityForKt.size() - 1; };
     inline unsigned int getNrOfBinsKt() const { return m_binsOfKt.size() - 1; };
 
-    inline std::vector<HBT::Units::FloatType> getBinsOfMultiplicityCentres() const { return getBinCentres(m_binsOfMultiplicity); }
+    inline std::vector<HBT::Units::FloatType> getBinsOfMultiplicityCentres() const { return getBinCentres(m_binsOfMultiplicity, true); }
     inline std::vector<HBT::Units::FloatType> getBinsOfMultiplicityForKtCentres() const { return getBinCentres(m_binsOfMultiplicityForKt); }
     inline std::vector<HBT::Units::FloatType> getBinsOfKtCentres() const { return getBinCentres(m_binsOfKt); }
 
@@ -109,8 +109,10 @@ inline void SelectionClass::initializeSelectionCuts()
     this->m_qCut = 0.05f;
     this->m_openingAngleCut = 0.0003f; //rad
 
-    // bin ranges are given as [min,max) values
-    this->m_binsOfMultiplicity = {0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 80, 90, 100, 115, 140, 180};
+    // ! bin ranges are given as [min,max) values (keep in mind for errors/centres/strings logics)
+    // ! centres are defined differently for continuous/integer values
+    // ! errors work only for uniform bins (symmetric errors)
+    this->m_binsOfMultiplicity = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 80, 90, 100, 115, 140, 180};
     this->m_binsOfMultiplicityForKt = {0, 25, 35, 45, 55, 65, 80, 110, 160};
     this->m_binsOfKt = {0., 0.15, 0.3, 0.4, 0.5, 0.65, 0.95};
     this->m_averageKtForMultBins = {0.4846}; // use some const for kT (average value in the pPb sample : 0.4846 GeV)
@@ -231,7 +233,7 @@ inline bool SelectionClass::passPairSelection(const HBT::ParticlePair &pair)
     // }
 
     //opening angle
-    if ((pair.m_slopeDiffX < m_openingAngleCut) && (pair.m_slopeDiffY < m_openingAngleCut))
+    if ((fabs(pair.m_slopeDiffX) < m_openingAngleCut) && (fabs(pair.m_slopeDiffY) < m_openingAngleCut))
         passStatus = false;
 
     return passStatus;
@@ -275,7 +277,7 @@ inline std::vector<HBT::Units::FloatType> SelectionClass::getBinErrors(const std
     return binErrors;
 }
 
-inline std::vector<HBT::Units::FloatType> SelectionClass::getBinCentres(const std::vector<HBT::Units::FloatType> &bins) const
+inline std::vector<HBT::Units::FloatType> SelectionClass::getBinCentres(const std::vector<HBT::Units::FloatType> &bins, const bool &isIntegerBins) const
 {
     //prepare the output vector
     std::vector<HBT::Units::FloatType> binCentres{};
@@ -283,7 +285,14 @@ inline std::vector<HBT::Units::FloatType> SelectionClass::getBinCentres(const st
 
     for (auto it = bins.begin(); it != bins.end() - 1; it++)
     {
-        binCentres.push_back(*it + (*(it + 1) - *it) / 2.);
+        if (!isIntegerBins)
+        {
+            binCentres.push_back(*it + (*(it + 1) - *it) / 2.);
+        }
+        else
+        {
+            binCentres.push_back(*it + ((*(it + 1) - 1) - *it) / 2.);
+        }
     }
 
     return binCentres;
