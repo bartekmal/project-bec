@@ -4,8 +4,16 @@
 #include "Units.hpp"
 
 #include <TString.h>
+#include <TObject.h>
 #include <TStyle.h>
 #include <TROOT.h>
+#include <TFile.h>
+#include <TH1.h>
+#include <TPaveText.h>
+
+#include <string>
+#include <iostream>
+
 namespace HBT
 {
 
@@ -43,49 +51,100 @@ namespace HBT
             return (fabs(a - b) < epsilon);
         }
 
-        // set the ROOT style
-        inline void setStyle();
+        // get a fresh copy (clone) of the given object in a ROOT file
+        inline TObject *getObjCopy(TFile *&inputFile, const std::string &objName)
+        {
+            if (!inputFile)
+            {
+                return nullptr;
+            }
+            const auto objTmp = inputFile->Get(objName.c_str());
+            if (!objTmp)
+            {
+                return nullptr;
+            }
+            else
+            {
+                // make a unique name
+                return objTmp->Clone((inputFile->GetName() + std::string("_") + objName).c_str());
+            }
+        }
 
+        // get a valid (existing and non-empty) histogram from a file
+        inline TH1 *getValidHist(TFile *&inputFile, const std::string &objName)
+        {
+            const auto tmpHist = (TH1 *)(getObjCopy(inputFile, objName));
+
+            if (!tmpHist)
+            {
+                std::cout << "Histogram not found: " << objName.c_str() << std::endl;
+                return nullptr;
+            }
+            else if (tmpHist->GetEntries() == 0)
+            {
+                std::cout << "Histogram is empty: " << objName.c_str() << std::endl;
+                return nullptr;
+            }
+            else
+            {
+                return tmpHist;
+            }
+        }
+
+        // split string and add to TPaveText as lines
+        inline void addMultilineText(const std::string &textToAdd, TPaveText *&paveText, const char delimiter = ';')
+        {
+            std::istringstream tmpStringStream(textToAdd.c_str());
+            std::string tmpString;
+            while (std::getline(tmpStringStream, tmpString, delimiter))
+            {
+                paveText->AddText(tmpString.c_str());
+            }
+        }
+
+        // get data type in readable format (string for labels etc)
+        inline std::string dataTypeAsString(const TString &dataType)
+        {
+            if (!dataType.CompareTo("RD_pPb"))
+            {
+                return std::string("#font[12]{p}Pb data");
+            }
+            else if (!dataType.CompareTo("RD_Pbp"))
+            {
+                return std::string("Pb#font[12]{p} data");
+            }
+            else if (!dataType.CompareTo("MC_pPb"))
+            {
+                return std::string("#font[12]{p}Pb sim");
+            }
+            else if (!dataType.CompareTo("MC_Pbp"))
+            {
+                return std::string("Pb#font[12]{p} sim");
+            }
+            else
+            {
+                return std::string("unknown data type");
+            }
+        }
+
+        // get histogram type in readable format (string for labels etc)
+        inline std::string histTypeAsString(const TString &histType)
+        {
+            if (!histType.CompareTo("LIKE"))
+            {
+                return std::string("SS");
+            }
+            else if (!histType.CompareTo("UNLIKE"))
+            {
+                return std::string("OS");
+            }
+            else
+            {
+                return std::string("unknown hist type");
+            }
+        }
     } // namespace Utils
 
 } // namespace HBT
-
-inline void HBT::Utils::setStyle()
-{
-    gROOT->Reset();              // Reset options
-    gStyle->SetPadGridX(kFALSE); // No grid in x (0)
-    gStyle->SetPadGridY(kFALSE); // No grid in y (0)
-    gStyle->SetOptTitle(kFALSE); // No title
-    // gStyle->SetStatBorderSize(0);    // Stats box shadow size (2)
-    // gStyle->SetStatColor(18);        // Stats box fill color (0)
-    // gStyle->SetStatFont(62);         // Stats font style (62)
-    // gStyle->SetStatH(0.1);           // Stats box height
-    // gStyle->SetStatW(0.15);          // Stats box width
-    // gStyle->SetStatX(0.91);          // Stats box x coordinate
-    // gStyle->SetStatY(0.91);          // Stats box y coordinate
-    // gStyle->SetStatStyle(1001);      // Stat box fill style
-    // gStyle->SetStatTextColor(1);     // Stat text color (1)
-    gStyle->SetOptStat(0);           // No statistics (0) (1000001110)
-    gStyle->SetOptFit(11);           // No fit box (pcev) (set v=2 to show fixed params)
-    gStyle->SetFrameBorderMode(0);   // No red box
-    gStyle->SetHistFillColor(0);     // Histogram fill color (0) (18)
-    gStyle->SetHistFillStyle(1001);  // Histogram fill style (1001) (0)
-    gStyle->SetHistLineColor(kBlue); // Histogram line color (1)
-    gStyle->SetHistLineStyle(0);     // Histogram line style (0)
-    gStyle->SetHistLineWidth(1);     // Histogram line width (1.0)
-    gStyle->SetMarkerStyle(21);      // Marker style (0)
-    gStyle->SetMarkerColor(kBlack);  // Marker color (1)
-    gStyle->SetMarkerSize(0.8);      // Marker size ()
-    gStyle->SetLineColor(kBlack);    // Line color (1)
-    gStyle->SetLineWidth(1.0);       // Line width (1.0)
-    gStyle->SetTextSize(0.07);       // Text size (1.0)
-    gStyle->SetLabelSize(0.03, "x"); // X numbers label size ()
-    gStyle->SetLabelSize(0.03, "y"); // Y numbers label size ()
-    gStyle->SetTitleSize(0.04, "x"); // X title size ()
-    gStyle->SetTitleSize(0.04, "y"); // Y title size ()
-    gStyle->SetErrorX(0);            // No errors along x
-    gStyle->SetPalette(kRainBow);    // kColorPrintableOnGrey
-    gROOT->ForceStyle();
-}
 
 #endif /* !UTILS_H */

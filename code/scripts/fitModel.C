@@ -104,19 +104,19 @@ std::vector<std::string> listOfParamsIndividual()
 std::map<std::string, FitParam> prepareParamsBkgSigma()
 {
     return {
-        {"sigmaBkgSig0", FitParam(0, "#sigma_{0}", 0.5, false, {0.0, 2.0}, {0.0, 2.0}, {-40., 40.})},
-        {"sigmaBkgSig1", FitParam(1, "#sigma_{1}", 0.5, false, {0.0, 2.0}, {0.0, 2.0}, {-40., 40.})},
-        {"sigmaBkgMult0", FitParam(2, "mult_{0}", 15, true, {0, 100}, {0.0, 100.0}, {-40., 40.})},
-        {"sigmaBkgExpKt", FitParam(3, "n_{k_{T}}", 0.1, false, {0., 1.}, {0.0, 1.0}, {-40., 40.})},
+        {"sigmaBkgSig0", FitParam(0, "#font[12]{#sigma_{0}}", 0.5, false, {0.0, 2.0}, {0.0, 2.0}, {-40., 40.})},
+        {"sigmaBkgSig1", FitParam(1, "#font[12]{#sigma_{1}}", 0.5, false, {0.0, 2.0}, {0.0, 2.0}, {-40., 40.})},
+        {"sigmaBkgMult0", FitParam(2, "#font[12]{N_{0}}", 15, true, {0, 100}, {0.0, 100.0}, {-40., 40.})},
+        {"sigmaBkgExpKt", FitParam(3, "#font[12]{n_{k_{#font[122]{T}}}}", 0.1, false, {0., 1.}, {0.0, 1.0}, {-40., 40.})},
     };
 }
 
 std::map<std::string, FitParam> prepareParamsBkgAmpl()
 {
     return {
-        {"amplBkgAmpl0", FitParam(4, "A_{0}", 0.4, false, {0.0, 5.0}, {0.0, 5.0}, {-40., 40.})},
-        {"amplBkgExpMult", FitParam(5, "n_{mult}", 1.0, false, {0.0, 2.0}, {0.3, 1.3}, {-40., 40.})},
-        {"amplBkgKt0", FitParam(6, "k_{0}", 0.2, false, {0.0, 3.0}, {0.0, 3.0}, {-40., 40.})},
+        {"amplBkgAmpl0", FitParam(4, "#font[12]{A_{0}}", 0.4, false, {0.0, 5.0}, {0.0, 5.0}, {-40., 40.})},
+        {"amplBkgExpMult", FitParam(5, "#font[12]{n_{N_{A}}}", 1.0, false, {0.0, 2.0}, {0.3, 1.3}, {-40., 40.})},
+        {"amplBkgKt0", FitParam(6, "#font[12]{k_{0}} [GeV]", 0.2, false, {0.0, 3.0}, {0.0, 3.0}, {-40., 40.})},
     };
 }
 
@@ -124,16 +124,16 @@ std::map<std::string, FitParam> prepareParamsGeneral()
 {
     // keep an eye on the param IDs (should be unique, also used in the fit model below)
     return {
-        {"norm", FitParam(7, "N", 0.85, false, {0., 1.}, {0.5, 1.5}, {-60., 60.})},
-        {"delta", FitParam(8, "#delta", 0.15, false, {0., 1.}, {0., 1.}, {-100., 100.})},
+        {"norm", FitParam(7, "#font[12]{N}", 0.85, false, {0., 1.}, {0.5, 1.2}, {-60., 60.})},
+        {"delta", FitParam(8, "#font[12]{#delta} [GeV^{-1}]", 0.15, false, {0., 1.}, {0., 1.}, {-100., 100.})},
 
-        {"scaleZ", FitParam(9, "z", 1.0, false, {0., 2.}, {0., 2.}, {-40., 40.})},
+        {"scaleZ", FitParam(9, "#font[12]{z}", 1.0, false, {0., 2.}, {0.4, 1.4}, {-40., 40.})},
 
-        {"radiusEff", FitParam(10, "R_{eff} [fm]", R_eff, true, {0., 5.}, {0., 5.}, {-100., 100.})},
+        {"radiusEff", FitParam(10, "#font[12]{R_{#font[122]{eff}}} [fm]", R_eff, true, {0., 5.}, {0., 5.}, {-100., 100.})},
 
-        {"radius", FitParam(11, "R [GeV^{-1}]", 15.0, false, {0., 50.}, {0., 30.}, {-40., 40.})},
-        {"alphaLevy", FitParam(12, "#alpha_{L}", 1.0, true, {0., 2.}, {0., 2.}, {-60., 60.})},
-        {"lambda", FitParam(13, "#lambda", 0.7, false, {0., 1.5}, {0., 1.5}, {-40., 40.})},
+        {"radius", FitParam(11, "#font[12]{R} [GeV^{-1}]", 15.0, false, {0., 50.}, {0., 30.}, {-40., 40.})},
+        {"alphaLevy", FitParam(12, "#font[12]{#alpha_{#font[122]{L}}}", 1.0, true, {0., 2.}, {0., 2.}, {-60., 60.})},
+        {"lambda", FitParam(13, "#font[12]{#lambda}", 0.7, false, {0., 1.5}, {0., 1.4}, {-40., 40.})},
     };
 }
 
@@ -173,7 +173,7 @@ std::map<std::string, FitParam> prepareFitParamsForTrends()
 {
     auto params = prepareParamsFull();
     // special cases (in particular, param ID not important)
-    // params.emplace("amplBkgScaled", FitParam(99, "z*A_{bkg}", 1.0, true, {}, {0., 5.}, {-40., 40.}));
+    // params.emplace("amplBkgScaled", FitParam(99, "#font[12]{z*A_{#font[122]{bkg}}}", 1.0, true, {}, {0., 5.}, {-40., 40.}));
     params.emplace("MinFcn", FitParam(99, "MinFcn / ndf", 1.0, false, {}, {0., 7.}, {-60., 60.}));
 
     return params;
