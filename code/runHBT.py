@@ -321,7 +321,7 @@ def setEnvironmentBEC():
         os.environ['BEC_BATCH_MAXTIME'] = '86000'  # in secs
         os.environ['BEC_BATCH_TMPDIR'] = 'TMPDIR'
         os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'condor_submit'
-        print("BEC environment set for user: bmalecki (lxplus)\n")
+        print("BEC environment set for user: " + os.getenv('USER') + " (lxplus)\n")
         return True
     elif currentHost == "plgrid":
         os.environ['BEC_SETUP_SCRIPT'] = os.environ['BEC_BASE']+'/setupBEC.sh'
@@ -331,7 +331,7 @@ def setEnvironmentBEC():
         os.environ['BEC_BATCH_SYSTEM_COMMAND'] = 'sbatch -p ' + \
             os.getenv('BEC_BATCH_QUEUE') + ' -t ' + \
             os.getenv('BEC_BATCH_MAXTIME')
-        print("BEC environment set for user: plgbmalecki (PLGrid)\n")
+        print("BEC environment set for user: " + os.getenv('USER') + " (PLGrid)\n")
         return True
     else:
         return False
@@ -1269,7 +1269,7 @@ def runScanPionId(outputFolderName="pionIdScan"):
         os.chdir(outputDirPath)
         recreateAndChangeDir(aJob['outputFolder'])
 
-        os.system('lb-conda default python ' +
+        os.system(f'{os.getenv("MY_PYTHON_SETUP")} ' +
                   f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/selection/scan.py "{aJob["fileName"]}" "{aJob["fileNamePlots"]}" {aJob["ignoreBinMultLower"]} {aJob["ignoreBinMultUpper"]} >> {outputFolderName}.log')
 
 
@@ -1397,7 +1397,7 @@ def runSystematics(outputFolderName="systematics"):
         os.chdir(outputDirPath)
         recreateAndChangeDir(aJob['outputFolder'])
 
-        os.system('lb-conda default python ' +
+        os.system(f'{os.getenv("MY_PYTHON_SETUP")} ' +
                   f'{os.getenv("BEC_BASE_CODE_SCRIPTS")}/results/systematics.py "{aJob["fileName"]}" "{aJob["hBaseName"]}" "{aJob["hNameCommonEndForMult"]}" "{aJob["fName"]}" "{aJob["dataLabel"]}" >> {outputFolderName}.log')
 
 
@@ -1478,8 +1478,7 @@ def runAll():
 
 ####################################################
 
-# setup local job environment
-
+# setup local job workspace
 
 if not setEnvironmentBEC():
     print("BEC environment not set -> exiting.\n")
@@ -1487,5 +1486,5 @@ if not setEnvironmentBEC():
 
 os.environ['MYDIR'] = os.getenv('PWD')
 mkdirIfNotExists(os.getenv('MYDIR') + "/output")
-print("Setup local BEC job environment in directory:\n{0}\n".format(
+print("Setup local BEC job workspace in directory:\n{0}\n".format(
     os.getenv('MYDIR')))

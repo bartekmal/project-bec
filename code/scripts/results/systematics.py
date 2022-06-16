@@ -27,13 +27,13 @@ ROOT.gROOT.SetBatch(True)
 
 # Own C++ includes
 ROOT.gInterpreter.ProcessLine(
-    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/HBTAnalysis/SelectionClass.hpp"')
+    '#include "' + os.getenv('BEC_BASE_CODE_HBT') + '/SelectionClass.hpp"')
 ROOT.gInterpreter.ProcessLine(
-    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/HBTAnalysis/Utils.hpp"')
+    '#include "' + os.getenv('BEC_BASE_CODE_HBT') + '/Utils.hpp"')
 ROOT.gInterpreter.ProcessLine(
-    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/utils/Styles.hpp"')
+    '#include "' + os.getenv('BEC_BASE_CODE') + '/utils/Styles.hpp"')
 ROOT.gInterpreter.ProcessLine(
-    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/scripts/fitModel.C"')
+    '#include "' + os.getenv('BEC_BASE_CODE_SCRIPTS') + '/fitModel.C"')
 
 __author__ = 'Bartosz Malecki'
 __email__ = 'bartosz.piotr.malecki@cern.ch'
@@ -94,7 +94,7 @@ keyMainResult = 'main'
 keyTotalSystError = 'syst'
 keyStatError = 'stat'
 
-basePath = '/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb'
+basePath = os.getenv('BEC_BASE')
 
 listOfJobs = {
     # main result

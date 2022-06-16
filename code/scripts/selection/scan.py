@@ -26,11 +26,11 @@ ROOT.gROOT.SetBatch(True)
 
 # Own C++ includes
 ROOT.gInterpreter.ProcessLine(
-    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/HBTAnalysis/SelectionClass.hpp"')
+    '#include "' + os.getenv('BEC_BASE_CODE_HBT') + '/SelectionClass.hpp"')
 ROOT.gInterpreter.ProcessLine(
-    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/HBTAnalysis/Utils.hpp"')
+    '#include "' + os.getenv('BEC_BASE_CODE_HBT') + '/Utils.hpp"')
 ROOT.gInterpreter.ProcessLine(
-    '#include "/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/code/utils/Styles.hpp"')
+    '#include "' + os.getenv('BEC_BASE_CODE') + '/utils/Styles.hpp"')
 
 __author__ = 'Bartosz Malecki'
 __email__ = 'bartosz.piotr.malecki@cern.ch'
@@ -74,11 +74,11 @@ pidNumbers = {
 binZeroInMCIDHists = 10001
 
 # full list of available jobs
-basePath = '/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/analysis/studies/pionIdScan'
+basePath = os.getenv('BEC_BASE_ANALYSIS') + '/studies/pionIdScan'
 listOfCuts = ['0.30', '0.35', '0.40', '0.45', '0.50',
               '0.55', '0.60', '0.65', '0.70', '0.75', '0.80']
 # # TODO (manual) replace for a ProbNN(ghost) scan
-# basePath = '/afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/analysis/studies/ghostScan'
+# basePath = os.getenv('BEC_BASE_ANALYSIS') + '/studies/ghostScan'
 # listOfCuts = ['0.25', '0.50']
 listOfJobs = {cutValue: os.path.join(
     basePath, cutValue.replace('.', 'c')) for cutValue in listOfCuts}
