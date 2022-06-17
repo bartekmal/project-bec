@@ -1,3 +1,6 @@
-[submodule "GaussDev_v49r10"]
-	path = GaussDev_v49r10
-	url = ./GaussDev_v49r10
+[submodule "software/DaVinci"]
+	path = software/DaVinci
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/DaVinci.git
+[submodule "software/utils/Alexandria"]
+	path = software/utils/Alexandria
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/Alexandria.git

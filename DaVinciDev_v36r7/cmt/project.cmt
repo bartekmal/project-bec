@@ -1,9 +1,0 @@
-project DaVinciDev_v36r7
-
-use DAVINCI DAVINCI_v36r7
-
-build_strategy with_installarea
-setup_strategy root
-structure_strategy without_version_directory
-
-container DaVinciDevSys
