@@ -1,11 +1,5 @@
-# analysis files
-analysis/
-
-# software
-software/
-
-#editor files
-.vscode/
+# project folders
+production/EPOS/epos*
 
 #
 *.exe
@@ -14,9 +8,6 @@ software/
 #output
 *.root
 *.log
-
-#MC production
-production/EPOS/epos*
 
 #backup files
 */.*

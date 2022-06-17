@@ -9,6 +9,9 @@
 #ifndef STYLES_H
 #define STYLES_H
 
+#include <cstdlib>
+#include <string>
+
 // ---------- templates -----------//
 
 // style modifications
@@ -296,7 +299,7 @@ inline void HBT::Styles::setStyleDefault()
 inline void HBT::Styles::setStyleLhcb()
 {
       gStyle->Reset();
-      gROOT->ProcessLine(".x /afs/cern.ch/work/b/bmalecki/analysis/BEC_pPb/software/utils/Alexandria/RootTools/LHCbStyle/src/lhcbStyle.C");
+      gROOT->ProcessLine(std::string(".x " + std::string(std::getenv("BEC_BASE_SOFTWARE")) + "/utils/Alexandria/RootTools/LHCbStyle/src/lhcbStyle.C").c_str());
 }
 
 inline void HBT::Styles::setStyleSlides()
