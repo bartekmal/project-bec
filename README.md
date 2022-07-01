@@ -29,13 +29,13 @@ The data is stored in the IFT WG area on EOS:
 * LHCb environment (lb-* scripts / Python3 / ROOT / CVMFS)
 * CERN EOS access
 
-**The setup described below should work 'out of the box' (currently) only on lxplus. The repository must be somewhere in the user `/afs/cern.ch/work` area. This can be improved/adapted in the setup script `setupBEC.sh`.**
+**The setup described in [quick start](https://gitlab.cern.ch/BEC/BEC_pPb#quick-start) should work 'out of the box' (currently) only on lxplus. The repository must be somewhere in the user `/afs/cern.ch/work` area. This can be improved/adapted in the setup script `setupBEC.sh`.**
 
 # Quick start
 
 To initialise the repository and set up the environment:
 ```
-git clone --recurse-submodules ssh://git@gitlab.cern.ch:7999/BEC/BEC_pPb.git
+git clone --recurse-submodules ssh://git@gitlab.cern.ch:7999/lhcb-ift/BEC_pPb.git
 cd BEC_pPb
 source setupBEC.sh
 ```
