@@ -350,7 +350,7 @@ inline std::vector<HBT::Histograms::HistDef> HBT::Histograms::CreateHistogramSer
   //hSet.push_back( HistDef( HBT::Units::TH1FloatType( std::string("h"+setHeader+"15" + "_" + strMultiplicity + "_" + strKt).c_str(),"chi2BestPV", 100, 0.0, 1.0), (HBT::Units::FloatType*) chi2BestPV ) );
   //hSet.push_back( HistDef( HBT::Units::TH1FloatType( std::string("h"+setHeader+"16" + "_" + strMultiplicity + "_" + strKt).c_str(),"e", 100, 0.0, 100.0), (HBT::Units::FloatType*) e ) );
   hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "17" + "_" + strMultiplicity + "_" + strKt).c_str(), "p", 100, 0.0, 100.0), (HBT::Units::FloatType *)p));
-  hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "18" + "_" + strMultiplicity + "_" + strKt).c_str(), "pt", 100, 0.0, 10.0), (HBT::Units::FloatType *)pt));
+  hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "18" + "_" + strMultiplicity + "_" + strKt).c_str(), "pt", 100, 0.0, 3.0), (HBT::Units::FloatType *)pt));
   hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "19" + "_" + strMultiplicity + "_" + strKt).c_str(), "phi [rad]", 100, -HBT::Units::Pi, HBT::Units::Pi), (HBT::Units::FloatType *)phi));
   hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "20" + "_" + strMultiplicity + "_" + strKt).c_str(), "theta", 100, 0.0, 0.5), (HBT::Units::FloatType *)theta));
   hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "21" + "_" + strMultiplicity + "_" + strKt).c_str(), "rapidity", 200, -1000.0, 1000.0), (HBT::Units::FloatType *)rapidity));
