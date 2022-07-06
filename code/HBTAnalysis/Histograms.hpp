@@ -300,7 +300,7 @@ inline std::vector<HBT::Histograms::HistDef> HBT::Histograms::CreateHistogramSer
 
   std::vector<HistDef> hSet;
 
-  hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "0").c_str(), "trkMult", 200, 0.0, 200.0), &multPreSel));
+  hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "0").c_str(), "trkMult", 200, 0.0, 200.0), &multNoPreSel));
   hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "1").c_str(), "PVMult1", 150, 0.0, 150.0), &PVMult1));
   hSet.push_back(HistDef(HBT::Units::TH1FloatType(std::string("h" + setHeader + "2").c_str(), "SPDhits", 65, 0.0, 650.0), &SPDhits));
 
