@@ -290,6 +290,9 @@ inline void HBT::Histograms::FillHistogramSeries2000(std::vector<HBT::Units::TH2
   histogramSet[6].Fill(pair.m_deltaRapidity_LAB, pair.m_Q_LAB);
   histogramSet[7].Fill(pair.m_deltaRapidity_LAB, pair.m_kt);
   histogramSet[8].Fill(pair.m_deltaPhi_LAB, pair.m_deltaRapidity_LAB);
+
+  histogramSet[9].Fill(pair.m_pt1, pair.m_Q_LAB);
+  histogramSet[9].Fill(pair.m_pt2, pair.m_Q_LAB);
 }
 
 inline std::vector<HBT::Histograms::HistDef> HBT::Histograms::CreateHistogramSeries100(std::string setHeader)
@@ -479,6 +482,8 @@ inline std::vector<HBT::Units::TH2FloatType> HBT::Histograms::CreateHistogramSer
   hSet.push_back(HBT::Units::TH2FloatType(std::string("h" + setHeader + "07" + "_" + "0" + "_" + "0").c_str(), std::string("k_{T} vs #Deltay" + tmpPairType + "; #Deltay; k_{T} [GeV]").c_str(), histogram2DBinning, 0.0, 5.0, histogram2DBinning, 0., averagePairTransverseMomentumMax));
 
   hSet.push_back(HBT::Units::TH2FloatType(std::string("h" + setHeader + "08" + "_" + "0" + "_" + "0").c_str(), std::string("#Delta#phi vs  #Deltay" + tmpPairType + "; #Deltay; #Delta#phi [rad]").c_str(), histogram2DBinning, 0.0, 3.0, histogram2DBinning, 0., HBT::Units::Pi));
+
+  hSet.push_back(HBT::Units::TH2FloatType(std::string("h" + setHeader + "09" + "_" + "0" + "_" + "0").c_str(), std::string("Q vs p_{T}" + tmpPairType + "; p_{T} [GeV]; Q [GeV]").c_str(), histogram2DBinning, 0., 3., histogram2DBinning, qRangeMin, qRangeMax));
 
   return hSet;
 }
