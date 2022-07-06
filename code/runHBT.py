@@ -252,14 +252,14 @@ histogramsToDraw = [
 
 # ! keep an eye on the bin width in y-axis title
 histogramsSlopes = [
-    {'name': 'h3053', 'refName': 'h3053', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}};Entries / (0.01 #times 10^{-3})'},
+    # {'name': 'h3053', 'refName': 'h3053', 'flagRefInput': 'custom', 'nameEnd': '',
+    #  'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}};Entries / (0.01 #times 10^{-3})'},
     {'name': 'h3053_restrictedQ', 'refName': 'h3053_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}};Entries / (0.01 #times 10^{-3})'},
-    {'name': 'h3054', 'refName': 'h3054', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}};Entries / (0.01 #times 10^{-3})'},
+     'dim': '1D', 'type': 'std', 'flagBins': 1, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{x}};Entries / (0.01 #times 10^{-3})'},
+    # {'name': 'h3054', 'refName': 'h3054', 'flagRefInput': 'custom', 'nameEnd': '',
+    #  'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}};Entries / (0.01 #times 10^{-3})'},
     {'name': 'h3054_restrictedQ', 'refName': 'h3054_restrictedQ', 'flagRefInput': 'custom', 'nameEnd': '',
-     'dim': '1D', 'type': 'std', 'flagBins': 0, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}};Entries / (0.01 #times 10^{-3})'},
+     'dim': '1D', 'type': 'std', 'flagBins': 1, 'isHistFullName': False, 'title': ';#Delta#font[12]{t_{y}};Entries / (0.01 #times 10^{-3})'},
 ]
 
 ######### end of configuration ############
