@@ -105,7 +105,7 @@ TH1D *makeIntegratedCopy(const TH1D *hSrc)
     return h;
 }
 
-void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBase, const TString &inputFileRef, const TString &hRefNameBase, const TString &hMainNameEnd, const int &nrBinsMult, const int &nrBinsKt, const TString &dataTypeMain, const TString &dataTypeRef, const bool &isHist1D, const bool &flagNormalisation, const bool &flagIntegration, const bool &isHistFullName, const TString &histTitle, const unsigned int &flagStyle)
+void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBase, const TString &inputFileRef, const TString &hRefNameBase, const TString &hMainNameEnd, const int &nrBinsMult, const int &nrBinsKt, const TString &dataTypeMain, const TString &dataTypeRef, const bool &isHist1D, const bool &flagNormalisation, const bool &flagIntegration, const bool &isHistFullName, const bool logScaleX, const bool logScaleY, const TString &histTitle, const unsigned int &flagStyle)
 {
     // set ROOT style
     setStyleLocal(flagStyle);
@@ -120,7 +120,9 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                                                                            : TString("kT");
     const TString histMode = flagNormalisation ? TString("norm") : flagIntegration ? TString("integrated")
                                                                                    : TString("std");
-    const TString title = hMainNameBase + "_" + histMode + "_" + binsType;
+    const TString scaleType = logScaleX && logScaleY ? TString("loglog") : logScaleX ? TString("xlog") : logScaleY ? TString("ylog") : TString("");
+
+    const TString title = hMainNameBase + "_" + histMode + "_" + binsType + (logScaleX || logScaleY ? "_" + scaleType : "");
 
     // check if reference histogram is given (based on this setting, the relevant file / hist will be drawn, if available)
     const bool drawRef = !(!hRefNameBase.CompareTo(""));
@@ -131,6 +133,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
     const int canvasSizeHeight = HBT::Styles::defaultCanvasSizeY;
     const int canvasSizeWidth = isMultBinsOnly ? HBT::Styles::defaultCanvasSizeX * scaleFactorDueToMargins : nrBinsKtForLoops * HBT::Styles::defaultCanvasSizeX * scaleFactorDueToMargins;
     TCanvas *tc = new TCanvas(title, title, canvasSizeWidth, canvasSizeHeight);
+
     const TString plotFile = title + ".pdf";
     tc->SaveAs(plotFile + "[");
 
@@ -149,7 +152,13 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
         for (int j = 0; j < nrBinsKtForLoops; ++j)
         {
             // prepare pads
-            tc->cd(j + 1);
+            auto pad = tc->cd(j + 1);
+
+            if(logScaleX)
+                pad->SetLogx();
+            if(logScaleY)
+                pad->SetLogy();
+
             gPad->Draw();
             auto *tl = new TLegend(0.60, 0.55, 0.825, 0.75);
 
@@ -169,6 +178,8 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                 hMain = flagNormalisation ? makeNormalisedCopy(hMain) : flagIntegration ? makeIntegratedCopy(hMain)
                                                                                         : hMain;
 
+                if(logScaleY && hMain->GetMinimum() <= 0) hMain->SetMinimum(1);
+
                 drawHistogram1D(hMain, HBT::Styles::getColorPrimary());
                 tl->AddEntry(hMain, HBT::Utils::dataTypeAsString(dataTypeMain).c_str(), "pe");
 
@@ -185,7 +196,16 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                     tl->AddEntry(hRef, dataTypeRef, "pe");
 
                     // set the Y-axis range properly (main hist is drawn first)
-                    hMain->GetYaxis()->SetRangeUser(0, 1.1 * std::max(hMain->GetMaximum(), hRef->GetMaximum()));
+
+                    if(logScaleY) { //main plot minimum already set above
+                        auto mi = std::min(hMain->GetMinimum(), hRef->GetMinimum());
+                        auto ma = std::max(hMain->GetMaximum(), hRef->GetMaximum());
+
+                        hMain->GetYaxis()->SetRangeUser(mi > 0 ? 0.9 * mi : 1, 1.1 * ma);
+                        hRef->GetYaxis()->SetRangeUser(mi > 0 ? 0.9 * mi : 1, 1.1 * ma);
+                    }
+                    else
+                        hMain->GetYaxis()->SetRangeUser(0, 1.1 * std::max(hMain->GetMaximum(), hRef->GetMaximum()));
 
                     // do not show stats if histograms are compared
                     hMain->SetStats(0);
@@ -235,7 +255,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
     }
 }
 
-void drawHistograms(const TString inputFile, const TString hMainNameBase, const TString inputFileRef, const TString hRefNameBase, TString hMainNameEnd, const TString dataTypeMain, const TString dataTypeRef, const bool isHist1D, const bool flagNormalisation, const bool flagIntegration, const int flagBins, const bool isHistFullName, const TString &histTitle = "", const unsigned int &flagStyle = HBT::Styles::defaultStyleFlag)
+void drawHistograms(const TString inputFile, const TString hMainNameBase, const TString inputFileRef, const TString hRefNameBase, TString hMainNameEnd, const TString dataTypeMain, const TString dataTypeRef, const bool isHist1D, const bool flagNormalisation, const bool flagIntegration, const int flagBins, const bool isHistFullName, const bool logScaleX = false, const bool logScaleY = false, const TString &histTitle = "", const unsigned int &flagStyle = HBT::Styles::defaultStyleFlag)
 {
     // sanitise the flag for bins
     assert(flagBins >= 0 && flagBins <= 2);
@@ -249,11 +269,11 @@ void drawHistograms(const TString inputFile, const TString hMainNameBase, const 
 
     // call for no bins
     if (flagBins == 0)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, 0, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, histTitle, flagStyle);
+        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, 0, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, logScaleX, logScaleY, histTitle, flagStyle);
     // call for mult bins only
     if (flagBins == 1)
-        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, histTitle, flagStyle);
+        drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMult, 0, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, logScaleX, logScaleY, histTitle, flagStyle);
     // call for mult + kT bins
     // if (flagBins == 2)
-    //     drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, histTitle, flagStyle);
+    //     drawHistogramsGeneric(inputFile, hMainNameBase, inputFileRef, hRefNameBase, hMainNameEnd, nrBinsMultForKt, nrBinsKt, dataTypeMain, dataTypeRef, isHist1D, flagNormalisation, flagIntegration, isHistFullName, logScaleX, logScaleY, histTitle, flagStyle);
 }
