@@ -151,7 +151,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // prepare pads
             tc->cd(j + 1);
             gPad->Draw();
-            auto *tl = new TLegend(0.60, 0.55, 0.825, 0.75);
+            auto *tl = new TLegend(0.60 + 0.025, 0.55 + 0.05, 0.825 + 0.025, 0.75 + 0.05);
 
             TString hMainName = isHistFullName ? hMainNameBase : HBT::Utils::getHistogramName(hMainNameBase, hMainNameEnd, !isNoBins, !isMultBinsOnly, i, j);
 
@@ -170,7 +170,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                                                                                         : hMain;
 
                 drawHistogram1D(hMain, HBT::Styles::getColorPrimary());
-                tl->AddEntry(hMain, HBT::Utils::dataTypeAsString(dataTypeMain).c_str(), "pe");
+                tl->AddEntry(hMain, "signal", "pe");
 
                 // draw the ref hist if available (and add proper descriptions)
                 if (fInRef)
@@ -182,7 +182,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
                                                                                           : hRef;
 
                     drawHistogram1D(hRef, HBT::Styles::getColorEmphasize(), HBT::Styles::getMarker(1));
-                    tl->AddEntry(hRef, dataTypeRef, "pe");
+                    tl->AddEntry(hRef, "reference", "pe");
 
                     // set the Y-axis range properly (main hist is drawn first)
                     hMain->GetYaxis()->SetRangeUser(0, 1.1 * std::max(hMain->GetMaximum(), hRef->GetMaximum()));
@@ -203,7 +203,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             // arrow->DrawArrow(-160.0, 1e7, -160.0, 0.0);
 
             // add LHCb label
-            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05, 0.325, 0.87, 0.95);
+            auto lhcbLabel = HBT::Styles::makeLhcbLabel(0.05 + 0.375, 0.325 + 0.375, 0.87, 0.95);
             HBT::Utils::addMultilineText("LHCb preliminary;#font[12]{#sqrt{s_{#font[122]{NN}}}} = 5.02 TeV", lhcbLabel);
             lhcbLabel->Draw();
             tc->Update();
@@ -212,7 +212,7 @@ void drawHistogramsGeneric(const TString &inputFile, const TString &hMainNameBas
             tl->Draw("SAME");
 
             // add description
-            printDescription(!isNoBins, !isMultBinsOnly, i, j);
+            // printDescription(!isNoBins, !isMultBinsOnly, i, j);
         }
 
         // plot each mult bin on a different page
