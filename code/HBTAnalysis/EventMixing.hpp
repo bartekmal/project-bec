@@ -117,7 +117,7 @@ inline void HBT::EventMixing::configureEventMixing()
 
   m_zPvClassMin = -200.0;
   m_zPvClassMax = 200.0;
-  m_zPvClassWidth = 5.0;
+  m_zPvClassWidth = 10.0;
   m_zPvClassNrOfBins = getNrOfBins(m_zPvClassMax, m_zPvClassMin, m_zPvClassWidth);
 
   m_maxExpectedNumberOfSelectedPionsPerEvent = 200;
