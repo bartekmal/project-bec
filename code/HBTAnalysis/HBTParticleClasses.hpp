@@ -120,10 +120,12 @@ namespace HBT
     int m_hasGhost{};
     HBT::Units::FloatType m_invariantMass{};
     HBT::Units::FloatType m_chargedParticleMultiplicity{};
+    HBT::Units::FloatType m_chargedParticleMultiplicityPart2ForMonitoring{};
     HBT::Units::FloatType m_kt{};
     HBT::Units::FloatType m_slopeDiffX{};
     HBT::Units::FloatType m_slopeDiffY{};
     HBT::Units::FloatType m_zPv{};
+    HBT::Units::FloatType m_zPvPart2ForMonitoring{};
 
     HBT::Units::FloatType m_Q_LAB{};
     HBT::Units::FloatType m_deltaPhi_LAB{};
@@ -159,10 +161,12 @@ namespace HBT
                                                                            m_hasGhost(((part1.m_MCID == 0 && !part1.m_isClone) || (part2.m_MCID == 0 && !part2.m_isClone)) ? 1 : 0),
                                                                            m_invariantMass(calculateInvariantMass(part1, part2)),
                                                                            m_chargedParticleMultiplicity(part1.m_chargedParticleMultiplicity),
+                                                                           m_chargedParticleMultiplicityPart2ForMonitoring(part2.m_chargedParticleMultiplicity),
                                                                            m_kt(calculateAveragePairTransverseMomentum(part1, part2)),
                                                                            m_slopeDiffX(getSlopeDifferenceX(part1, part2)),
                                                                            m_slopeDiffY(getSlopeDifferenceY(part1, part2)),
-                                                                           m_zPv(part1.m_zBestPV)
+                                                                           m_zPv(part1.m_zBestPV),
+                                                                           m_zPvPart2ForMonitoring(part2.m_zBestPV)
     {
       buildLAB(part1, part2);
       buildLCMS(part1, part2);

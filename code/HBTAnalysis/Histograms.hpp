@@ -266,6 +266,13 @@ inline void HBT::Histograms::FillHistogramSetWithParticlePairLevelInfo(std::vect
       }
     }
   }
+
+  // general pair variables control tools
+  histogramSet[23].Fill(pair.m_chargedParticleMultiplicity);
+  histogramSet[23].Fill(pair.m_chargedParticleMultiplicityPart2ForMonitoring);
+  histogramSet[24].Fill(pair.m_zPv);
+  histogramSet[24].Fill(pair.m_zPvPart2ForMonitoring);
+
 }
 
 inline void HBT::Histograms::FillHistogramSeries200(std::vector<HBT::Units::TH2FloatType> &histogramSet)
@@ -509,7 +516,7 @@ inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSer
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "02" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("pair charged particle multiplicity" + tmpPairType + ";N_{ch}; dN/d(N_{ch})").c_str(), chargedParticleMultiplicityMax, 0.0, chargedParticleMultiplicityMax));
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "03" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("average pair transverse momentum" + tmpPairType + ";k_{T} [GeV]; dN/d(k_{T})").c_str(), 100, 0.0, averagePairTransverseMomentumMax));
 
-  hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "04" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("z_{PV}" + tmpPairType + ";z_{PV} [mm]; dN/d(z_{PV})").c_str(), 100, -200.0, 200.0));
+  hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "04" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("z_{PV}" + tmpPairType + ";z_{PV} [mm]; dN/d(z_{PV})").c_str(), 400, -200.0, 200.0));
 
   //h3x10 - h3x19
   //Q distributions in LAB frame (different binnings; extended Q range)
@@ -550,6 +557,10 @@ inline std::vector<HBT::Units::TH1FloatType> HBT::Histograms::CreateHistogramSer
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "55" + "_" + strMultiplicity + "_" + strKt + "_" + "400").c_str(), std::string("Q_LAB (hasClone)" + tmpPairType + ";Q [GeV]; dN/dQ").c_str(), qBinning, qRangeMin, qRangeMax));
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "56" + "_" + strMultiplicity + "_" + strKt + "_" + "400").c_str(), std::string("Q_LAB (hasGhost)" + tmpPairType + ";Q [GeV]; dN/dQ").c_str(), qBinning, qRangeMin, qRangeMax));
   hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "57" + "_" + strMultiplicity + "_" + strKt + "_" + "400").c_str(), std::string("Q_LAB (hasClone/hasGhost)" + tmpPairType + ";Q [GeV]; dN/dQ").c_str(), qBinning, qRangeMin, qRangeMax));
+
+  // general pair variables control tools
+  hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "02_both" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("pair charged particle multiplicity (both particles)" + tmpPairType + ";N_{ch}; dN/d(N_{ch})").c_str(), chargedParticleMultiplicityMax, 0.0, chargedParticleMultiplicityMax));
+  hSet.push_back(HBT::Units::TH1FloatType(std::string("h" + setHeader + "04_both" + "_" + strMultiplicity + "_" + strKt).c_str(), std::string("z_{PV} (both particles)" + tmpPairType + ";z_{PV} [mm]; dN/d(z_{PV})").c_str(), 400, -200.0, 200.0));
 
   return hSet;
 }
