@@ -140,8 +140,6 @@ namespace HBT
     //methods
     //assign particle MCID to a pair if both partcles have same MCID (fabs); otherwise assign '0'
     int assignPairMCID(const HBT::Particle &part1, const HBT::Particle &part2);
-    HBT::Units::FloatType assignPairChargedParticleMultiplicity(const HBT::Particle &part1, const HBT::Particle &part2);
-    HBT::Units::FloatType assignPairZPv(const HBT::Particle &part1, const HBT::Particle &part2);
     HBT::Units::FloatType calculateInvariantMass(const HBT::Particle &part1, const HBT::Particle &part2);
     HBT::Units::FloatType calculateAveragePairTransverseMomentum(const HBT::Particle &part1, const HBT::Particle &part2);
     inline HBT::Units::FloatType getSlopeDifferenceX(const HBT::Particle &p1, const HBT::Particle &p2);
@@ -160,11 +158,11 @@ namespace HBT
                                                                            m_hasClone(((part1.m_MCID == 0 && part1.m_isClone) || (part2.m_MCID == 0 && part2.m_isClone)) ? 1 : 0),
                                                                            m_hasGhost(((part1.m_MCID == 0 && !part1.m_isClone) || (part2.m_MCID == 0 && !part2.m_isClone)) ? 1 : 0),
                                                                            m_invariantMass(calculateInvariantMass(part1, part2)),
-                                                                           m_chargedParticleMultiplicity(assignPairChargedParticleMultiplicity(part1, part2)),
+                                                                           m_chargedParticleMultiplicity(part1.m_chargedParticleMultiplicity),
                                                                            m_kt(calculateAveragePairTransverseMomentum(part1, part2)),
                                                                            m_slopeDiffX(getSlopeDifferenceX(part1, part2)),
                                                                            m_slopeDiffY(getSlopeDifferenceY(part1, part2)),
-                                                                           m_zPv(assignPairZPv(part1, part2))
+                                                                           m_zPv(part1.m_zBestPV)
     {
       buildLAB(part1, part2);
       buildLCMS(part1, part2);
@@ -223,18 +221,6 @@ inline int HBT::ParticlePair::assignPairMCID(const HBT::Particle &part1, const H
   {
     return abs(part1.m_MCID);
   }
-}
-
-inline HBT::Units::FloatType HBT::ParticlePair::assignPairChargedParticleMultiplicity(const HBT::Particle &part1, const HBT::Particle &part2)
-{
-  // ! use average value
-  return (part1.m_chargedParticleMultiplicity + part2.m_chargedParticleMultiplicity) / 2.;
-}
-
-inline HBT::Units::FloatType HBT::ParticlePair::assignPairZPv(const HBT::Particle &part1, const HBT::Particle &part2)
-{
-  // ! use average value
-  return (part1.m_zBestPV + part2.m_zBestPV) / 2.;
 }
 
 inline HBT::Units::FloatType HBT::ParticlePair::calculateInvariantMass(const HBT::Particle &part1, const HBT::Particle &part2)
