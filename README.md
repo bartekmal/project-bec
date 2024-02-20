@@ -25,7 +25,7 @@ Results of this analysis are [published](https://doi.org/10.1007/JHEP09(2023)172
 * LHCb environment (lb-* scripts / Python3 / ROOT / CVMFS)
 * CERN EOS access
 
-**The setup described in [quick start](https://gitlab.cern.ch/BEC/BEC_pPb#quick-start) should work 'out of the box' (currently) only on lxplus. The repository must be somewhere in the user `/afs/cern.ch/work` area. This can be improved/adapted in the setup script `setupBEC.sh`.**
+**The setup described in [quick start](#quick-start) should work 'out of the box' (currently) only on lxplus. The repository must be somewhere in the user `/afs/cern.ch/work` area. This can be improved/adapted in the setup script `setupBEC.sh`.**
 
 # Quick start
 
