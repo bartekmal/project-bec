@@ -1,9 +1,7 @@
 # General info
-This is a project for analysis of Bose-Einstein correlations in pPb collisions (https://twiki.cern.ch/twiki/bin/viewauth/LHCbPhysics/BECpPb5TeV).
+This is a project for analyzing data from the LHCb experiment at the Large Hadron Collider. It focuses on studying so-called Bose-Einstein correlations in proton-lead collisions. The data is stored in a dedicated working group area on the CERN EOS file system.
 
-## Data samples
-The data is stored in the IFT WG area on EOS:
-/eos/lhcb/wg/IonPhysics/analyses/bec_pPb_2013.
+Results of this analysis are [published](https://doi.org/10.1007/JHEP09(2023)172). Technical documentation is available in this [PhD thesis](https://cds.cern.ch/record/2804165).
 
 ## Submodules
 * DaVinci for ntuple production (https://gitlab.cern.ch/lhcb/DaVinci/-/tree/phys-hbtCorrelations)
@@ -12,8 +10,6 @@ The data is stored in the IFT WG area on EOS:
 
 ## Directories
 
-* `production`: scripts for running local MC productions
-* `PIDCalib`: PIDCalib scripts
 * `software`: software 'external' to the analysis code (e.g. LHCb packages)
     * `software/DaVinci`: DaVinci used for ntuple production from DST files
 * `code`: analysis-specific code
@@ -33,9 +29,9 @@ The data is stored in the IFT WG area on EOS:
 
 # Quick start
 
-To initialise the repository and set up the environment:
+To initialize the repository and set up the environment:
 ```
-git clone --recurse-submodules ssh://git@gitlab.cern.ch:7999/lhcb-ift/BEC_pPb.git
+git clone --recurse-submodules https://github.com/bartekmal/project-bec.git
 cd BEC_pPb
 source setupBEC.sh
 ```
@@ -64,13 +60,13 @@ will produce a set of results in the `output` area.
 
 ## `code/runHBT.py` (~analysis pipeline)
 
-**This script serves as a poor `Make-like` file. It is copied to any new study folder while creating a study by `bec-make-study`, which enables local configuration.**
+**This script serves as a `Make-like` file. It is copied to any new study folder while creating a study by `bec-make-study`, which enables local configuration.**
 
 * defines steps in the analysis pipeline for an individual study (see `run*()`)
-* tries to emulate `Make-like` behaviour by running the full pipeline starting from a given step (see `run*Downstream()`)
-* also defines steps that require input from many individual studies (systematics / final 'discussion' / xchecks / selection optimisation scans)
+* tries to emulate `Make-like` behavior by running the full pipeline starting from a given step (see `run*Downstream()`)
+* also defines steps that require input from many individual studies (systematics / final 'discussion' / xchecks / selection optimization scans)
 
-**It is rather a 'dirty' code, but has a lot of configuration information related to this analysis. Please get in touch if you have troubles using it - many of the relevenat studies can be run by this at least semi-automatically.**
+**It is rather a working version, but has a lot of configuration information related to this analysis. Please get in touch if you have troubles using it - many of the relevenat studies can be run by this at least semi-automatically.**
 
 ## `code/HBTAnalysis/HBTAnalysis.cpp`
 * the 'main' file for producing ROOT histogram files from ntuples
