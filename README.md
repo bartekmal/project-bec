@@ -1,7 +1,14 @@
+Developing a complex regression model - analyzing data from the Large Hadron Collider
+===
+
+We develop a complex regression model for multivariate analysis of large datasets (40+ TB) from the Large Hadron Collider.
+
+See full [report](https://cds.cern.ch/record/2804165).
+
+Publications based on this project: https://doi.org/10.1007/JHEP09(2023)172.
+
 # General info
 This is a project for analyzing data from the LHCb experiment at the Large Hadron Collider. It focuses on studying so-called Bose-Einstein correlations in proton-lead collisions. The data is stored in a dedicated working group area on the CERN EOS file system.
-
-Results of this analysis are [published](https://doi.org/10.1007/JHEP09(2023)172). Technical documentation is available in this [PhD thesis](https://cds.cern.ch/record/2804165).
 
 ## Submodules
 * DaVinci for ntuple production (https://gitlab.cern.ch/lhcb/DaVinci/-/tree/phys-hbtCorrelations)
